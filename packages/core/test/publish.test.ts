@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { expect, it } from 'vitest';
 import { publish, type PublishIO, type PublishOptions } from '../src/publish';
+import { DEFAULT_LAUNCHER_BASE, decodeEnvelope } from '../src/launch';
 
 function memory() {
   const root = path.resolve('memory-project');
@@ -46,4 +47,28 @@ it('retries colliding IDs without replacing an existing artifact', () => {
 it('reports write failures with environment recovery', () => {
   const { io, options } = memory(); io.mkdir = () => { throw new Error('permission denied'); };
   expect(publish(input, options)).toMatchObject({ ok: false, exitCode: 2, errors: [{ code: 'ARTIFACT_WRITE_FAILED', recovery: 'fix-environment' }] });
+});
+it('returns a launcher URL whose fragment decodes to the saved artifact envelope', () => {
+  const { root, files, options } = memory();
+  const result = publish(input, options); expect(result.ok).toBe(true); if (!result.ok) return;
+  expect(Object.keys(result)).toEqual(['ok', 'id', 'artifactPath', 'stepCount', 'warnings', 'url', 'open']);
+  expect(result).toMatchObject({ stepCount: 1, warnings: [], artifactPath: `.walk-me-through/walkthroughs/${result.id}.json` });
+  expect(result.url!.startsWith(DEFAULT_LAUNCHER_BASE + '#')).toBe(true);
+  const saved = JSON.parse(files.get(path.join(root, result.artifactPath))!);
+  expect(decodeEnvelope(result.url!.slice(DEFAULT_LAUNCHER_BASE.length + 1))).toEqual({ ok: true, envelope: {
+    v: 1, root: saved.project.root, env: { kind: 'local', platform: process.platform }, id: saved.id, title: 'Title' } });
+  expect(result.open).toBe(`Open ${result.url} and choose VS Code or Rider, or run Walk Me Through: Open Walkthrough in VS Code or Rider and choose "Title" (ID ${result.id}) in the picker.`);
+  const local = publish(input, { ...options, launcherBase: 'http://localhost:8123/' });
+  expect(local.ok && local.url).toMatch(/^http:\/\/localhost:8123\/#[A-Za-z0-9_-]+$/);
+});
+it('keeps the artifact and drops the URL with a warning when the root is too long for a link', () => {
+  const { root, files, io, options } = memory();
+  const long = path.join(root, ...Array(30).fill('a'.repeat(50)));
+  files.set(path.join(long, 'source.ts'), 'const value = 1;\n');
+  const original = io.realpath; io.realpath = p => p === long ? p : original(p);
+  const result = publish(input, { ...options, root: long }); expect(result.ok).toBe(true); if (!result.ok) return;
+  expect(result).not.toHaveProperty('url');
+  expect(result.warnings).toEqual([{ code: 'launch-link-too-long', length: expect.any(Number), limit: 1536 }]);
+  expect(result.open).toContain('in the picker'); expect(result.open).toContain(result.id); expect(result.open).not.toContain('http');
+  expect(files.has(path.join(long, result.artifactPath))).toBe(true);
 });

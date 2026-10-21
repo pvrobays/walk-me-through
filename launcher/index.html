@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Walk Me Through</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+  <script src="launcher.js" defer></script>
+</head>
+<body>
+  <main>
+    <p class="brand">Walk Me Through</p>
+    <h1 id="heading">Walk Me Through</h1>
+    <p id="message">Loading the walkthrough link…</p>
+    <noscript><p class="notice">This page needs JavaScript to read the walkthrough link. Open the walkthrough with <strong>Walk Me Through: Open Walkthrough</strong> in VS Code or Rider instead.</p></noscript>
+
+    <section id="details" aria-labelledby="details-heading" hidden>
+      <h2 id="details-heading" class="visually-hidden">What will open</h2>
+      <dl>
+        <dt>Walkthrough</dt><dd id="title"></dd>
+        <dt>ID</dt><dd><code id="id"></code></dd>
+        <dt>Project</dt><dd><code id="root"></code></dd>
+        <dt id="step-label" hidden>Step</dt><dd id="step-value" hidden><code id="step"></code></dd>
+      </dl>
+    </section>
+
+    <section id="choices" aria-labelledby="choices-heading" hidden>
+      <h2 id="choices-heading" class="visually-hidden">Choose an IDE</h2>
+      <div class="choices">
+        <a id="open-vscode" class="choice" data-ide="vscode">Open in VS Code</a>
+        <a id="open-rider" class="choice" data-ide="rider">Open in Rider</a>
+      </div>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section id="help-vscode" class="help" aria-labelledby="help-vscode-heading" hidden>
+      <h2 id="help-vscode-heading">Nothing happened in VS Code?</h2>
+      <p>This page cannot tell whether VS Code or the Walk Me Through extension is installed.</p>
+      <ul>
+        <li><a id="install-vscode">Install the Walk Me Through VS Code extension</a>, then retry.</li>
+        <li>VS Code asks once whether the extension may open this link. Choose <strong>Open</strong>.</li>
+        <li>The link goes to the VS Code window you used last. Open the project folder shown above in it, then retry.</li>
+        <li>On Linux, VS Code installed from a <code>.tar.gz</code> archive does not register <code>vscode://</code> links.</li>
+      </ul>
+      <p><a id="retry-vscode" class="retry">Retry Open in VS Code</a></p>
+    </section>
+
+    <section id="help-rider" class="help" aria-labelledby="help-rider-heading" hidden>
+      <h2 id="help-rider-heading">Nothing happened in Rider?</h2>
+      <p>This page cannot tell whether Rider or the Walk Me Through plugin is installed.</p>
+      <ul>
+        <li>Rider links need <strong>JetBrains Toolbox</strong> (its <code>jetbrainsd</code> link handler) to be installed.</li>
+        <li><a id="install-rider">Install the Walk Me Through Rider plugin</a>, then retry.</li>
+        <li>Open the project shown above in Rider, then retry. If Rider was closed, it starts without opening the project.</li>
+        <li>The Rider plugin currently supports native Windows only.</li>
+      </ul>
+      <p><a id="retry-rider" class="retry">Retry Open in Rider</a></p>
+    </section>
+
+    <section id="fallback" aria-labelledby="fallback-heading" hidden>
+      <h2 id="fallback-heading">Open without the link</h2>
+      <p>In VS Code or Rider, run <strong>Walk Me Through: Open Walkthrough</strong> and choose the walkthrough with this ID.</p>
+      <p class="copy">
+        <code id="copy-text" class="selectable"></code>
+        <button id="copy-id" type="button">Copy ID</button>
+      </p>
+      <p id="copy-status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <details id="problems" hidden>
+      <summary>Technical details</summary>
+      <ul id="problem-list"></ul>
+    </details>
+  </main>
+  <footer>
+    <p>The launch data after "#" stays in your browser: this page never sends it anywhere. <a id="about">About Walk Me Through</a></p>
+  </footer>
+</body>
+</html>

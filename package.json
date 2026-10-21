@@ -14,8 +14,9 @@
     "test": "vitest run && npm run check:bundle && npm run fixtures:check && node scripts/check-workflows.mjs",
     "fixtures:generate": "node scripts/conformance.mjs --write",
     "fixtures:check": "node scripts/conformance.mjs",
-    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/skill && tsc --noEmit -p packages/vscode",
+    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/skill && tsc --noEmit -p packages/vscode && tsc --noEmit -p packages/launcher",
     "check:bundle": "node scripts/check-bundle.mjs",
+    "launcher:serve": "node scripts/serve-launcher.mjs",
     "skill:install": "node scripts/install-skill.mjs",
     "package:vsix": "npm run build && npm exec --workspace packages/vscode -- vsce package",
     "test:extension": "npm exec --workspace packages/vscode -- vscode-test"

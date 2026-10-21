@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkEnvironment } from '@walk-me-through/core/env';
 import { LIMITS } from '@walk-me-through/core/limits';
+import { parseLauncherBase } from '@walk-me-through/core/launch';
 import { publish } from '@walk-me-through/core/publish';
 import { decodeText } from '@walk-me-through/core/text';
 import type { Problem } from '@walk-me-through/core/validation';
@@ -20,11 +21,19 @@ function main(): { result: object; exitCode: number } {
   if (!environment.ok) return { result: { ok: false, errors: environment.errors }, exitCode: 2 };
   const args = process.argv.slice(2);
   let root: string | undefined;
+  let launcherBase: string | undefined;
   const usage = () => ({ result: failure('USAGE', 'Usage: publish-walkthrough.mjs <input.json> [--root <dir>]', 'Supply an input JSON file and optionally an explicit development project root, then retry after correction.'), exitCode: 2 });
   if (!args.length || args[0].startsWith('--')) return usage();
-  if (args.length !== 1) {
-    if (args.length !== 3 || args[1] !== '--root' || !args[2] || args[2].startsWith('--')) return usage();
-    root = args[2];
+  // Options after the input: --root <dir> and the development-only --launcher-url <base> (local launcher previews).
+  for (let i = 1; i < args.length; i += 2) {
+    const value = args[i + 1];
+    if (!value || value.startsWith('--')) return usage();
+    if (args[i] === '--root' && root === undefined) root = value;
+    else if (args[i] === '--launcher-url' && launcherBase === undefined) {
+      const parsed = parseLauncherBase(value);
+      if (!parsed.ok) return { result: failure('INVALID_LAUNCHER_URL', `Invalid --launcher-url ${value}: ${parsed.message}`, 'Use an https:// launcher URL, or http://localhost / http://127.0.0.1 for a local preview.'), exitCode: 2 };
+      launcherBase = parsed.base;
+    } else return usage();
   }
   const inputPath = path.resolve(args[0]);
   let bytes: Uint8Array;
@@ -39,7 +48,7 @@ function main(): { result: object; exitCode: number } {
   catch (error) { return { result: failure('INVALID_JSON', `Input is not valid UTF-8 JSON: ${String(error)}`, 'Correct the JSON syntax or UTF-8 encoding before retrying.'), exitCode: 1 }; }
   const result = publish(value, {
     scriptPath: fileURLToPath(import.meta.url), root, cwd: process.cwd(), platform: process.platform,
-    environment: environment.value, bundleVersion: '0.1.0',
+    environment: environment.value, bundleVersion: '0.1.0', launcherBase,
   });
   if (!result.ok) return { result: { ok: false, errors: result.errors }, exitCode: result.exitCode };
   return { result, exitCode: 0 };

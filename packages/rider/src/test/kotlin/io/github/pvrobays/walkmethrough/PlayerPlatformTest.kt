@@ -33,6 +33,7 @@ import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
+import com.intellij.notification.NotificationType
 
 class PlayerPlatformTest : TestCase() {
     private lateinit var myFixture: CodeInsightTestFixture
@@ -322,5 +323,128 @@ class PlayerPlatformTest : TestCase() {
             await { session.lastResolution?.reason?.startsWith("source-error:") == true }
             edt { assertNull(presenter.ownedHighlight); assertTrue(FileEditorManager.getInstance(project).openFiles.isEmpty()) }
         } finally { edt { Disposer.dispose(presenter); session.close() } }
+    }
+
+    private class Recorder : LaunchFeedback {
+        val notices = java.util.Collections.synchronizedList(mutableListOf<Triple<Project?, NotificationType, String>>())
+        override fun notify(project: Project?, type: NotificationType, message: String) { notices.add(Triple(project, type, message)) }
+    }
+    private fun envelope(root: Path, id: String, step: String? = null, platform: String = "win32", version: Int = 1): String {
+        val json = com.google.gson.JsonObject().apply {
+            addProperty("v", version); addProperty("root", root.toString())
+            add("env", com.google.gson.JsonObject().apply { addProperty("kind", "local"); addProperty("platform", platform) })
+            addProperty("id", id); step?.let { addProperty("step", it) }; addProperty("title", "<b>Forged title</b>")
+        }
+        return java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(json.toString().toByteArray(Charsets.UTF_8))
+    }
+    /** Writes `<root>/.walk-me-through/walkthroughs/<fileId>.json` holding the navigation fixture with `contentId`. */
+    private fun publishAt(root: Path, fileId: String, contentId: String = fileId, content: String? = null): Path {
+        Files.createDirectories(root.resolve("src")); Files.writeString(root.resolve("src/sample.cs"), "x")
+        val raw = conformance()["navigation"].asJsonObject["artifact"].asJsonObject.deepCopy()
+        raw.addProperty("id", contentId)
+        raw["project"].asJsonObject.addProperty("root", root.toRealPath().toString())
+        val file = root.resolve(".walk-me-through/walkthroughs/$fileId.json")
+        Files.createDirectories(file.parent); Files.writeString(file, content ?: raw.toString())
+        return file
+    }
+
+    fun testLaunchCommandValidatesMatchesAndPlaysRequestedStep() {
+        val ids = listOf("20261021T150000001Z-aaaaaa", "20261021T150000002Z-bbbbbb", "20261021T150000003Z-cccccc", "20261021T150000004Z-dddddd")
+        publishAt(directory, ids[0]); publishAt(directory, ids[1], ids[0]); publishAt(directory, ids[2], content = "{\"schemaVersion\": 2}")
+        val unrelated = Files.createTempDirectory("wmt-rider-unrelated-"); publishAt(unrelated, ids[0])
+        val session = project.getService(WalkthroughSession::class.java)
+        val recorder = Recorder()
+        fun launch(e: String?, target: String? = "open", refusal: String? = null): LaunchResult {
+            lateinit var result: LaunchResult
+            edt { result = LaunchHandling.handle(target, if (e == null) emptyMap() else mapOf("e" to e), refusal, "Windows 11", recorder, listOf(project), null) }
+            return result
+        }
+        try {
+            assertEquals("scheduled", launch(envelope(directory, ids[0])).kind)
+            await { session.active && session.artifact!!.id == ids[0] }
+            edt { assertNull(session.current); assertEquals("Conformance", session.artifact!!.title) }
+            assertEquals("scheduled", launch(envelope(directory, ids[0], "a111")).kind)
+            await { session.current?.id == "a111" }
+            assertEquals("scheduled", launch(envelope(directory, ids[0], "b")).kind)
+            await { session.current?.id == "b" }
+            assertEquals("scheduled", launch(envelope(directory, ids[0], "missing")).kind)
+            await { recorder.notices.any { it.second == NotificationType.INFORMATION && it.third.contains("\"missing\" was not found") } }
+            edt { assertTrue(session.active); assertNull(session.current) }
+            edt { session.select("a") }
+            val unchanged = { edt { assertEquals(ids[0], session.artifact!!.id); assertEquals("a", session.current!!.id) } }
+            for ((result, kind) in listOf(
+                launch(envelope(unrelated, ids[0])) to "no-match",
+                launch(envelope(directory.resolve("missing-root"), ids[0])) to "no-match",
+                launch(envelope(directory, ids[3])) to "artifact-removed",
+                launch(envelope(directory, ids[0], platform = "linux")) to "environment",
+                launch(envelope(directory, ids[0]), refusal = PlaybackEnvironment.refusal("Linux", false, false)) to "environment",
+                launch("not*valid") to "invalid-link",
+                launch(envelope(directory, ids[0]).dropLast(3)) to "invalid-link",
+                launch(envelope(directory, ids[0], version = 2)) to "newer-version",
+                launch(envelope(directory, ids[0]), target = "other") to "invalid-link",
+                launch(null) to "invalid-link",
+            )) { assertEquals(result.message, kind, result.kind); unchanged() }
+            assertEquals(PlaybackEnvironment.refusal("Linux", false, false), recorder.notices.first { it.third.contains("native Windows Rider") }.third)
+            assertTrue(recorder.notices.first { it.third.contains("is not open in Rider") }.third.contains(unrelated.toString()))
+            assertEquals(project, recorder.notices.first { it.third.contains("was removed") }.first)
+            assertNull(recorder.notices.first { it.third.contains("is not open in Rider") }.first)
+            val before = recorder.notices.size
+            assertEquals("scheduled", launch(envelope(directory, ids[1])).kind)
+            assertEquals("scheduled", launch(envelope(directory, ids[2])).kind)
+            await { recorder.notices.size >= before + 2 }
+            val errors = recorder.notices.drop(before).map { it.third }
+            assertTrue(errors.toString(), errors.any { it.contains("expected walkthrough ID ${ids[1]}") })
+            assertTrue(errors.toString(), errors.any { it.contains("schemaVersion") })
+            unchanged()
+            assertEquals("x", Files.readString(directory.resolve("src/sample.cs")))
+        } finally { edt { session.close() } }
+    }
+
+    fun testLaunchChoosesLastFocusedThenLatestOpenedMatchingProject() {
+        val inner = Files.createDirectories(directory.resolve("inner"))
+        val id = "20261021T150000005Z-eeeeee"
+        publishAt(inner, id)
+        val rdPath = Class.forName("com.jetbrains.rider.ijent.extensions.PathExtKt")
+            .getMethod("toRd", Path::class.java).invoke(null, inner) as RdPath
+        val other = runBlocking { withTimeout(120_000) {
+            requireNotNull(SolutionManager.openSolution(null, true, RdOpenSolution(RdVirtualSolution("Inner", rdPath, emptyList()), false)))
+        } }
+        try {
+            val recorder = Recorder()
+            val windows = LaunchHandling.platformOf(System.getProperty("os.name")) == "win32"
+            val root = LaunchHandling.canonical(inner.toString(), windows)!!
+            edt {
+                assertEquals(other, LaunchHandling.choose(root, listOf(project, other), null, windows))
+                assertEquals(project, LaunchHandling.choose(root, listOf(project, other), project, windows))
+                assertEquals(other, LaunchHandling.choose(root, listOf(project, other), other, windows))
+                assertNull(LaunchHandling.choose(LaunchHandling.canonical(Files.createTempDirectory("wmt-none-").toString(), windows)!!, listOf(project, other), project, windows))
+            }
+            lateinit var result: LaunchResult
+            edt { result = LaunchHandling.handle("open", mapOf("e" to envelope(inner, id)), null, "Windows 11", recorder, listOf(project, other), project) }
+            assertEquals(project, result.project)
+            await { project.getService(WalkthroughSession::class.java).active }
+            edt { assertFalse(other.getService(WalkthroughSession::class.java).active) }
+            edt { result = LaunchHandling.handle("open", mapOf("e" to envelope(inner, id, "a1")), null, "Windows 11", recorder, listOf(project, other), null) }
+            assertEquals(other, result.project)
+            await { other.getService(WalkthroughSession::class.java).current?.id == "a1" }
+        } finally {
+            edt { project.getService(WalkthroughSession::class.java).close(); if (!other.isDisposed) ProjectManagerEx.getInstanceEx().forceCloseProject(other) }
+        }
+    }
+}
+
+class LaunchPathTest {
+    @org.junit.Test fun `containment is separator bounded and Windows comparison is case-insensitive`() {
+        org.junit.Assert.assertTrue(LaunchHandling.contains("c:\\repo", "c:\\repo", true))
+        org.junit.Assert.assertTrue(LaunchHandling.contains("c:\\repo", "c:\\repo\\sub", true))
+        org.junit.Assert.assertTrue(LaunchHandling.contains("c:", "c:\\repo", true))
+        org.junit.Assert.assertFalse(LaunchHandling.contains("c:\\repo", "c:\\repo-copy", true))
+        org.junit.Assert.assertTrue(LaunchHandling.contains("/home/me", "/home/me/repo", false))
+        org.junit.Assert.assertFalse(LaunchHandling.contains("/home/me", "/home/meow", false))
+        val temp = Files.createTempDirectory("wmt-canonical-")
+        org.junit.Assert.assertEquals(LaunchHandling.canonical(temp.toString(), true), LaunchHandling.canonical(temp.toString().uppercase(), true))
+        org.junit.Assert.assertNull(LaunchHandling.canonical(temp.resolve("missing").toString(), true))
+        org.junit.Assert.assertEquals("win32", LaunchHandling.platformOf("Windows 11"))
+        org.junit.Assert.assertEquals("linux", LaunchHandling.platformOf("Linux"))
     }
 }

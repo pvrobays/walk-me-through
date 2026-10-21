@@ -3,8 +3,8 @@
   "bundleVersion": "0.1.0",
   "walkthroughSchemaVersion": 1,
   "files": {
-    "SKILL.md": "d4a1b48b6f2ef256cd7c7104e22cf23c33f9bbe35405aa821e3c7a7ae03e8c15",
-    "references/walkthrough-format.md": "911000bbf7fde6d07249648bb9d49d7619037e6ce0bb2293432ff22844492cde",
-    "scripts/publish-walkthrough.mjs": "f0e2f3d0fb4c333328a6a49e0d97766faa4ead4ae13e26b7373c7316afa022e3"
+    "SKILL.md": "d490ddec06592856aa8568242c352a79fbeaa472cf70e81975e1f4e0066cc32e",
+    "references/walkthrough-format.md": "c9a0fb400ec66ef28a8d26b694875560935e9cbda50f1037198f28349b40726a",
+    "scripts/publish-walkthrough.mjs": "57164c88ae618e760b710058a97e00d6dccc6a6f0be274167aa05c62f95a186d"
   }
 }

@@ -6,6 +6,7 @@ import { captureAnchor } from './anchor';
 import { validateArtifact, type Artifact, type Environment, type Step } from './artifact';
 import { stepId, walkthroughId } from './ids';
 import { validateInput, type InputStep } from './input';
+import { DEFAULT_LAUNCHER_BASE, LAUNCH_LIMITS, buildEnvelope, launcherUrl } from './launch';
 import { LIMITS } from './limits';
 import { resolveSelection } from './selection';
 import { decodeText } from './text';
@@ -45,10 +46,17 @@ export interface PublishOptions {
   io?: PublishIO;
   clock?: () => Date;
   makeId?: () => string;
+  /** Normalized launcher base URL (see parseLauncherBase); defaults to the public launcher. */
+  launcherBase?: string;
 }
+export type PublishWarning =
+  | { code: 'non-unique-anchor'; stepId: string; path: string }
+  | { code: 'launch-link-too-long'; length: number; limit: number };
 export interface PublishSuccess {
   ok: true; id: string; artifactPath: string; stepCount: number;
-  warnings: { code: 'non-unique-anchor'; stepId: string; path: string }[];
+  warnings: PublishWarning[];
+  /** Replayable HTTPS launcher link; omitted when the envelope exceeds the size limit. */
+  url?: string;
   open: string;
 }
 export interface PublishFailure { ok: false; errors: Problem[]; exitCode: 1 | 2 }
@@ -141,9 +149,14 @@ export function publish(inputValue: unknown, options: PublishOptions): PublishRe
         if (io.exists(final)) continue;
         io.writeExclusive(temporary, JSON.stringify(artifact, null, 2) + '\n');
         io.rename(temporary, final);
+        const picker = (verb: string) => `${verb} Walk Me Through: Open Walkthrough in VS Code or Rider and choose "${artifact.title}" (ID ${artifact.id}) in the picker.`;
+        const launch = buildEnvelope(artifact);
+        if (!launch.ok) warnings.push({ code: 'launch-link-too-long', length: launch.length, limit: LAUNCH_LIMITS.encoded });
+        const url = launch.ok ? launcherUrl(options.launcherBase ?? DEFAULT_LAUNCHER_BASE, launch.encoded) : undefined;
         return {
           ok: true, id: artifact.id, artifactPath: `.walk-me-through/walkthroughs/${artifact.id}.json`, stepCount: steps.length, warnings,
-          open: `Run Walk Me Through: Open Walkthrough in VS Code or Rider and choose "${artifact.title}" (ID ${artifact.id}) in the picker.`,
+          ...(url ? { url } : {}),
+          open: url ? `Open ${url} and choose VS Code or Rider, or ${picker('run')}` : `No launch link is available because the project root is too long. ${picker('Run')}`,
         };
       } finally { io.remove(temporary); io.remove(lock); }
     }

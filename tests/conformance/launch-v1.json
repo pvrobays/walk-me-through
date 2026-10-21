@@ -1,0 +1,1330 @@
+{
+  "fixtureVersion": 1,
+  "limits": {
+    "encoded": 1536,
+    "title": 120,
+    "step": 200
+  },
+  "prefixes": {
+    "launcherBase": "https://pvrobays.github.io/walk-me-through/",
+    "vscode": "vscode://pvrobays.walk-me-through/open?e=",
+    "rider": "jetbrains://rider/walkmethrough/open?e="
+  },
+  "categories": [
+    "malformed",
+    "too-long",
+    "unsupported-version",
+    "invalid"
+  ],
+  "decode": [
+    {
+      "name": "valid-minimal",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-step-title",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6InMyIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "step": "s2",
+          "title": "Retry flow"
+        }
+      }
+    },
+    {
+      "name": "valid-non-ascii-root",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXFVzZXJzXFxKw7xyZ2VuXFzpobnnm64iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiLDnG7Dr2PDtmTDqSDpobnnm64ifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\Users\\Jürgen\\项目",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "Ünïcödé 项目"
+        }
+      }
+    },
+    {
+      "name": "valid-supplementary-plane",
+      "encoded": "eyJ2IjoxLCJyb290IjoiL2hvbWUvbWUv8J2EniIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYiLCJ0aXRsZSI6IkVtb2ppIPCfmIAgYW5kIPCdhJ4ifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "/home/me/𝄞",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "Emoji 😀 and 𝄞"
+        }
+      }
+    },
+    {
+      "name": "valid-escaped-lone-surrogate",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJcdWQ4MDAifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "\ud800"
+        }
+      }
+    },
+    {
+      "name": "valid-posix-root",
+      "encoded": "eyJ2IjoxLCJyb290IjoiLyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "/",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-unc-root",
+      "encoded": "eyJ2IjoxLCJyb290IjoiXFxcXHNlcnZlclxcc2hhcmUiLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "\\\\server\\share",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-forward-slash-drive",
+      "encoded": "eyJ2IjoxLCJyb290IjoiYzovcmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "c:/repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-member-order-whitespace",
+      "encoded": "eyAiaWQiIDogIjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiAsCgkiZW52Ijp7InBsYXRmb3JtIjoibGludXgiLCJraW5kIjoid3NsIn0sICJyb290IjoiL3IiLCAidiI6MSB9",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "/r",
+          "env": {
+            "kind": "wsl",
+            "platform": "linux"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-version-float-literal",
+      "encoded": "eyJ2IjoxLjAsInJvb3QiOiIvciIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "/r",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-duplicate-member-last-wins",
+      "encoded": "eyJ2IjoxLCJyb290IjoiL3IiLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6ImJhZCIsImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "/r",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "valid-step-200",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6Inh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4In0",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "step": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        }
+      }
+    },
+    {
+      "name": "valid-title-120",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJ0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHQifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt"
+        }
+      }
+    },
+    {
+      "name": "valid-empty-title",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiIifQ",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": ""
+        }
+      }
+    },
+    {
+      "name": "valid-boundary-1536",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJyIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        }
+      }
+    },
+    {
+      "name": "too-long-1538",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJyciIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": false,
+        "category": "too-long",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope exceeds 1536 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "too-long-garbage",
+      "encoded": "*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************",
+      "expected": {
+        "ok": false,
+        "category": "too-long",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope exceeds 1536 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-empty",
+      "encoded": "",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is empty."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-padding",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmI==",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope must not contain base64 padding."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-alphabet-plus",
+      "encoded": "eyJ2Ijox+CJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6InMyIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope contains characters outside the base64url alphabet."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-alphabet-slash",
+      "encoded": "eyJ2Ijox/CJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6InMyIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope contains characters outside the base64url alphabet."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-alphabet-space",
+      "encoded": "eyJ2Ijox CJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6InMyIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope contains characters outside the base64url alphabet."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-alphabet-non-ascii",
+      "encoded": "eyJ2IjoxéCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6InMyIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope contains characters outside the base64url alphabet."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-length",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiO",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid unpadded base64url."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-non-canonical-bits",
+      "encoded": "QR",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid unpadded base64url."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-truncated",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9L",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid unpadded base64url."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-truncated-aligned",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYi",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-utf8-overlong",
+      "encoded": "e8CAfQ",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid UTF-8."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-utf8-surrogate",
+      "encoded": "e-2ggH0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid UTF-8."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-utf8-above-max",
+      "encoded": "e_SQgIB9",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid UTF-8."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-utf8-truncated",
+      "encoded": "eyLkuA",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid UTF-8."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-utf8-continuation",
+      "encoded": "gHt9",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid UTF-8."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-truncated",
+      "encoded": "eyJ2IjoxLCJyb290IjoiL3Ii",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-trailing",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0geA",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-single-quotes",
+      "encoded": "eyd2JzoxfQ",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-unquoted-name",
+      "encoded": "e3Y6MX0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-comment",
+      "encoded": "eyJ2IjoxIC8qIGMgKi99",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-trailing-comma",
+      "encoded": "eyJ2IjoxLH0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-bom",
+      "encoded": "77u_eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-inner-bom",
+      "encoded": "eyJ2IjoxLO-7vyJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-control-character",
+      "encoded": "eyJ2IjoxLCJyb290IjoiL3IBIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-invalid-escape",
+      "encoded": "eyJ2IjoxLCJyb290IjoiL3JccSIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-multiple-values",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn17InYiOjEsInJvb3QiOiJDOlxccmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-json-nan",
+      "encoded": "eyJ2IjpOYU59",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope is not valid JSON."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-not-object-array",
+      "encoded": "W3sidiI6MSwicm9vdCI6IkM6XFxyZXBvIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9XQ",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope must be a JSON object."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-not-object-null",
+      "encoded": "bnVsbA",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope must be a JSON object."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-not-object-string",
+      "encoded": "ImVudmVsb3BlIg",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope must be a JSON object."
+          }
+        ]
+      }
+    },
+    {
+      "name": "malformed-not-object-number",
+      "encoded": "MQ",
+      "expected": {
+        "ok": false,
+        "category": "malformed",
+        "problems": [
+          {
+            "path": "$",
+            "message": "Launch envelope must be a JSON object."
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-version-2",
+      "encoded": "eyJ2IjoyLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwiZnV0dXJlIjp7Im1vcmUiOnRydWV9fQ",
+      "expected": {
+        "ok": false,
+        "category": "unsupported-version",
+        "problems": [
+          {
+            "path": "v",
+            "message": "Unsupported launch envelope version. Update Walk Me Through to open this link."
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-version-0",
+      "encoded": "eyJ2IjowLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "unsupported-version",
+        "problems": [
+          {
+            "path": "v",
+            "message": "Unsupported launch envelope version. Update Walk Me Through to open this link."
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsupported-version-fraction",
+      "encoded": "eyJ2IjoxLjUsInJvb3QiOiJDOlxccmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": false,
+        "category": "unsupported-version",
+        "problems": [
+          {
+            "path": "v",
+            "message": "Unsupported launch envelope version. Update Walk Me Through to open this link."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-unknown-member",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwiZXh0cmEiOnRydWV9",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "extra",
+            "message": "Unknown member: extra."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-unknown-members-sorted",
+      "encoded": "eyIxMCI6MywidiI6MSwicm9vdCI6IkM6XFxyZXBvIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiIsInpldGEiOjEsImFscGhhIjoyfQ",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "10",
+            "message": "Unknown member: 10."
+          },
+          {
+            "path": "alpha",
+            "message": "Unknown member: alpha."
+          },
+          {
+            "path": "zeta",
+            "message": "Unknown member: zeta."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-proto-member",
+      "encoded": "eyJ2IjoxLCJyb290IjoiL3IiLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwiX19wcm90b19fIjp7fX0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "__proto__",
+            "message": "Unknown member: __proto__."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-env-unknown-member",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiIsInVuc3VwcG9ydGVkT3ZlcnJpZGUiOmZhbHNlfSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "env.unsupportedOverride",
+            "message": "Unknown member: env.unsupportedOverride."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-traversal-id",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6Ii4uLy4uL2V0Yy9wYXNzd2QifQ",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "id",
+            "message": "Expected an artifact ID: a timestamp and six lowercase base32 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-uppercase-id",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otQUJDREVGIn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "id",
+            "message": "Expected an artifact ID: a timestamp and six lowercase base32 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-relative-root",
+      "encoded": "eyJ2IjoxLCJyb290Ijoic3JjL3Byb2plY3QiLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "root",
+            "message": "Expected an absolute Windows or POSIX project root."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-root-number",
+      "encoded": "eyJ2IjoxLCJyb290IjoxLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "root",
+            "message": "Expected an absolute Windows or POSIX project root."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-version-string",
+      "encoded": "eyJ2IjoiMSIsInJvb3QiOiJDOlxccmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "v",
+            "message": "Expected version number 1."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-version-missing",
+      "encoded": "eyJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "v",
+            "message": "Expected version number 1."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-env-missing",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "env",
+            "message": "Expected an env object with kind and platform."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-env-array",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOltdLCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "env",
+            "message": "Expected an env object with kind and platform."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-env-blank-kind-number-platform",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6IiAiLCJwbGF0Zm9ybSI6MX0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYifQ",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "env.kind",
+            "message": "Expected a nonempty environment kind."
+          },
+          {
+            "path": "env.platform",
+            "message": "Expected a nonempty environment platform."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-step-empty",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6IiJ9",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "step",
+            "message": "Expected a nonempty step ID of at most 200 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-step-blank",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6IiBcdCJ9",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "step",
+            "message": "Expected a nonempty step ID of at most 200 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-step-201",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6Inh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eCJ9",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "step",
+            "message": "Expected a nonempty step ID of at most 200 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-step-null",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6bnVsbH0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "step",
+            "message": "Expected a nonempty step ID of at most 200 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-step-number",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwic3RlcCI6Mn0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "step",
+            "message": "Expected a nonempty step ID of at most 200 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-title-121",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJ0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0In0",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "title",
+            "message": "Expected a title of at most 120 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-title-number",
+      "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOjN9",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "title",
+            "message": "Expected a title of at most 120 characters."
+          }
+        ]
+      }
+    },
+    {
+      "name": "invalid-everything",
+      "encoded": "eyJ2IjoxLCJyb290IjoieCIsImVudiI6e30sImlkIjoieCIsInN0ZXAiOiIiLCJ0aXRsZSI6ZmFsc2UsIm90aGVyIjowfQ",
+      "expected": {
+        "ok": false,
+        "category": "invalid",
+        "problems": [
+          {
+            "path": "root",
+            "message": "Expected an absolute Windows or POSIX project root."
+          },
+          {
+            "path": "env.kind",
+            "message": "Expected a nonempty environment kind."
+          },
+          {
+            "path": "env.platform",
+            "message": "Expected a nonempty environment platform."
+          },
+          {
+            "path": "id",
+            "message": "Expected an artifact ID: a timestamp and six lowercase base32 characters."
+          },
+          {
+            "path": "step",
+            "message": "Expected a nonempty step ID of at most 200 characters."
+          },
+          {
+            "path": "title",
+            "message": "Expected a title of at most 120 characters."
+          },
+          {
+            "path": "other",
+            "message": "Unknown member: other."
+          }
+        ]
+      }
+    }
+  ],
+  "build": [
+    {
+      "name": "walkthrough-level",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "Retry flow",
+        "project": {
+          "root": "C:\\repo",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "Retry flow"
+        },
+        "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+        "urls": {
+          "launcher": "https://pvrobays.github.io/walk-me-through/#eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+          "vscode": "vscode://pvrobays.walk-me-through/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJSZXRyeSBmbG93In0",
+          "rider": "jetbrains://rider/walkmethrough/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJSZXRyeSBmbG93In0"
+        }
+      }
+    },
+    {
+      "name": "with-step",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "Retry flow",
+        "project": {
+          "root": "/home/me/repo",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "step": "s1.2",
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "/home/me/repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "step": "s1.2",
+          "title": "Retry flow"
+        },
+        "encoded": "eyJ2IjoxLCJyb290IjoiL2hvbWUvbWUvcmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYiLCJzdGVwIjoiczEuMiIsInRpdGxlIjoiUmV0cnkgZmxvdyJ9",
+        "urls": {
+          "launcher": "https://pvrobays.github.io/walk-me-through/#eyJ2IjoxLCJyb290IjoiL2hvbWUvbWUvcmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYiLCJzdGVwIjoiczEuMiIsInRpdGxlIjoiUmV0cnkgZmxvdyJ9",
+          "vscode": "vscode://pvrobays.walk-me-through/open?e=eyJ2IjoxLCJyb290IjoiL2hvbWUvbWUvcmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYiLCJzdGVwIjoiczEuMiIsInRpdGxlIjoiUmV0cnkgZmxvdyJ9",
+          "rider": "jetbrains://rider/walkmethrough/open?e=eyJ2IjoxLCJyb290IjoiL2hvbWUvbWUvcmVwbyIsImVudiI6eyJraW5kIjoibG9jYWwiLCJwbGF0Zm9ybSI6IndpbjMyIn0sImlkIjoiMjAyNjEwMjFUMTQzMDA1MTIzWi1hYmNkZWYiLCJzdGVwIjoiczEuMiIsInRpdGxlIjoiUmV0cnkgZmxvdyJ9"
+        }
+      }
+    },
+    {
+      "name": "non-ascii",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "Wie 😀 funktioniert",
+        "project": {
+          "root": "C:\\Users\\Jürgen\\项目",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\Users\\Jürgen\\项目",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "Wie 😀 funktioniert"
+        },
+        "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXFVzZXJzXFxKw7xyZ2VuXFzpobnnm64iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJXaWUg8J-YgCBmdW5rdGlvbmllcnQifQ",
+        "urls": {
+          "launcher": "https://pvrobays.github.io/walk-me-through/#eyJ2IjoxLCJyb290IjoiQzpcXFVzZXJzXFxKw7xyZ2VuXFzpobnnm64iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJXaWUg8J-YgCBmdW5rdGlvbmllcnQifQ",
+          "vscode": "vscode://pvrobays.walk-me-through/open?e=eyJ2IjoxLCJyb290IjoiQzpcXFVzZXJzXFxKw7xyZ2VuXFzpobnnm64iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJXaWUg8J-YgCBmdW5rdGlvbmllcnQifQ",
+          "rider": "jetbrains://rider/walkmethrough/open?e=eyJ2IjoxLCJyb290IjoiQzpcXFVzZXJzXFxKw7xyZ2VuXFzpobnnm64iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJXaWUg8J-YgCBmdW5rdGlvbmllcnQifQ"
+        }
+      }
+    },
+    {
+      "name": "title-shortened",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT",
+        "project": {
+          "root": "C:\\repo",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT…"
+        },
+        "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVOKApiJ9",
+        "urls": {
+          "launcher": "https://pvrobays.github.io/walk-me-through/#eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVOKApiJ9",
+          "vscode": "vscode://pvrobays.walk-me-through/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVOKApiJ9",
+          "rider": "jetbrains://rider/walkmethrough/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVFRUVOKApiJ9"
+        }
+      }
+    },
+    {
+      "name": "title-shortened-surrogate",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀😀😀😀😀😀😀😀😀😀",
+        "project": {
+          "root": "C:\\repo",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\repo",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef",
+          "title": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀…"
+        },
+        "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYfCfmIDigKYifQ",
+        "urls": {
+          "launcher": "https://pvrobays.github.io/walk-me-through/#eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYfCfmIDigKYifQ",
+          "vscode": "vscode://pvrobays.walk-me-through/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYfCfmIDigKYifQ",
+          "rider": "jetbrains://rider/walkmethrough/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJlcG8iLCJlbnYiOnsia2luZCI6ImxvY2FsIiwicGxhdGZvcm0iOiJ3aW4zMiJ9LCJpZCI6IjIwMjYxMDIxVDE0MzAwNTEyM1otYWJjZGVmIiwidGl0bGUiOiJhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYfCfmIDigKYifQ"
+        }
+      }
+    },
+    {
+      "name": "title-dropped",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "Dropped title",
+        "project": {
+          "root": "C:\\rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "expected": {
+        "ok": true,
+        "envelope": {
+          "v": 1,
+          "root": "C:\\rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+          "env": {
+            "kind": "local",
+            "platform": "win32"
+          },
+          "id": "20261021T143005123Z-abcdef"
+        },
+        "encoded": "eyJ2IjoxLCJyb290IjoiQzpcXHJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJyIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9",
+        "urls": {
+          "launcher": "https://pvrobays.github.io/walk-me-through/#eyJ2IjoxLCJyb290IjoiQzpcXHJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJyIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9",
+          "vscode": "vscode://pvrobays.walk-me-through/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJyIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9",
+          "rider": "jetbrains://rider/walkmethrough/open?e=eyJ2IjoxLCJyb290IjoiQzpcXHJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJycnJyIiwiZW52Ijp7ImtpbmQiOiJsb2NhbCIsInBsYXRmb3JtIjoid2luMzIifSwiaWQiOiIyMDI2MTAyMVQxNDMwMDUxMjNaLWFiY2RlZiJ9"
+        }
+      }
+    },
+    {
+      "name": "too-long",
+      "artifact": {
+        "id": "20261021T143005123Z-abcdef",
+        "title": "Too long",
+        "project": {
+          "root": "C:\\rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        }
+      },
+      "expected": {
+        "ok": false,
+        "code": "launch-link-too-long",
+        "length": 1542
+      }
+    }
+  ]
+}

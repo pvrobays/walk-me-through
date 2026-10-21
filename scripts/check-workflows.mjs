@@ -1,4 +1,4 @@
-import { readFile, access } from 'node:fs/promises';
+import { readFile, readdir, access } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 import { parseDocument } from 'yaml';
 
@@ -25,7 +25,12 @@ assert.equal(pages.jobs.deploy.steps.find(step => step.uses?.startsWith('actions
 assert.equal(pages.jobs.deploy.permissions.pages, 'write');
 assert.equal(pages.jobs.deploy.permissions['id-token'], 'write');
 assert.equal(pages.jobs.deploy.environment.name, 'github-pages');
-let launcherExists = true;
-try { await access(new URL('../launcher/index.html', import.meta.url)); } catch { launcherExists = false; }
-assert.equal(launcherExists, false, 'Update the no-launcher acceptance check once launcher assets are implemented.');
-console.log('Pages YAML is valid; the absent launcher selects ready=false and skips deployment. Upload is limited to launcher/.');
+assert.deepEqual(pages.permissions, { contents: 'read' });
+const uploads = pages.jobs.deploy.steps.filter(step => step.uses?.startsWith('actions/upload-pages-artifact@'));
+assert.equal(uploads.length, 1, 'Exactly one Pages artifact upload.');
+for (const asset of ['index.html', 'styles.css', 'launcher.js']) {
+  await access(new URL(`../launcher/${asset}`, import.meta.url)).catch(() => assert.fail(`launcher/${asset} must exist for the gated Pages deployment.`));
+}
+const deployed = (await readdir(new URL('../launcher/', import.meta.url))).sort();
+assert.deepEqual(deployed, ['index.html', 'launcher.js', 'styles.css'], 'launcher/ must contain only the static launcher assets.');
+console.log('Pages YAML is valid; launcher/index.html exists, so the gate selects ready=true. Upload is limited to launcher/ (index.html, styles.css, launcher.js).');

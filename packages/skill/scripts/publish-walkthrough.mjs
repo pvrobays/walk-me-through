@@ -42,6 +42,143 @@ var LIMITS = {
   contextPadding: 10
 };
 
+// packages/core/src/validation.ts
+var artifactIdPattern = /^\d{8}T\d{9}Z-[a-z2-7]{6}$/;
+var absolutePathPattern = /^(?:\/|[A-Za-z]:[\\/]|\\\\)/;
+var isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+var isInteger = (value, min = 0) => Number.isSafeInteger(value) && value >= min;
+var isText = (value, max) => typeof value === "string" && value.trim().length > 0 && value.length <= max;
+var isRelativePath = (value) => typeof value === "string" && value.length > 0 && !/[\\\u0000:]/.test(value) && !value.startsWith("/") && value.split("/").every((segment) => segment !== ".." && segment !== "." && segment.length > 0);
+function problem(path3, message, code = "INVALID_INPUT", hint = "Correct the named field or type before retrying.") {
+  return { code, path: path3, message, hint, recovery: "fix-input" };
+}
+function unknownFields(object, allowed, path3, errors) {
+  for (const key of Object.keys(object)) {
+    if (!allowed.includes(key)) errors.push(problem(path3 === "$" ? key : `${path3}.${key}`, `Unknown field: ${key}.`));
+  }
+}
+
+// packages/core/src/launch.ts
+var LAUNCH_LIMITS = { encoded: 1536, title: 120, step: 200 };
+var DEFAULT_LAUNCHER_BASE = "https://pvrobays.github.io/walk-me-through/";
+var MESSAGES = {
+  empty: "Launch envelope is empty.",
+  tooLong: `Launch envelope exceeds ${LAUNCH_LIMITS.encoded} characters.`,
+  padding: "Launch envelope must not contain base64 padding.",
+  alphabet: "Launch envelope contains characters outside the base64url alphabet.",
+  base64: "Launch envelope is not valid unpadded base64url.",
+  utf8: "Launch envelope is not valid UTF-8.",
+  json: "Launch envelope is not valid JSON.",
+  notObject: "Launch envelope must be a JSON object.",
+  version: "Unsupported launch envelope version. Update Walk Me Through to open this link."
+};
+var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+var VALUES = new Map([...ALPHABET].map((c, i) => [c, i]));
+function base64urlEncode(bytes) {
+  let out = "";
+  for (let i = 0; i < bytes.length; i += 3) {
+    const n = bytes[i] << 16 | (bytes[i + 1] ?? 0) << 8 | (bytes[i + 2] ?? 0);
+    const chars = Math.min(4, Math.ceil((bytes.length - i) * 8 / 6));
+    for (let k = 0; k < chars; k++) out += ALPHABET[n >> 18 - 6 * k & 63];
+  }
+  return out;
+}
+function utf8Encode(text) {
+  const out = [];
+  for (let i = 0; i < text.length; i++) {
+    let cp = text.charCodeAt(i);
+    if (cp >= 55296 && cp <= 56319 && i + 1 < text.length) {
+      const low = text.charCodeAt(i + 1);
+      if (low >= 56320 && low <= 57343) {
+        cp = 65536 + (cp - 55296 << 10) + (low - 56320);
+        i++;
+      }
+    }
+    if (cp >= 55296 && cp <= 57343) cp = 65533;
+    if (cp < 128) out.push(cp);
+    else if (cp < 2048) out.push(192 | cp >> 6, 128 | cp & 63);
+    else if (cp < 65536) out.push(224 | cp >> 12, 128 | cp >> 6 & 63, 128 | cp & 63);
+    else out.push(240 | cp >> 18, 128 | cp >> 12 & 63, 128 | cp >> 6 & 63, 128 | cp & 63);
+  }
+  return Uint8Array.from(out);
+}
+var MEMBERS = ["v", "root", "env", "id", "step", "title"];
+var ENV_MEMBERS = ["kind", "platform"];
+var has = (object, key) => Object.prototype.hasOwnProperty.call(object, key);
+var nonempty = (value) => typeof value === "string" && value.trim().length > 0;
+function validateEnvelope(value) {
+  if (has(value, "v") && typeof value.v === "number" && value.v !== 1) {
+    return { ok: false, category: "unsupported-version", problems: [{ path: "v", message: MESSAGES.version }] };
+  }
+  const problems = [];
+  const add = (path3, message) => problems.push({ path: path3, message });
+  if (value.v !== 1) add("v", "Expected version number 1.");
+  if (typeof value.root !== "string" || !absolutePathPattern.test(value.root)) add("root", "Expected an absolute Windows or POSIX project root.");
+  const env = value.env;
+  if (!isRecord(env)) add("env", "Expected an env object with kind and platform.");
+  else {
+    if (!nonempty(env.kind)) add("env.kind", "Expected a nonempty environment kind.");
+    if (!nonempty(env.platform)) add("env.platform", "Expected a nonempty environment platform.");
+    for (const key of Object.keys(env).filter((k) => !ENV_MEMBERS.includes(k)).sort()) add(`env.${key}`, `Unknown member: env.${key}.`);
+  }
+  if (typeof value.id !== "string" || !artifactIdPattern.test(value.id)) add("id", "Expected an artifact ID: a timestamp and six lowercase base32 characters.");
+  if (has(value, "step") && !isText(value.step, LAUNCH_LIMITS.step)) add("step", `Expected a nonempty step ID of at most ${LAUNCH_LIMITS.step} characters.`);
+  if (has(value, "title") && (typeof value.title !== "string" || value.title.length > LAUNCH_LIMITS.title)) add("title", `Expected a title of at most ${LAUNCH_LIMITS.title} characters.`);
+  for (const key of Object.keys(value).filter((k) => !MEMBERS.includes(k)).sort()) add(key, `Unknown member: ${key}.`);
+  if (problems.length) return { ok: false, category: "invalid", problems };
+  const fields = env;
+  const envelope = { v: 1, root: value.root, env: { kind: fields.kind, platform: fields.platform }, id: value.id };
+  if (has(value, "step")) envelope.step = value.step;
+  if (has(value, "title")) envelope.title = value.title;
+  return { ok: true, envelope };
+}
+function encodeEnvelope(envelope) {
+  const ordered = { v: 1, root: envelope.root, env: { kind: envelope.env.kind, platform: envelope.env.platform }, id: envelope.id };
+  if (envelope.step !== void 0) ordered.step = envelope.step;
+  if (envelope.title !== void 0) ordered.title = envelope.title;
+  return base64urlEncode(utf8Encode(JSON.stringify(ordered)));
+}
+function shortenTitle(title) {
+  if (title.length <= LAUNCH_LIMITS.title) return title;
+  let cut = LAUNCH_LIMITS.title - 1;
+  const last = title.charCodeAt(cut - 1);
+  if (last >= 55296 && last <= 56319) cut--;
+  return title.slice(0, cut).trimEnd() + "\u2026";
+}
+function buildEnvelope(artifact, options = {}) {
+  const base = {
+    v: 1,
+    root: artifact.project.root,
+    env: { kind: artifact.project.environment.kind, platform: artifact.project.environment.platform },
+    id: artifact.id,
+    ...options.step !== void 0 ? { step: options.step } : {}
+  };
+  const check = validateEnvelope(base);
+  if (!check.ok) throw new Error(`Cannot build launch envelope: ${check.problems.map((p) => `${p.path}: ${p.message}`).join(" ")}`);
+  let encoded = "";
+  for (const envelope of [{ ...base, title: shortenTitle(artifact.title) }, base]) {
+    encoded = encodeEnvelope(envelope);
+    if (encoded.length <= LAUNCH_LIMITS.encoded) return { ok: true, envelope, encoded };
+  }
+  return { ok: false, code: "launch-link-too-long", length: encoded.length };
+}
+function launcherUrl(base, encoded) {
+  return `${base}#${encoded}`;
+}
+function parseLauncherBase(text) {
+  let url;
+  try {
+    url = new URL(text);
+  } catch {
+    return { ok: false, message: "Expected an absolute launcher URL." };
+  }
+  const local = url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+  if (url.protocol !== "https:" && !local) return { ok: false, message: "Launcher URL must use https://, or http://localhost / http://127.0.0.1." };
+  if (url.username || url.password || /[?#]/.test(text)) return { ok: false, message: "Launcher URL must not contain credentials, a query, or a fragment." };
+  if (!url.pathname.endsWith("/")) url.pathname += "/";
+  return { ok: true, base: url.href };
+}
+
 // packages/core/src/publish.ts
 import * as fs from "node:fs";
 import path from "node:path";
@@ -124,20 +261,6 @@ function captureAnchor(text, range) {
   }
 }
 
-// packages/core/src/validation.ts
-var isRecord = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-var isInteger = (value, min = 0) => Number.isSafeInteger(value) && value >= min;
-var isText = (value, max) => typeof value === "string" && value.trim().length > 0 && value.length <= max;
-var isRelativePath = (value) => typeof value === "string" && value.length > 0 && !/[\\\u0000:]/.test(value) && !value.startsWith("/") && value.split("/").every((segment) => segment !== ".." && segment !== "." && segment.length > 0);
-function problem(path3, message, code = "INVALID_INPUT", hint = "Correct the named field or type before retrying.") {
-  return { code, path: path3, message, hint, recovery: "fix-input" };
-}
-function unknownFields(object, allowed, path3, errors) {
-  for (const key of Object.keys(object)) {
-    if (!allowed.includes(key)) errors.push(problem(path3 === "$" ? key : `${path3}.${key}`, `Unknown field: ${key}.`));
-  }
-}
-
 // packages/core/src/artifact.ts
 var evidenceValues = ["observation", "hypothesis", "conclusion"];
 var position = (v) => isRecord(v) && isInteger(v.line) && isInteger(v.character);
@@ -185,12 +308,12 @@ function validateArtifact(value) {
   if (!isRecord(value)) return { ok: false, errors: [problem("$", "Expected an artifact object.", "INVALID_ARTIFACT")] };
   if (value.schemaVersion !== 1) add("schemaVersion", "Unsupported schemaVersion. Update the viewer to read this walkthrough.");
   if (!isRecord(value.generator) || value.generator.name !== "walk-me-through" || typeof value.generator.bundleVersion !== "string" || !/^\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(value.generator.bundleVersion)) add("generator", "Expected generator name and semantic bundle version.");
-  if (typeof value.id !== "string" || !/^\d{8}T\d{9}Z-[a-z2-7]{6}$/.test(value.id)) add("id", "Expected a timestamp and six lowercase base32 characters.");
+  if (typeof value.id !== "string" || !artifactIdPattern.test(value.id)) add("id", "Expected a timestamp and six lowercase base32 characters.");
   if (!utcTimestamp(value.createdAt)) add("createdAt", "Expected an ISO-8601 UTC millisecond timestamp.");
   if (!isText(value.title, LIMITS.title)) add("title", `Title must contain 1\u2013${LIMITS.title} characters.`);
   if (!isText(value.summary, LIMITS.summary)) add("summary", `Summary must contain 1\u2013${LIMITS.summary} characters.`);
   const project = value.project;
-  if (!isRecord(project) || typeof project.root !== "string" || !/^(?:\/|[A-Za-z]:[\\/]|\\\\)/.test(project.root)) add("project.root", "Expected an absolute project root.");
+  if (!isRecord(project) || typeof project.root !== "string" || !absolutePathPattern.test(project.root)) add("project.root", "Expected an absolute project root.");
   if (!isRecord(project) || !isRecord(project.environment) || !isText(project.environment.kind, 100) || !isText(project.environment.platform, 100) || typeof project.environment.unsupportedOverride !== "boolean") add("project.environment", "Expected environment kind, platform, and unsupportedOverride.");
   if (!isRecord(value.source) || value.source.git !== null && (!isRecord(value.source.git) || typeof value.source.git.commit !== "string" || !/^[a-f0-9]{7,64}$/i.test(value.source.git.commit) || typeof value.source.git.dirty !== "boolean")) add("source.git", "Expected git commit and dirty flag, or null.");
   if (!Array.isArray(value.steps) || value.steps.length === 0 || value.steps.length > LIMITS.steps) {
@@ -463,13 +586,18 @@ function publish(inputValue, options) {
         if (io.exists(final)) continue;
         io.writeExclusive(temporary, JSON.stringify(artifact, null, 2) + "\n");
         io.rename(temporary, final);
+        const picker = (verb) => `${verb} Walk Me Through: Open Walkthrough in VS Code or Rider and choose "${artifact.title}" (ID ${artifact.id}) in the picker.`;
+        const launch = buildEnvelope(artifact);
+        if (!launch.ok) warnings.push({ code: "launch-link-too-long", length: launch.length, limit: LAUNCH_LIMITS.encoded });
+        const url = launch.ok ? launcherUrl(options.launcherBase ?? DEFAULT_LAUNCHER_BASE, launch.encoded) : void 0;
         return {
           ok: true,
           id: artifact.id,
           artifactPath: `.walk-me-through/walkthroughs/${artifact.id}.json`,
           stepCount: steps.length,
           warnings,
-          open: `Run Walk Me Through: Open Walkthrough in VS Code or Rider and choose "${artifact.title}" (ID ${artifact.id}) in the picker.`
+          ...url ? { url } : {},
+          open: url ? `Open ${url} and choose VS Code or Rider, or ${picker("run")}` : `No launch link is available because the project root is too long. ${picker("Run")}`
         };
       } finally {
         io.remove(temporary);
@@ -497,11 +625,18 @@ function main() {
   if (!environment.ok) return { result: { ok: false, errors: environment.errors }, exitCode: 2 };
   const args = process.argv.slice(2);
   let root;
+  let launcherBase;
   const usage = () => ({ result: failure("USAGE", "Usage: publish-walkthrough.mjs <input.json> [--root <dir>]", "Supply an input JSON file and optionally an explicit development project root, then retry after correction."), exitCode: 2 });
   if (!args.length || args[0].startsWith("--")) return usage();
-  if (args.length !== 1) {
-    if (args.length !== 3 || args[1] !== "--root" || !args[2] || args[2].startsWith("--")) return usage();
-    root = args[2];
+  for (let i = 1; i < args.length; i += 2) {
+    const value2 = args[i + 1];
+    if (!value2 || value2.startsWith("--")) return usage();
+    if (args[i] === "--root" && root === void 0) root = value2;
+    else if (args[i] === "--launcher-url" && launcherBase === void 0) {
+      const parsed = parseLauncherBase(value2);
+      if (!parsed.ok) return { result: failure("INVALID_LAUNCHER_URL", `Invalid --launcher-url ${value2}: ${parsed.message}`, "Use an https:// launcher URL, or http://localhost / http://127.0.0.1 for a local preview."), exitCode: 2 };
+      launcherBase = parsed.base;
+    } else return usage();
   }
   const inputPath = path2.resolve(args[0]);
   let bytes;
@@ -523,7 +658,8 @@ function main() {
     cwd: process.cwd(),
     platform: process.platform,
     environment: environment.value,
-    bundleVersion: "0.1.0"
+    bundleVersion: "0.1.0",
+    launcherBase
   });
   if (!result.ok) return { result: { ok: false, errors: result.errors }, exitCode: result.exitCode };
   return { result, exitCode: 0 };

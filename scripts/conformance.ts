@@ -3,6 +3,10 @@ import { captureAnchor } from '../packages/core/src/anchor';
 import { normalizeText, hashText, occurrences } from '../packages/core/src/text';
 import { offsetToPosition, positionToOffset } from '../packages/core/src/coords';
 import { resolve } from '../packages/core/src/resolve';
+import {
+  DEFAULT_LAUNCHER_BASE, LAUNCH_LIMITS, RIDER_LAUNCH_PREFIX, VSCODE_LAUNCH_PREFIX, base64urlEncode, buildEnvelope, decodeEnvelope,
+  encodeEnvelope, launcherUrl, riderUri, utf8Encode, vscodeUri,
+} from '../packages/core/src/launch';
 import { Session } from '../packages/vscode/src/session';
 
 export function artifact(): Artifact {
@@ -127,4 +131,138 @@ export async function generateConformance() {
     navigation.push({ name, actions, expected: snapshots });
   }
   return { fixtureVersion: 1, validation: validations, coordinates, resolutions, navigation: { artifact: navigationArtifact, cases: navigation } };
+}
+
+/** Launch envelope v1 fixtures, consumed by core and the Rider Kotlin decoder. */
+export function generateLaunchConformance() {
+  const id = '20261021T143005123Z-abcdef';
+  const env = { kind: 'local', platform: 'win32' };
+  const base = { v: 1, root: 'C:\\repo', env, id };
+  const bytes = (values: number[]) => base64urlEncode(Uint8Array.from(values));
+  const text = (json: string) => base64urlEncode(utf8Encode(json));
+  const json = (value: unknown) => text(JSON.stringify(value));
+  const rootFor = (target: number) => {
+    for (let n = 1; n < 2000; n++) {
+      const root = 'C:\\' + 'r'.repeat(n);
+      if (encodeEnvelope({ ...base, v: 1, root }).length === target) return root;
+    }
+    throw new Error('no root');
+  };
+  const valid = encodeEnvelope({ ...base, v: 1, step: 's2', title: 'Retry flow' });
+
+  type Expect = 'ok' | 'malformed' | 'too-long' | 'unsupported-version' | 'invalid';
+  const decode: { name: string; encoded: string; expected: unknown }[] = [];
+  const add = (name: string, encoded: string, category: Expect) => {
+    const result = decodeEnvelope(encoded);
+    // Independently assert the intended category so a rule change cannot silently rewrite expectations.
+    const actual = result.ok ? 'ok' : result.category;
+    if (actual !== category) throw new Error(`Launch fixture ${name}: expected ${category}, got ${actual}`);
+    decode.push({ name, encoded, expected: result });
+  };
+  add('valid-minimal', json(base), 'ok');
+  add('valid-step-title', valid, 'ok');
+  add('valid-non-ascii-root', json({ ...base, root: 'C:\\Users\\Jürgen\\项目', title: 'Ünïcödé 项目' }), 'ok');
+  add('valid-supplementary-plane', json({ ...base, root: '/home/me/𝄞', title: 'Emoji 😀 and 𝄞' }), 'ok');
+  add('valid-escaped-lone-surrogate', text(`{"v":1,"root":"C:\\\\repo","env":{"kind":"local","platform":"win32"},"id":"${id}","title":"\\ud800"}`), 'ok');
+  add('valid-posix-root', json({ ...base, root: '/' }), 'ok');
+  add('valid-unc-root', json({ ...base, root: '\\\\server\\share' }), 'ok');
+  add('valid-forward-slash-drive', json({ ...base, root: 'c:/repo' }), 'ok');
+  add('valid-member-order-whitespace', text(`{ "id" : "${id}" ,\n\t"env":{"platform":"linux","kind":"wsl"}, "root":"/r", "v":1 }`), 'ok');
+  add('valid-version-float-literal', text(`{"v":1.0,"root":"/r","env":{"kind":"local","platform":"win32"},"id":"${id}"}`), 'ok');
+  add('valid-duplicate-member-last-wins', text(`{"v":1,"root":"/r","env":{"kind":"local","platform":"win32"},"id":"bad","id":"${id}"}`), 'ok');
+  add('valid-step-200', json({ ...base, step: 'x'.repeat(200) }), 'ok');
+  add('valid-title-120', json({ ...base, title: 't'.repeat(120) }), 'ok');
+  add('valid-empty-title', json({ ...base, title: '' }), 'ok');
+  add('valid-boundary-1536', encodeEnvelope({ ...base, v: 1, root: rootFor(1536) }), 'ok');
+
+  // 1,537 is not a possible unpadded base64 length; 1,538 is the shortest real envelope over the limit.
+  add('too-long-1538', encodeEnvelope({ ...base, v: 1, root: rootFor(1538) }), 'too-long');
+  add('too-long-garbage', '*'.repeat(LAUNCH_LIMITS.encoded + 1), 'too-long');
+
+  add('malformed-empty', '', 'malformed');
+  add('malformed-padding', json(base).slice(0, -2) + '==', 'malformed');
+  add('malformed-alphabet-plus', valid.slice(0, 8) + '+' + valid.slice(9), 'malformed');
+  add('malformed-alphabet-slash', valid.slice(0, 8) + '/' + valid.slice(9), 'malformed');
+  add('malformed-alphabet-space', valid.slice(0, 8) + ' ' + valid.slice(9), 'malformed');
+  add('malformed-alphabet-non-ascii', valid.slice(0, 8) + 'é' + valid.slice(9), 'malformed');
+  add('malformed-length', valid.slice(0, 4 * 10 + 1), 'malformed');
+  add('malformed-non-canonical-bits', 'QR', 'malformed');
+  add('malformed-truncated', valid.slice(0, Math.floor(valid.length / 2)), 'malformed');
+  add('malformed-truncated-aligned', valid.slice(0, 40), 'malformed');
+  add('malformed-utf8-overlong', bytes([0x7b, 0xc0, 0x80, 0x7d]), 'malformed');
+  add('malformed-utf8-surrogate', bytes([0x7b, 0xed, 0xa0, 0x80, 0x7d]), 'malformed');
+  add('malformed-utf8-above-max', bytes([0x7b, 0xf4, 0x90, 0x80, 0x80, 0x7d]), 'malformed');
+  add('malformed-utf8-truncated', bytes([0x7b, 0x22, 0xe4, 0xb8]), 'malformed');
+  add('malformed-utf8-continuation', bytes([0x80, 0x7b, 0x7d]), 'malformed');
+  add('malformed-json-truncated', text('{"v":1,"root":"/r"'), 'malformed');
+  add('malformed-json-trailing', text(JSON.stringify(base) + ' x'), 'malformed');
+  add('malformed-json-single-quotes', text(`{'v':1}`), 'malformed');
+  add('malformed-json-unquoted-name', text(`{v:1}`), 'malformed');
+  add('malformed-json-comment', text(`{"v":1 /* c */}`), 'malformed');
+  add('malformed-json-trailing-comma', text(`{"v":1,}`), 'malformed');
+  add('malformed-json-bom', text('\uFEFF' + JSON.stringify(base)), 'malformed');
+  add('malformed-json-inner-bom', text(JSON.stringify(base).replace(',', ',\uFEFF')), 'malformed');
+  add('malformed-json-control-character', text(`{"v":1,"root":"/r\u0001","env":{"kind":"local","platform":"win32"},"id":"${id}"}`), 'malformed');
+  add('malformed-json-invalid-escape', text(`{"v":1,"root":"/r\\q","env":{"kind":"local","platform":"win32"},"id":"${id}"}`), 'malformed');
+  add('malformed-json-multiple-values', text(JSON.stringify(base) + JSON.stringify(base)), 'malformed');
+  add('malformed-json-nan', text(`{"v":NaN}`), 'malformed');
+  add('malformed-not-object-array', json([base]), 'malformed');
+  add('malformed-not-object-null', json(null), 'malformed');
+  add('malformed-not-object-string', json('envelope'), 'malformed');
+  add('malformed-not-object-number', json(1), 'malformed');
+
+  add('unsupported-version-2', json({ ...base, v: 2, future: { more: true } }), 'unsupported-version');
+  add('unsupported-version-0', json({ ...base, v: 0 }), 'unsupported-version');
+  add('unsupported-version-fraction', json({ ...base, v: 1.5 }), 'unsupported-version');
+
+  add('invalid-unknown-member', json({ ...base, extra: true }), 'invalid');
+  add('invalid-unknown-members-sorted', json({ ...base, zeta: 1, alpha: 2, 10: 3 }), 'invalid');
+  add('invalid-proto-member', text(`{"v":1,"root":"/r","env":{"kind":"local","platform":"win32"},"id":"${id}","__proto__":{}}`), 'invalid');
+  add('invalid-env-unknown-member', json({ ...base, env: { ...env, unsupportedOverride: false } }), 'invalid');
+  add('invalid-traversal-id', json({ ...base, id: '../../etc/passwd' }), 'invalid');
+  add('invalid-uppercase-id', json({ ...base, id: id.toUpperCase() }), 'invalid');
+  add('invalid-relative-root', json({ ...base, root: 'src/project' }), 'invalid');
+  add('invalid-root-number', json({ ...base, root: 1 }), 'invalid');
+  add('invalid-version-string', json({ ...base, v: '1' }), 'invalid');
+  add('invalid-version-missing', json({ root: base.root, env, id }), 'invalid');
+  add('invalid-env-missing', json({ v: 1, root: base.root, id }), 'invalid');
+  add('invalid-env-array', json({ ...base, env: [] }), 'invalid');
+  add('invalid-env-blank-kind-number-platform', json({ ...base, env: { kind: ' ', platform: 1 } }), 'invalid');
+  add('invalid-step-empty', json({ ...base, step: '' }), 'invalid');
+  add('invalid-step-blank', json({ ...base, step: ' \t' }), 'invalid');
+  add('invalid-step-201', json({ ...base, step: 'x'.repeat(201) }), 'invalid');
+  add('invalid-step-null', json({ ...base, step: null }), 'invalid');
+  add('invalid-step-number', json({ ...base, step: 2 }), 'invalid');
+  add('invalid-title-121', json({ ...base, title: 't'.repeat(121) }), 'invalid');
+  add('invalid-title-number', json({ ...base, title: 3 }), 'invalid');
+  add('invalid-everything', json({ v: 1, root: 'x', env: {}, id: 'x', step: '', title: false, other: 0 }), 'invalid');
+
+  const build: { name: string; artifact: unknown; step?: string; expected: unknown }[] = [];
+  const artifactFor = (root: string, title: string) => ({ id, title, project: { root, environment: { ...env, unsupportedOverride: false } } });
+  const addBuild = (name: string, root: string, title: string, step?: string) => {
+    const artifact = artifactFor(root, title);
+    const result = buildEnvelope(artifact, step === undefined ? {} : { step });
+    const urls = result.ok ? { launcher: launcherUrl(DEFAULT_LAUNCHER_BASE, result.encoded), vscode: vscodeUri(result.encoded), rider: riderUri(result.encoded) } : undefined;
+    build.push({ name, artifact, ...(step === undefined ? {} : { step }), expected: { ...result, ...(urls ? { urls } : {}) } });
+    return result;
+  };
+  addBuild('walkthrough-level', 'C:\\repo', 'Retry flow');
+  addBuild('with-step', '/home/me/repo', 'Retry flow', 's1.2');
+  addBuild('non-ascii', 'C:\\Users\\Jürgen\\项目', 'Wie 😀 funktioniert');
+  const shortened = addBuild('title-shortened', 'C:\\repo', 'T'.repeat(200));
+  if (!shortened.ok || shortened.envelope.title !== 'T'.repeat(119) + '…') throw new Error('Launch fixture title-shortened');
+  addBuild('title-shortened-surrogate', 'C:\\repo', 'a'.repeat(116) + '😀'.repeat(10));
+  const dropped = addBuild('title-dropped', rootFor(1536), 'Dropped title');
+  if (!dropped.ok || 'title' in dropped.envelope) throw new Error('Launch fixture title-dropped');
+  const tooLong = addBuild('too-long', rootFor(1536) + 'r'.repeat(4), 'Too long');
+  if (tooLong.ok) throw new Error('Launch fixture too-long');
+
+  return {
+    fixtureVersion: 1,
+    limits: LAUNCH_LIMITS,
+    prefixes: { launcherBase: DEFAULT_LAUNCHER_BASE, vscode: VSCODE_LAUNCH_PREFIX, rider: RIDER_LAUNCH_PREFIX },
+    categories: ['malformed', 'too-long', 'unsupported-version', 'invalid'],
+    decode,
+    build,
+  };
 }

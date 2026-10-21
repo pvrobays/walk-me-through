@@ -8,6 +8,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Walk Me Through" anchor="right"
                     factoryClass="io.github.pvrobays.walkmethrough.WalkthroughToolWindowFactory"/>
+        <jbProtocolCommand implementation="io.github.pvrobays.walkmethrough.LaunchProtocolCommand"/>
+        <notificationGroup id="Walk Me Through" displayType="BALLOON"/>
     </extensions>
     <actions>
         <action id="WalkMeThrough.Next" class="io.github.pvrobays.walkmethrough.NextWalkthroughAction" text="Walk Me Through: Next Step"/>

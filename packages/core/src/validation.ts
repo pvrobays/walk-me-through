@@ -7,6 +7,8 @@ export interface Problem {
   details?: Record<string, unknown>;
 }
 export type Validation<T> = { ok: true; value: T; errors: [] } | { ok: false; errors: Problem[] };
+export const artifactIdPattern = /^\d{8}T\d{9}Z-[a-z2-7]{6}$/;
+export const absolutePathPattern = /^(?:\/|[A-Za-z]:[\\/]|\\\\)/;
 export const isRecord = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value);
 export const isInteger = (value: unknown, min = 0): value is number => Number.isSafeInteger(value) && (value as number) >= min;

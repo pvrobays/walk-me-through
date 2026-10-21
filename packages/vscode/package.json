@@ -7,7 +7,7 @@
   "private": true,
   "engines": { "vscode": "^1.90.0" },
   "main": "./dist/extension.js",
-  "activationEvents": ["onCommand:walkMeThrough.openWalkthrough", "onView:walkMeThrough.steps", "onView:walkMeThrough.step"],
+  "activationEvents": ["onUri", "onCommand:walkMeThrough.openWalkthrough", "onView:walkMeThrough.steps", "onView:walkMeThrough.step"],
   "capabilities": { "untrustedWorkspaces": { "supported": true } },
   "contributes": {
     "commands": [

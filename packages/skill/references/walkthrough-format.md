@@ -20,7 +20,7 @@ Without `match`, the entire range is selected, excluding its final line break. W
 
 Write the top-level sequence as a concise, self-contained account of the mechanism or finding, its consequence, and essential caveats. Keep uncertainty and verification limits (including an untested proposed repair) understandable without children. Readers can use **Skip Details** to follow this path.
 
-Each nested level adds optional evidence, examples, or implementation depth, with descriptive titles and no repeated parent explanation or missing main conclusion. **Next** follows the full depth-first path; **Previous** always reverses that order, even after a skip. Use a flat sequence when no deep dive is useful; do not nest merely to reach four levels. Keep precise minimal locations and the nested-leaf location rules above. The walkthrough supplements the normal answer at the user's requested depth; successful replies still lead with **Walkthrough available**, title, opening instructions, ID, and artifact path.
+Each nested level adds optional evidence, examples, or implementation depth, with descriptive titles and no repeated parent explanation or missing main conclusion. **Next** follows the full depth-first path; **Previous** always reverses that order, even after a skip. Use a flat sequence when no deep dive is useful; do not nest merely to reach four levels. Keep precise minimal locations and the nested-leaf location rules above. The walkthrough supplements the normal answer at the user's requested depth; successful replies still lead with **Walkthrough available**: title, the returned launch `url` verbatim when present, ID, artifact path, and the picker fallback.
 
 ## Example
 
@@ -75,7 +75,13 @@ This example runs against `examples/sample-project` using `--root examples/sampl
 
 Stdout contains exactly one JSON object. Exit code **0** means success, **1** means invalid input/source selections, and **2** means usage, environment, filesystem, or internal failure.
 
-Success contains `ok: true`, `id`, project-relative `artifactPath`, `stepCount`, `warnings`, and `open` picker instructions identifying the title and ID. In VS Code or Rider, run **Walk Me Through: Open Walkthrough** and explicitly choose that title/ID. Both players consume the same v1 artifact and shared authoring bundle. No launch URL is emitted. `non-unique-anchor` warnings name the affected `stepId` and input `path`. Artifacts are immutable under `.walk-me-through/walkthroughs/`; that tree ignores itself via `.walk-me-through/.gitignore` containing `*`.
+Success contains `ok: true`, `id`, project-relative `artifactPath`, `stepCount`, `warnings`, an optional `url`, and `open` instructions identifying the title and ID. Both players consume the same v1 artifact and shared authoring bundle. `non-unique-anchor` warnings name the affected `stepId` and input `path`. Artifacts are immutable under `.walk-me-through/walkthroughs/`; that tree ignores itself via `.walk-me-through/.gitignore` containing `*`.
+
+`url` is a replayable HTTPS launcher link, `https://pvrobays.github.io/walk-me-through/#<envelope>`. Its fragment is a script-built envelope that identifies this artifact in this checkout on this machine. Copy it verbatim as a clickable link. Never shorten, wrap, re-encode, edit, or construct one. The launcher page sends nothing to a server. It shows what will open and offers explicit **Open in VS Code** and **Open in Rider** choices, with install help and a retry. `open` then reads: `Open <url> and choose VS Code or Rider, or run Walk Me Through: Open Walkthrough in VS Code or Rider and choose "<title>" (ID <id>) in the picker.`
+
+If the envelope would exceed 1,536 characters (in practice, only for a very long project root), the artifact is still saved and the result is still a success. `url` is then omitted, `warnings` contains `{code: "launch-link-too-long", length, limit: 1536}`, and `open` gives only the picker instructions. Reply with the picker fallback and never invent a link.
+
+The publisher's `--launcher-url <base>` option exists only for repository development (previewing a local launcher page). Agents never pass it. An invalid value fails with `INVALID_LAUNCHER_URL`.
 
 Failures contain `ok: false` and `errors`. Every error has `code`, field `path` (`$` for document/runtime errors), `message`, repair `hint`, and `recovery`. Source failures also include `details.sourcePath`, requested `startLine`/`endLine`, and current `lineCount` where available. Ambiguity includes `occurrenceLines`. Files are not dumped into errors.
 
@@ -89,6 +95,7 @@ Failures contain `ok: false` and `errors`. Every error has `code`, field `path` 
 | `RANGE_OUT_OF_BOUNDS` | `fix-input`: correct range using current line count |
 | `SOURCE_UNREADABLE`, `SOURCE_OUTSIDE_ROOT` | `fix-input`: choose an existing UTF-8 source inside the real project root |
 | `INPUT_FILE_NOT_FOUND`, `ROOT_NOT_RESOLVED`, `USAGE` | `fix-input`: correct invocation, input path, or development `--root` |
+| `INVALID_LAUNCHER_URL` | `fix-input`: development-only `--launcher-url` was not `https://` or `http://localhost`/`127.0.0.1`; omit it in normal use |
 | `NODE_VERSION_UNSUPPORTED`, `ENVIRONMENT_UNSUPPORTED` | `fix-environment`: report Node 20+ / native Windows or native Linux local setup requirements |
 | `ARTIFACT_WRITE_FAILED` | `fix-environment`: report filesystem failure; check permissions/free space |
 | `INTERNAL_ERROR` | `report`: report the tool failure without fabricating an artifact |

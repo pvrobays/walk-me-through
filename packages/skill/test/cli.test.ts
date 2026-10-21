@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFileSync, spawnSync } from 'node:child_process';
 import type { InputLocation } from '../../core/src/input';
+import { decodeEnvelope } from '../../core/src/launch';
 
 const temporary: string[] = [];
 afterEach(() => { for (const directory of temporary.splice(0)) rmSync(directory, { recursive: true, force: true }); });
@@ -24,17 +25,40 @@ function fixture() {
   }
   return { root, script, draft, run };
 }
-it('runs from a subdirectory with no node_modules, publishes twice immutably, and returns picker instructions without a URL', () => {
+it('runs from a subdirectory with no node_modules, publishes twice immutably, and returns a launch URL plus picker instructions', () => {
   const { root, draft, run } = fixture();
   expect(existsSync(path.join(root, 'node_modules'))).toBe(false);
   const first = run([path.relative(path.join(root, 'src/deep'), draft)], path.join(root, 'src/deep'));
   expect(first.status).toBe(0); expect(first.json).toMatchObject({ ok: true, stepCount: 1, open: expect.stringContaining('picker') });
-  expect(first.json.open).toContain(first.json.id); expect(first.json.open).toContain('Retry investigation'); expect(first.json.url).toBeUndefined();
+  expect(first.json.open).toContain(first.json.id); expect(first.json.open).toContain('Retry investigation');
+  expect(Object.keys(first.json)).toEqual(['ok', 'id', 'artifactPath', 'stepCount', 'warnings', 'url', 'open']);
+  const base = 'https://pvrobays.github.io/walk-me-through/#';
+  expect(first.json.url.startsWith(base)).toBe(true);
+  expect(first.json.open.startsWith(`Open ${first.json.url} and choose VS Code or Rider, or run Walk Me Through: Open Walkthrough`)).toBe(true);
+  const saved = JSON.parse(readFileSync(path.join(root, first.json.artifactPath), 'utf8'));
+  expect(decodeEnvelope(first.json.url.slice(base.length))).toEqual({ ok: true, envelope: {
+    v: 1, root: saved.project.root, env: { kind: saved.project.environment.kind, platform: saved.project.environment.platform }, id: first.json.id, title: 'Retry investigation' } });
   const firstPath = path.join(root, first.json.artifactPath); const content = readFileSync(firstPath, 'utf8');
   const second = run(); expect(second.status).toBe(0); expect(second.json.id).not.toBe(first.json.id);
+  expect(second.json.url).not.toBe(first.json.url);
   expect(readFileSync(firstPath, 'utf8')).toBe(content);
   expect(readdirSync(path.join(root, '.walk-me-through/walkthroughs'))).toHaveLength(2);
   expect(readFileSync(path.join(root, '.walk-me-through/.gitignore'), 'utf8')).toBe('*\n');
+});
+it('accepts a development launcher base and rejects unsafe ones without publishing', () => {
+  const { root, draft, run } = fixture();
+  const local = run([draft, '--launcher-url', 'http://localhost:8123']);
+  expect(local.status).toBe(0); expect(local.json.url).toMatch(/^http:\/\/localhost:8123\/#[A-Za-z0-9_-]+$/);
+  const both = run([draft, '--launcher-url', 'https://example.test/preview', '--root', root]);
+  expect(both.status).toBe(0); expect(both.json.url.startsWith('https://example.test/preview/#')).toBe(true);
+  for (const bad of ['http://example.test/', 'file:///C:/launcher/', 'javascript:alert(1)']) {
+    const result = run([draft, '--launcher-url', bad]);
+    expect(result.status).toBe(2); expect(result.json).toMatchObject({ ok: false, errors: [{ code: 'INVALID_LAUNCHER_URL' }] });
+  }
+  for (const args of [[draft, '--launcher-url'], [draft, '--launcher-url', 'https://a/', '--launcher-url', 'https://b/'], [draft, '--other', 'x']]) {
+    expect(run(args).json).toMatchObject({ ok: false, errors: [{ code: 'USAGE' }] });
+  }
+  expect(readdirSync(path.join(root, '.walk-me-through/walkthroughs'))).toHaveLength(2);
 });
 it('reports a missing root outside installed layout and missing input as usage errors', () => {
   const { root, draft, run } = fixture();

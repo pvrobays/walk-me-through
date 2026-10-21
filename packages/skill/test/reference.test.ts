@@ -17,6 +17,15 @@ it('publishes the reference example against the sample source files', () => {
     expect(output.open).toContain('VS Code or Rider');
     expect(output.open).toContain(output.id);
     expect(output.open).toContain('in the picker');
+    expect(output.url.startsWith('https://pvrobays.github.io/walk-me-through/#')).toBe(true);
+    expect(output.open.startsWith(`Open ${output.url} and choose VS Code or Rider, or run Walk Me Through: Open Walkthrough`)).toBe(true);
     expect(reference).toContain('VS Code or Rider');
+    expect(reference).toContain('launch-link-too-long');
+    expect(reference).toContain('Copy it verbatim');
+    const skill = readFileSync('packages/skill/SKILL.md', 'utf8');
+    expect(skill).toContain('**Walkthrough available**');
+    expect(skill).toContain('copied verbatim');
+    expect(skill).toContain('do not offer or fabricate a link');
+    expect(skill).not.toContain('--launcher-url');
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

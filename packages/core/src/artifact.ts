@@ -1,6 +1,6 @@
 import { comparePositions, type Range } from './coords';
 import { LIMITS } from './limits';
-import { isInteger, isRecord, isRelativePath, isText, problem, type Problem, type Validation } from './validation';
+import { absolutePathPattern, artifactIdPattern, isInteger, isRecord, isRelativePath, isText, problem, type Problem, type Validation } from './validation';
 
 export type Evidence = 'observation' | 'hypothesis' | 'conclusion';
 export interface Anchor {
@@ -69,12 +69,12 @@ export function validateArtifact(value: unknown): Validation<Artifact> {
   if (!isRecord(value)) return { ok: false, errors: [problem('$', 'Expected an artifact object.', 'INVALID_ARTIFACT')] };
   if (value.schemaVersion !== 1) add('schemaVersion', 'Unsupported schemaVersion. Update the viewer to read this walkthrough.');
   if (!isRecord(value.generator) || value.generator.name !== 'walk-me-through' || typeof value.generator.bundleVersion !== 'string' || !/^\d+\.\d+\.\d+(?:[-+][\w.-]+)?$/.test(value.generator.bundleVersion)) add('generator', 'Expected generator name and semantic bundle version.');
-  if (typeof value.id !== 'string' || !/^\d{8}T\d{9}Z-[a-z2-7]{6}$/.test(value.id)) add('id', 'Expected a timestamp and six lowercase base32 characters.');
+  if (typeof value.id !== 'string' || !artifactIdPattern.test(value.id)) add('id', 'Expected a timestamp and six lowercase base32 characters.');
   if (!utcTimestamp(value.createdAt)) add('createdAt', 'Expected an ISO-8601 UTC millisecond timestamp.');
   if (!isText(value.title, LIMITS.title)) add('title', `Title must contain 1–${LIMITS.title} characters.`);
   if (!isText(value.summary, LIMITS.summary)) add('summary', `Summary must contain 1–${LIMITS.summary} characters.`);
   const project = value.project;
-  if (!isRecord(project) || typeof project.root !== 'string' || !/^(?:\/|[A-Za-z]:[\\/]|\\\\)/.test(project.root)) add('project.root', 'Expected an absolute project root.');
+  if (!isRecord(project) || typeof project.root !== 'string' || !absolutePathPattern.test(project.root)) add('project.root', 'Expected an absolute project root.');
   if (!isRecord(project) || !isRecord(project.environment) || !isText(project.environment.kind, 100) || !isText(project.environment.platform, 100) || typeof project.environment.unsupportedOverride !== 'boolean') add('project.environment', 'Expected environment kind, platform, and unsupportedOverride.');
   if (!isRecord(value.source) || (value.source.git !== null && (!isRecord(value.source.git) || typeof value.source.git.commit !== 'string' || !/^[a-f0-9]{7,64}$/i.test(value.source.git.commit) || typeof value.source.git.dirty !== 'boolean'))) add('source.git', 'Expected git commit and dirty flag, or null.');
   if (!Array.isArray(value.steps) || value.steps.length === 0 || value.steps.length > LIMITS.steps) {

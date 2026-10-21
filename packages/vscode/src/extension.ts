@@ -4,6 +4,8 @@ import { checkEnvironment } from '@walk-me-through/core/env';
 import { discover, loadArtifact } from './store';
 import { Session } from './session';
 import type { TestApi } from './testApi';
+import type { OpenArtifact } from './open';
+import { handleLaunchUri, type LaunchHost } from './launch';
 import { resolve } from '@walk-me-through/core/resolve';
 import { Comments } from './comments';
 import { Highlights } from './highlights';
@@ -46,15 +48,36 @@ export function activate(context: vscode.ExtensionContext): TestApi | undefined 
   };
   let openRequest = 0;
   const register = (name: string, callback: (...args: any[]) => unknown) => context.subscriptions.push(vscode.commands.registerCommand(`walkMeThrough.${name}`, callback));
+  /** Local desktop requirement shared by the picker and launch links; undefined when playback is allowed. */
+  const environmentRefusal = (): string | undefined => {
+    const environment = checkEnvironment({ nodeVersion: process.versions.node, platform: process.platform, env: process.env, exists: existsSync, readText: name => readFileSync(name, 'utf8') });
+    if (vscode.env.remoteName) return 'Walk Me Through supports local desktop VS Code on native Windows and native Linux; remote hosts are unsupported.';
+    return environment.ok ? undefined : environment.errors.map(error => error.message).join('\n');
+  };
+  /**
+   * The single open path for the picker and launch links: load and validate, then replace the active walkthrough.
+   * A newer request supersedes this one at every await. With `expectedId`, a mismatching file never replaces the session.
+   */
+  const openArtifact: OpenArtifact = async (uri, options = {}) => {
+    const request = options.request ?? ++openRequest;
+    const loaded = await loadArtifact(uri);
+    if (request !== openRequest) return 'superseded';
+    if (options.expectedId !== undefined && loaded.artifact.id !== options.expectedId) {
+      throw new Error(`${uri.fsPath}: id: expected walkthrough ID ${options.expectedId}, but the file contains ${loaded.artifact.id}.`);
+    }
+    if (loaded.rootWarning) void vscode.window.showWarningMessage(loaded.rootWarning);
+    await session.open(loaded.artifact, loaded.root);
+    const stepId = options.stepId;
+    if (stepId === undefined || stepId === 'overview') return 'opened';
+    if (!loaded.artifact.steps.some(step => step.id === stepId)) return 'step-missing';
+    if (request !== openRequest) return 'superseded';
+    await session.goToStep(stepId);
+    return 'opened';
+  };
   register('openWalkthrough', async (value?: string | vscode.Uri) => {
     const request = ++openRequest;
-    const environment = checkEnvironment({ nodeVersion: process.versions.node, platform: process.platform, env: process.env, exists: existsSync, readText: name => readFileSync(name, 'utf8') });
-    if (vscode.env.remoteName || !environment.ok) {
-      void vscode.window.showErrorMessage(vscode.env.remoteName
-        ? 'Walk Me Through supports local desktop VS Code on native Windows and native Linux; remote hosts are unsupported.'
-        : environment.errors.map(error => error.message).join('\n'));
-      return;
-    }
+    const refusal = environmentRefusal();
+    if (refusal) { void vscode.window.showErrorMessage(refusal); return; }
     try {
       let uri = typeof value === 'string' ? vscode.Uri.file(value) : value;
       if (!uri) {
@@ -68,18 +91,30 @@ export function activate(context: vscode.ExtensionContext): TestApi | undefined 
         if (!uri) uri = (await vscode.window.showOpenDialog({ canSelectMany: false, filters: { Walkthrough: ['json'] }, openLabel: 'Open Walkthrough' }))?.[0];
       }
       if (!uri || request !== openRequest) return;
-      const loaded = await loadArtifact(uri);
-      if (request !== openRequest) return;
-      if (loaded.rootWarning) void vscode.window.showWarningMessage(loaded.rootWarning);
-      await session.open(loaded.artifact, loaded.root);
+      await openArtifact(uri, { request });
     } catch (error) { void vscode.window.showErrorMessage(`Cannot open walkthrough: ${String(error)}`); }
   });
   register('closeWalkthrough', async () => { openRequest++; await session.close(); });
+  const launchHost = (folders?: readonly vscode.Uri[]): LaunchHost => ({
+    openArtifact, environmentRefusal, platform: process.platform,
+    workspaceFolders: () => folders ?? vscode.workspace.workspaceFolders?.map(folder => folder.uri) ?? [],
+    revealPlayer: () => vscode.commands.executeCommand('workbench.view.extension.walkMeThrough'),
+    notify: (level, message) => void (level === 'error' ? vscode.window.showErrorMessage(message)
+      : level === 'warning' ? vscode.window.showWarningMessage(message) : vscode.window.showInformationMessage(message)),
+  });
+  context.subscriptions.push(vscode.window.registerUriHandler({
+    handleUri: uri => handleLaunchUri(uri, launchHost()).then(undefined, error => {
+      void vscode.window.showErrorMessage(`Cannot open walkthrough link: ${String(error)}`);
+    }),
+  }));
   register('next', () => session.next());
   register('previous', () => session.previous());
   register('skipDetails', () => session.skipDetails());
   register('goToStep', (id: string) => session.goToStep(id));
   register('returnToCurrentStep', () => session.refresh());
   context.subscriptions.push(session, comments, highlights, tree, stepView);
-  return context.extensionMode === vscode.ExtensionMode.Test ? { getState: () => ({ ...session.getState(), ...(session.isActive ? { thread: comments.getState(), decoration: highlights.getState(), view: stepView.getState() } : {}) }) } : undefined;
+  return context.extensionMode === vscode.ExtensionMode.Test ? {
+    getState: () => ({ ...session.getState(), ...(session.isActive ? { thread: comments.getState(), decoration: highlights.getState(), view: stepView.getState() } : {}) }),
+    launch: (uri, folders) => handleLaunchUri(uri, launchHost(folders)),
+  } : undefined;
 }

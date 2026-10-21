@@ -55,6 +55,21 @@ export async function buildExtension() {
   });
 }
 
+export async function buildLauncher(outfile = path.join(root, 'launcher/launcher.js')) {
+  await build({
+    absWorkingDir: root,
+    entryPoints: ['packages/launcher/src/main.ts'],
+    outfile,
+    bundle: true,
+    format: 'iife',
+    platform: 'browser',
+    target: 'es2020',
+    minify: false,
+    legalComments: 'none',
+    banner: { js: '// GENERATED - Walk Me Through launcher. Source: packages/launcher/src/ and packages/core/src/launch.ts. Run npm run build.' },
+  });
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  await Promise.all([buildSkill().then(() => buildManifest()), buildExtension()]);
+  await Promise.all([buildSkill().then(() => buildManifest()), buildExtension(), buildLauncher()]);
 }

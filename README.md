@@ -36,7 +36,7 @@ Uncertainty notices explicitly say the original location is unconfirmed and the 
 
 A local Kotlin plugin now plays the same saved v1 artifacts in **native Windows Rider 2026.2.3.1 (RD-262.10968.170)**. It provides a docked Markdown explanation/outline, precise current-buffer highlights, Next/Previous/Skip Details/Return and explicit artifact selection. The prototype and integrated player are owner-accepted in Rider and VS Code; explicit offline verification is pending. Build/test/package and exact-target Plugin Verifier checks pass. See [Rider build/run/install and usage](packages/rider/README.md) for its isolated sandbox and development ZIP. No public plugin publication or wider Rider compatibility is claimed.
 
-The shared publisher/skill now offers **Walk Me Through: Open Walkthrough** in VS Code or Rider, selecting the returned title/ID. Publishing needs Node 20+; Rider playback itself does not need Node.
+The shared publisher and skill return a replayable launch link along with the title and ID. The link opens a static launcher page where you choose **Open in VS Code** or **Open in Rider** (see [Open walkthrough links](#open-walkthrough-links)). You can also run **Walk Me Through: Open Walkthrough** in either IDE and pick the returned title/ID. Publishing needs Node 20+; Rider playback itself does not need Node.
 
 ### Use the skill in a project
 
@@ -46,13 +46,54 @@ npm run skill:install -- <projectDir>
 
 The project directory must exist. The command copies the four-file bundle into `.agents/skills/walk-me-through/`. It refuses differing files unless `--force` is supplied. Commit the bundle yourself, then **quit and restart OpenCode** in that project to discover it.
 
-Ask the agent to explain a mechanism spanning several locations. It writes a draft and runs the bundled script; the consuming project needs no package installation. The reply begins with the walkthrough title, opening instructions, ID, and path, followed by the normal answer retaining the requested findings, evidence, rationale, and uncertainty.
+Ask the agent to explain a mechanism spanning several locations. It writes a draft and runs the bundled script; the consuming project needs no package installation. The reply begins with the walkthrough title, the launch link, ID, path, and picker fallback, followed by the normal answer retaining the requested findings, evidence, rationale, and uncertainty.
 
 Walkthrough authors make the top-level steps a concise complete account, including consequences, essential caveats, and whether a proposed repair is untested. Optional children add supporting evidence and deeper implementation detail rather than repeating the parent. Read the concise path with **Skip Details**, or the full path with **Next**. Simple explanations can stay flat; nesting is limited to four levels and nested leaves still need precise source locations. The sample demonstrates both paths, including expression and multiline selections.
 
 Publishing returns one JSON object. `fix-input` errors identify the field/source/range and repair hint: inspect source and correct the input before retrying. `fix-environment` and `report` indicate blockers to report. If publishing fails, the agent still gives its normal answer and states the blocker. See the [format and recovery reference](packages/skill/references/walkthrough-format.md).
 
-Artifacts live under `.walk-me-through/walkthroughs/`, ignored through `.walk-me-through/.gitignore`. Each publish preserves older artifacts. This slice uses explicit picker delivery; HTTPS launch links and multi-IDE choices are required follow-up work.
+Artifacts live under `.walk-me-through/walkthroughs/`, ignored through `.walk-me-through/.gitignore`. Each publish preserves older artifacts, and each link keeps opening its own artifact.
+
+### Open walkthrough links
+
+A successful publish returns `url`, for example `https://pvrobays.github.io/walk-me-through/#eyJ2Ijox…`. The part after `#` is a base64url envelope of at most 1,536 characters. It contains the recorded checkout root, the execution environment, the artifact ID, and a display-only title. It contains no source text. Browsers never send the fragment to the server, and the page sends nothing anywhere.
+
+The launcher page shows the title, ID, and project root. It offers **Open in VS Code** (`vscode://pvrobays.walk-me-through/open?e=…`) and **Open in Rider** (`jetbrains://rider/walkmethrough/open?e=…`). Nothing opens until you click one. After a click, the page shows that IDE's install help and a **Retry** link. The page cannot detect whether an IDE or plugin is installed. The page remembers only which IDE you chose last, and uses that only to highlight the button. **Copy ID** supports the picker fallback.
+
+Each IDE plays the walkthrough only when the window or project that receives the link already contains the recorded checkout: the exact folder, a subfolder of an opened folder, or a multi-root workspace folder. Another clone or worktree of the same repository does not match. Otherwise the IDE shows a notice that names the root and asks you to open that checkout and retry. It never opens, replaces, or reloads workspaces. Opening and focusing the correct window, and starting a closed IDE into the project, are the next routing milestone.
+
+VS Code link behavior and current limits:
+
+- The link always goes to the **VS Code window you focused last**, even if another window has the checkout open. If that window shows the "open the checkout and retry" notice, focus the window that has the checkout, then click **Retry**.
+- The first time, VS Code asks whether the Walk Me Through extension may open the link. Confirm it; the dialog shows the full link, including the local root.
+- The extension activates on demand when a link arrives. A link that targets a step opens there; an unknown step opens the overview with a notice. Re-opening the active walkthrough reloads it in place.
+- Windows registers `vscode://` to whichever VS Code installation started last. Running `npm run test:extension` registers the downloaded test build (`.vscode-test`). Start your normal VS Code once afterwards to take the handler back.
+- VS Code on Linux installed from a `.tar.gz` archive registers no `vscode://` handler.
+
+Rider specifics (JetBrains Toolbox/jetbrainsd, cold start, and logging) are in [the Rider README](packages/rider/README.md#launch-links).
+
+The full URI, including the local project root, appears in browser history, in VS Code's confirmation dialog, and in Rider's `idea.log`. Links work only on the machine and checkout that published them.
+
+### Install the VS Code extension (VSIX)
+
+The extension is not on the Marketplace yet. Build and install a local package:
+
+```sh
+npm install
+npm run package:vsix
+code --install-extension packages/vscode/walk-me-through-0.1.0.vsix
+```
+
+Alternatively, in VS Code open **Extensions → … → Install from VSIX…** and select that file. Reload VS Code if it asks. Use the desktop VS Code installation that you start normally, so it owns the `vscode://` handler (see the notes above). Then return to the launcher page and click **Retry**, or click the original link again.
+
+### Install the Rider plugin (ZIP)
+
+The Rider plugin is a local development build for native Windows Rider 2026.2.3.1 only.
+
+1. Build `packages/rider/build/distributions/walk-me-through-rider-0.1.0-prototype.zip` as described in [Rider development](packages/rider/README.md#windows-build-sandbox-and-install).
+2. In Rider, open **Settings → Plugins → gear → Install Plugin from Disk…**, select the ZIP, and restart Rider.
+3. `jetbrains://` links are delivered by **JetBrains Toolbox** (its `jetbrainsd` URL handler). Install Toolbox if it is not already installed. The plugin registers no URL scheme of its own.
+4. Open the recorded project in Rider, then retry from the launcher page, or click the original link again.
 
 ### Development
 
@@ -63,7 +104,19 @@ npm test
 npm run test:extension
 ```
 
-`npm test` runs core/script/Markdown tests, the committed-bundle check, and workflow structure checks. Extension tests download VS Code 1.90.2 on first use. On native Linux, use `xvfb-run -a npm run test:extension`. CI repeats checks on Windows/Linux with Node 20; native Linux needs no override. `npm run package:vsix` builds a local package; public distribution is a follow-up.
+`npm test` runs core/script/Markdown/launcher tests, the committed-bundle and launcher-asset checks, fixture drift checks, and workflow structure checks. Extension tests download VS Code 1.90.2 on first use. On native Linux, use `xvfb-run -a npm run test:extension`. CI repeats checks on Windows/Linux with Node 20; native Linux needs no override. `npm run package:vsix` builds a local package; public distribution is a follow-up.
+
+### Preview the launcher locally
+
+The launcher source is `packages/launcher/src/`. `npm run build` regenerates the committed `launcher/launcher.js`, and `npm test` fails if that file is stale. `launcher/index.html` and `launcher/styles.css` are hand-written. To try links against the local page:
+
+```sh
+npm run build
+npm run launcher:serve
+node packages/skill/scripts/publish-walkthrough.mjs examples/sample-project/walkthrough-input.json --root examples/sample-project --launcher-url http://localhost:8123/
+```
+
+`launcher:serve` (`scripts/serve-launcher.mjs`, no dependencies) serves only the three launcher files on `127.0.0.1:8123`. Pass `--port <n>` to use another port. `--launcher-url` is a development-only publisher option. It accepts `https://` URLs, or `http://localhost` / `http://127.0.0.1` URLs, and the skill never uses it. Open the returned `url` in the browser.
 
 ### Pages preparation
 

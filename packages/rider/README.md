@@ -73,6 +73,22 @@ Use **Skip Details** for the concise complete top-level account; use **Next** fo
 
 Matching refreshes on step entry and Return, using current unsaved documents without saving. It strips only a leading BOM and normalizes line endings. Identical original context is exact; unique identical context elsewhere is relocated. Lost/ambiguous context uses closest identical code with a visible warning and dotted highlight, with explicit earlier-candidate wording on ties. Distance compares lines, then UTF-16 columns, then earlier offset. There is no fuzzy, semantic or old-line fallback. Missing/changed/unreadable code retains its explanation and original path/line in red stale context, without navigating. Close clears session/highlight and disposes the explanation browser; project disposal also removes listeners/jobs.
 
+## Launch links
+
+The plugin handles the launcher page's **Open in Rider** choice through the platform's `com.intellij.jbProtocolCommand` extension point (`LaunchProtocolCommand`, command `walkmethrough`):
+
+```text
+jetbrains://rider/walkmethrough/open?e=<envelope>
+```
+
+`rider` is the Toolbox/jetbrainsd product tag, `walkmethrough` is the command, and `open` is the target. `e` is the unpadded base64url v1 launch envelope, at most 1,536 characters (see `../../tests/conformance/README.md`).
+
+- **Prerequisite:** `jetbrains://` URLs are delivered by **JetBrains Toolbox** through its `jetbrainsd` handler (registered on Windows as `%LOCALAPPDATA%\JetBrains\Daemon\…\jetbrainsd.exe handleUri "%1"`). The plugin registers no OS URL scheme of its own. Without Toolbox, the browser has nothing to open.
+- **Matching:** the command plays the walkthrough only in an already-open project whose base path or content root equals or contains the envelope root. Paths are compared as canonical real paths, case-insensitively on Windows. If several projects match, it uses the last-focused one, or else the most recently opened one. Without a match, an application notification names the root and asks you to open that checkout and retry. The command never opens a project.
+- **Playback:** the plugin loads only `<root>/.walk-me-through/walkthroughs/<id>.json`, validates it with the normal artifact rules, and requires the IDs to match. It then replaces the active walkthrough exactly as **Open Walkthrough** would, reveals the tool window, and goes to the requested step (or shows the overview with a notice when the step is unknown). Invalid links, unsupported environments, and Linux/macOS hosts get notices and leave the session unchanged.
+- **Cold start (observed 2026-10-21 with Rider 2026.2.3.1 and Toolbox):** with Rider closed, the link starts Rider on the welcome/project-selection screen. The command runs about 0.6 s after startup, before any project is open, so it shows the open-and-retry notice there. jetbrainsd showed no prompt or IDE picker. With Rider running, the link reached the running instance unchanged, with one or two projects open.
+- **Log exposure:** the platform logs every external URI at INFO level, including the envelope and therefore the local project root. In `idea.log` it appears as `CommandLineProcessor - external URI request:`, and at cold start also as `AppStarter - args:`. The plugin does not log the envelope again.
+
 ## Packaging, prerequisites, and dependencies
 
 The local ZIP is `build/distributions/walk-me-through-rider-0.1.0-prototype.zip`. It is an owner-accepted integrated development build; explicit offline verification is pending. No Marketplace publication has occurred. Runtime acceptance targets native Windows/Rider 2026.2.3.1 only. Local desktop playback uses JVM code and bundled renderer assets, with no Node/model/companion or package download. Remote/headless hosts receive local-desktop setup guidance. Enable Rider's bundled **Web Browser (JCEF)** and run its bundled JBR; if the earlier unsupported-renderer test disabled `ide.browser.jcef.enabled`, restore it and relaunch.
