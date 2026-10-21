@@ -52,12 +52,33 @@ Each file hash SHALL be computed over UTF-8 text with any leading BOM removed an
 - Write evidence-backed steps, never private chain-of-thought.
 - Prefer the smallest useful ranges, and use `match` for expressions.
 - Write the input under `.walk-me-through/drafts/`.
-- Run the script once, and fix any reported errors.
-- Reply with only a short conclusion, plus how to open the walkthrough, without repeating its content.
+- Publish the input and follow the script's recovery guidance on errors.
 
-#### Scenario: Concise agent reply
+#### Scenario: Evidence-backed walkthrough
 - **WHEN** an agent following the skill publishes a walkthrough
-- **THEN** its reply contains a short conclusion and the opening instruction, and does not reproduce the step explanations or quote the code
+- **THEN** its steps explain findings and supporting code, including uncertainty where appropriate, rather than exposing private internal reasoning
+
+### Requirement: Walkthrough supplements the normal answer
+The skill SHALL preserve the agent's normal user-facing answer, including findings, evidence, rationale, and uncertainty at the detail requested by the user. It SHALL append the walkthrough ID, artifact path, and Open Walkthrough picker instructions. It SHALL NOT replace the answer with only a short conclusion or require a copy of every walkthrough step. It SHALL NOT request private internal chain-of-thought.
+
+#### Scenario: Normal explanation preserved
+- **WHEN** the user requests a detailed explanation and the agent publishes a walkthrough
+- **THEN** the reply still provides the requested explanation and adds the artifact path, ID, and instructions for choosing it in VS Code
+
+#### Scenario: Walkthrough unavailable
+- **WHEN** publishing cannot finish because of an environment or tool failure
+- **THEN** the agent still gives its normal answer, explains that the walkthrough could not be created, and does not claim that a saved artifact exists
+
+### Requirement: Publishing error recovery guidance
+The skill SHALL tell the agent to correct `fix-input` errors using the supplied hint and current source before retrying. For `fix-environment`, it SHALL report the required setup; for `report`, it SHALL report the tool failure. It SHALL NOT instruct the agent to retry unchanged input, loop on repeated identical errors, or fabricate anchors or artifacts.
+
+#### Scenario: Empty selection corrected
+- **WHEN** publishing returns `EMPTY_SELECTION` with recovery `fix-input`
+- **THEN** the agent checks the referenced source and corrects the range or snippet to meaningful code before publishing again
+
+#### Scenario: Repeated unrepairable error
+- **WHEN** the same error recurs without a new correction available
+- **THEN** the agent stops retrying, reports the remaining blocker, and preserves its normal answer
 
 #### Scenario: Missing Node
 - **WHEN** `node` is unavailable or older than version 20
@@ -71,7 +92,7 @@ Each file hash SHALL be computed over UTF-8 text with any leading BOM removed an
 - A `match` location.
 - Evidence labels.
 
-It SHALL also document the script's limits, its exit codes, and how to interpret errors.
+It SHALL also document the script's limits, exit codes, structured error fields and codes, and recovery actions, with examples for empty selections, missing/ambiguous snippets, unsupported environments, and internal failures.
 
 #### Scenario: Example is valid
 - **WHEN** the example input from the format reference is published against matching sample files

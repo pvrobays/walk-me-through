@@ -20,28 +20,31 @@ Walk Me Through currently exists only as design documentation. We need one compl
 - Add a dependency-free Node publishing script, `publish-walkthrough.mjs`, bundled from the shared core with esbuild and committed inside the skill bundle. It will:
   - Resolve the project root from its installed location.
   - Reject unsupported environments.
-  - Validate the input.
+  - Validate the input and return actionable errors with repair and retry guidance.
   - Resolve precise selections.
   - Capture anchors.
   - Write the artifact atomically.
-  - Print one concise JSON result.
+  - Print one concise JSON result identifying the saved artifact and how to choose it in the IDE. This slice returns no launch URL.
 - Add context-first source anchoring. Playback reports one of four states:
   - **Exact**: the code is still at its original position.
   - **Relocated**: the code moved, and its captured context identifies the new position confidently.
   - **Uncertain**: the nearest identical match is used, with a visible warning.
   - **Stale**: there is no identical match, so nothing is highlighted.
 - Add a minimal VS Code player that opens a walkthrough in the current window. It includes:
+  - An explicit artifact picker, sorted newest first, without automatically opening the latest walkthrough.
   - A nested steps tree.
   - Markdown comment threads beside code.
   - A sidebar Step view for summary, narrative, and stale steps.
   - Precise highlight decorations.
   - Previous, Next, and direct navigation in depth-first order.
 - Add the skill bundle:
-  - `SKILL.md`, which tells the agent to write concise, evidence-backed input, run the script once, and reply with only a short summary.
+  - `SKILL.md`, which tells the agent to write concise, evidence-backed input, publish it, and append the walkthrough ID, artifact path, and opening instructions to its normal user-facing explanation. Preserve findings, evidence, uncertainty, and rationale; do not request private internal chain-of-thought.
   - A format reference.
   - A manifest with versions and normalized file hashes.
   - A developer-only command that copies the bundle into a project.
 - Add a sample project and walkthrough input so the whole flow can be tried locally.
+- Support authoring and playback on native Windows and native Linux, with checks on both platforms. WSL, SSH, containers, and other unsupported environments remain excluded.
+- Prepare a GitHub Pages deployment workflow targeting the future `launcher/` directory. It skips deployment until `launcher/index.html` exists. The launcher itself remains a follow-up; document the change from the owner's current main/root branch publishing setting to the GitHub Actions Pages source when enabling workflow deployment.
 
 Out of scope, and left for follow-up changes:
 - The HTTPS launcher and launch envelope.
@@ -73,8 +76,9 @@ None. No specs exist yet.
   - `packages/core`, `packages/skill`, and `packages/vscode`.
   - The sample project under `examples/`.
   - A `.gitattributes` file enforcing LF line endings.
+  - GitHub Actions workflows for Windows/Linux verification and gated Pages deployment.
 - **New development dependencies**: TypeScript, esbuild, vitest, `@types/node`, `@types/vscode`, `@vscode/test-cli`, `@vscode/test-electron`, and `@vscode/vsce` (packaging only).
 - **Extension runtime dependency**: `markdown-it`, bundled into the extension and used to render the Step view. The published script has no runtime dependencies.
-- **Runtime requirements**: Node 20 or later, available as `node` to the agent. Desktop VS Code on native Windows. The minimum VS Code engine version is provisional until it has been tested.
-- **Documentation**: the README status and development instructions are updated once the slice works.
+- **Runtime requirements**: Node 20 or later, available as `node` to the agent. Desktop VS Code on native Windows or native Linux. The minimum VS Code engine version is provisional until it has been tested.
+- **Documentation**: the README status and development instructions are updated once the slice works, including normal-answer-plus-walkthrough guidance, both supported platforms, actionable errors, and the Pages source-setting instructions.
 - **Consuming projects**: get `.agents/skills/walk-me-through/` (committed by the developer) and a `.walk-me-through/` directory that ignores itself.

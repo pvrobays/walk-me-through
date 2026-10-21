@@ -58,14 +58,15 @@
 - [ ] 4.1 Implement `validateInput` for v1 input.
   - Reject unknown fields.
   - Check required fields, types, the evidence enum, depth of at most 4, location rules, and the size limits.
-  - Collect every error, each with a JSON path such as `steps[1].children[0].location`.
+  - Collect independent errors, each with `code`, `path` (such as `steps[1].children[0].location`), `message`, `hint`, and `recovery`. Avoid downstream errors for structurally invalid fields.
   - Verify: vitest covers each `walkthrough-publishing` input scenario, including unknown fields, a fifth level, too many steps, and a nested leaf without a location.
 - [ ] 4.2 Implement selection resolution from an input location plus normalised file text.
   - Check line bounds; the error reports the file's actual line count.
   - Select whole lines when there is no `match`.
   - When `match` is given, find exactly one occurrence within the range. The ambiguous-match error lists the occurrence lines.
-  - Reject empty and whitespace-only selections.
-  - Verify: vitest covers whole-line, expression, multiline match, ambiguous, missing, blank, and out-of-range cases.
+  - Reject empty and whitespace-only selections with `EMPTY_SELECTION`. Include the source path/range and a hint to inspect current source, choose meaningful code, or omit the location for an eligible narrative/grouping step.
+  - Return repair-specific `MATCH_NOT_FOUND`, `MATCH_AMBIGUOUS`, and `RANGE_OUT_OF_BOUNDS` errors, including occurrence lines/current line count where relevant, with `fix-input` recovery.
+  - Verify: vitest covers whole-line, expression, multiline match, ambiguous, missing, blank, and out-of-range cases, asserting the actionable error fields and repair hints as well as rejection.
 
 ## 5. Core anchoring
 
@@ -83,10 +84,10 @@
 
 - [ ] 6.1 Implement `env.ts`.
   - Node 20 or later check.
-  - Detection of WSL, container, SSH, and non-Windows platforms.
-  - The `WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT=1` override, recorded as `unsupportedOverride`.
+  - Accept native Windows and native Linux; detect and reject WSL, containers, SSH, and other unsupported platforms before accepting a platform.
+  - The development-only `WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT=1` override, recorded as `unsupportedOverride`; native Linux must not require it and it must not bypass the Node version check.
   - Environment variables, the filesystem, and the Node version are injectable.
-  - Verify: vitest covers the WSL message, the old-Node message, SSH on Windows, and the override.
+  - Verify: vitest covers native Windows/Linux acceptance, the WSL message, the old-Node message, SSH on either platform, Linux container markers, unsupported platforms, and the override; blockers include `fix-environment` recovery and setup hints.
 - [ ] 6.2 Implement `publish.ts` orchestration, with filesystem and git access injected.
   - Resolve the root from the script location, or from `--root`.
   - Resolve each source realpath and keep it inside the root, including symlink escape checks.
@@ -100,20 +101,23 @@
   - Usage: `<input.json> [--root <dir>]`. The input path resolves against the current working directory.
   - Output: exactly one JSON object on stdout.
   - Exit codes: 0 for success, 1 for validation errors, 2 for usage or environment errors.
-  - The success result includes an `open` hint.
+  - The success result includes an `open` hint identifying the saved artifact by title/ID and telling the user to choose it in the picker, alongside the artifact path. No URL is returned in this slice.
+  - All failures return stable error codes, affected paths, messages, repair hints, and `fix-input`/`fix-environment`/`report` recovery. Internal failures are reported without creating an artifact; a recovery action never recommends retrying unchanged invalid input.
   - No IDE, network, or background-process side effects.
   - Verify: `npm run build` regenerates `publish-walkthrough.mjs`.
-- [ ] 6.4 Add script integration tests in `packages/skill/test`. They spawn the generated script with `node` against temporary fixture projects that use the installed bundle layout, with the override variable set when not on Windows.
-  - Verify: tests cover invocation from a subdirectory, the missing-root usage error, a missing input file (exit 2), two validation errors (exit 1), success output, creation of `.walk-me-through/.gitignore`, both artifacts surviving a second publish, a clean `git status` in a git fixture, and running from a copy that has no `node_modules`.
+- [ ] 6.4 Add script integration tests in `packages/skill/test`. They spawn the generated script with `node` against temporary fixture projects that use the installed bundle layout. Run without the environment override on native Windows and native Linux; use an override only for explicitly unsupported development test hosts.
+  - Verify: tests cover invocation from a subdirectory, the missing-root usage error, a missing input file (exit 2), two validation errors (exit 1), structured recovery output for empty/missing/ambiguous selections and runtime blockers, success output with no URL, creation of `.walk-me-through/.gitignore`, both artifacts surviving a second publish, a clean `git status` in a git fixture, and running from a copy that has no `node_modules`.
 
 ## 7. Skill bundle
 
 - [ ] 7.1 Write `packages/skill/SKILL.md`.
   - Frontmatter: `name: walk-me-through`, plus a description.
-  - Cover when to use the skill, the explanation rules (evidence-backed, smallest ranges, `match` for expressions, no chain-of-thought), writing drafts under `.walk-me-through/drafts/`, the exact `node …/publish-walkthrough.mjs` command, fixing errors, the missing or old Node guidance, and the concise reply format.
+  - Cover when to use the skill, the explanation rules (evidence-backed, smallest ranges, `match` for expressions, no private internal chain-of-thought), writing drafts under `.walk-me-through/drafts/`, and the exact `node …/publish-walkthrough.mjs` command.
+  - Preserve the normal user-facing answer at the requested detail and append the walkthrough ID/path and picker instructions. Do not replace it with only a short summary or require duplication of every step.
+  - Follow error recovery hints: correct input and inspect current source before retrying, report environment/tool blockers, and stop on repeated errors without a new correction. Keep the normal answer even if publishing fails; never fabricate an artifact or hashes.
   - Verify: review against the `skill-bundle` agent guidance scenarios.
 - [ ] 7.2 Write `packages/skill/references/walkthrough-format.md`.
-  - Document every input field, the limits, the exit codes, and the error format.
+  - Document every input field, the limits, exit codes, stable error codes/fields, and recovery actions. Include error examples for empty selections, missing/ambiguous snippets, environment blockers, and internal failures.
   - Include one example that uses `examples/sample-project` files and covers nested steps, a narrative step, a whole-line location, a `match` location, and evidence labels.
   - Verify: a vitest test extracts the example JSON and publishes it successfully with `--root examples/sample-project`.
 - [ ] 7.3 Generate `manifest.json` in `scripts/build.mjs`.
@@ -152,13 +156,13 @@
   - Verify: integration tests cover two artifacts in a subfolder project and a multi-root fixture.
 - [ ] 9.3 Implement `session.ts` and the Open/Close commands.
   - Open behaviour:
-    - Without an argument: a picker sorted newest first, with a Browse option and an empty-state hint.
+    - Without an argument: a picker sorted newest first, showing title/ID, with a Browse option and an empty-state hint. Wait for a user choice; never automatically open latest.
     - With a path: open that artifact directly.
-  - Error handling: refuse in remote hosts (`env.remoteName`); show an error and start nothing for invalid artifacts.
+  - Error handling: support local native Windows/Linux, refuse WSL/SSH/containers and remote hosts (`env.remoteName`) or other unsupported platforms; show an error and start nothing for invalid artifacts.
   - Session rules: one active walkthrough per window, replaced when another opens. The synthetic overview entry comes first, followed by depth-first order with no wrap-around.
   - Context keys: `walkMeThrough.active`, `walkMeThrough.hasNext`, and `walkMeThrough.hasPrevious`.
   - Return the test API (`getState`) in test mode.
-  - Verify: integration tests cover open by path, replace, close clearing all state, a fifth-level artifact being refused, and no wrap-around at either end.
+  - Verify: integration tests cover open by path, a no-argument invocation waiting for picker selection, replace, close clearing all state, a fifth-level artifact being refused, no wrap-around at either end, and local Linux acceptance without an override.
 
 ## 10. VS Code extension: presentation
 
@@ -193,30 +197,44 @@
   - Link clicks open only `http` and `https` links, via `env.openExternal`.
   - Verify: unit tests cover the Markdown renderer neutralising `<script>`, `<img onerror>`, and `command:` links. An integration test checks that the view state reports the explanation for narrative and stale steps.
 
-## 11. Documentation and end-to-end verification
+## 11. Native-platform verification and Pages preparation
 
-- [ ] 11.1 Update `README.md`.
+- [ ] 11.1 Add `.github/workflows/ci.yml` for native Windows and native Linux.
+  - Run build, type checking, core/script/bundle checks, and extension-host tests on `windows-latest` and `ubuntu-latest`; use `xvfb-run` for the Linux extension-host suite.
+  - Native Linux publishing tests run without the unsupported-environment override. Document commands/results and distinguish automated coverage from manual desktop checks.
+  - Verify: workflow validation passes and both platforms' checks pass when the workflow is run; record any unavailable hosted-run verification rather than claiming success.
+- [ ] 11.2 Add `.github/workflows/pages.yml` targeting the future `launcher/` assets.
+  - Trigger manually and on relevant pushes to `main`; check for `launcher/index.html` and skip deployment with a clear summary when absent.
+  - When assets exist, use official configure/upload/deploy Pages actions, appropriate permissions/concurrency, and the `github-pages` deployment environment. Upload only `launcher/`, never the repository root or local project artifacts.
+  - Document the owner's reported main/root branch-publishing setting and the required switch to GitHub Actions as the Pages source before workflow deployment. Do not change repository settings or build a placeholder launcher in this slice.
+  - Verify: workflow structure validates, the no-launcher gate skips deployment, and upload targets only `launcher/`. A live deployment is verified in the later launcher change.
+
+## 12. Documentation and end-to-end verification
+
+- [ ] 12.1 Update `README.md` and reconcile `IMPLEMENTATION.md` with the latest decisions.
   - Status: the vertical slice is implemented, with its scope and limits.
   - Add a "Try the vertical slice" section covering `npm install`, `npm run build`, publishing the sample with `--root`, F5 with `examples/sample-project`, and Open Walkthrough.
-  - Add development commands and requirements (Node 20+, desktop VS Code on native Windows).
+  - Add development commands and requirements (Node 20+, desktop VS Code on native Windows/Linux), explicit picker-only delivery for this slice, and the required future HTTPS/multi-IDE link flow.
+  - Replace short-answer-only guidance with normal-answer-plus-walkthrough guidance; document actionable error recovery and the gated Pages workflow/source-setting instructions.
   - Record the confirmed `engines.vscode` value and any resolved open questions in `IMPLEMENTATION.md`.
   - Verify: follow the README steps verbatim and confirm they work.
-- [ ] 11.2 Run the full automated suite: `npm run typecheck`, `npm test` (core, skill, and check:bundle), and the extension-host tests.
-  - Verify: everything passes on native Windows.
-- [ ] 11.3 Manual UX check in the Extension Development Host, using the sample walkthrough. Record the results in the change or in `IMPLEMENTATION.md`.
+- [ ] 12.2 Run the full automated suite: `npm run typecheck`, `npm test` (core, skill, and check:bundle), and the extension-host tests.
+  - Verify: native Windows and native Linux checks pass locally or through the CI matrix; record the platforms actually exercised.
+- [ ] 12.3 Manual UX check in the Extension Development Host, using the sample walkthrough. Record the results and host platform in the change or in `IMPLEMENTATION.md`.
   - Markdown in comments renders bold, italic, inline code, lists, and fenced code blocks. Note whether the code blocks are syntax-highlighted.
   - The Step view renders the overview and narrative steps.
   - Expression and multiline highlights are exact.
   - The uncertain style and warning are visibly distinct.
   - The stale banner shows, with no highlight.
   - Previous/Next work from the thread title, the Step view, and the Command Palette.
-- [ ] 11.4 Real agent check. Run `npm run skill:install -- <a scratch project>`, restart OpenCode there, and ask it to explain a mechanism.
-  - Verify: the skill is discovered; the agent writes a draft and runs the script once (fixing any errors); the reply is concise and gives the open hint without repeating the content; Open Walkthrough plays the result.
+- [ ] 12.4 Real agent check. Run `npm run skill:install -- <a scratch project>`, restart OpenCode there, and ask it to explain a mechanism.
+  - Verify: the skill is discovered; the agent writes a draft and publishes it, following error recovery guidance; the normal explanation remains in the reply with the artifact ID/path and picker instructions appended; Open Walkthrough plays the chosen artifact.
+  - Exercise an empty-selection failure: the agent receives the code/field/source/range/hint, corrects the input before retrying, and does not blindly repeat it. An environment/tool blocker is reported without claiming a saved walkthrough.
 
 ## Workflow follow-up
 
 - These are follow-up changes, not part of this one:
-  - The HTTPS launcher and launch envelope.
+  - The required HTTPS launcher and launch envelope, including multi-IDE choices. The gated Pages workflow is already prepared by this change.
   - The URI handler and window routing.
   - The skill installation prompt and update flow.
   - Marketplace and `.vsix` release publishing.

@@ -52,7 +52,7 @@ The path SHALL resolve, after following symlinks, to an existing UTF-8 text file
 
 #### Scenario: Blank selection rejected
 - **WHEN** a location without `match` covers only empty or whitespace-only lines
-- **THEN** publishing fails because the selection contains no anchorable text
+- **THEN** publishing fails with `EMPTY_SELECTION`, naming the input field, source path, and line range, and instructing the agent to inspect the current source and select meaningful code before retrying
 
 #### Scenario: Binary or non-UTF-8 file
 - **WHEN** a location refers to a file containing NUL bytes or invalid UTF-8
@@ -95,7 +95,7 @@ The script SHALL reject input that exceeds any documented limit: total step coun
 - **THEN** publishing fails and states the maximum
 
 ### Requirement: Project root from installation location
-The script SHALL determine the project root from its own installed location, `<root>/.agents/skills/walk-me-through/scripts/`, without depending on the working directory or on git. Input paths SHALL be resolved against that root. An explicit `--root <dir>` option SHALL take precedence, for development use.
+The script SHALL determine the project root from its own installed location, `<root>/.agents/skills/walk-me-through/scripts/`, without depending on the working directory or on git. Source paths SHALL be resolved against that root; the input JSON file path is relative to the working directory. An explicit `--root <dir>` option SHALL take precedence, for development use.
 
 #### Scenario: Invoked from a subdirectory
 - **WHEN** the installed script is run from `<root>/src/deep/dir`
@@ -106,7 +106,7 @@ The script SHALL determine the project root from its own installed location, `<r
 - **THEN** it fails with a usage error explaining how to supply `--root`
 
 ### Requirement: Supported execution environment
-The script SHALL run only under native Windows, using Node 20 or later. Each of the following SHALL produce an actionable message and no artifact:
+The script SHALL run under native Windows and native Linux, using Node 20 or later. Each of the following SHALL produce an actionable message and no artifact:
 - An older Node version.
 - WSL.
 - An SSH session.
@@ -117,7 +117,11 @@ A documented development and test override SHALL allow running the script on oth
 
 #### Scenario: WSL detected
 - **WHEN** the script runs inside WSL
-- **THEN** it exits with an unsupported-environment error that names WSL and states that the MVP supports native Windows
+- **THEN** it exits with an unsupported-environment error that names WSL and states that the MVP supports native Windows and native Linux, excluding WSL
+
+#### Scenario: Native Linux accepted
+- **WHEN** the script runs locally on native Linux with a supported Node version, outside WSL, SSH, or a container
+- **THEN** publishing succeeds without an environment override and records platform `linux`
 
 #### Scenario: Old Node
 - **WHEN** the script runs on Node 18
@@ -125,12 +129,35 @@ A documented development and test override SHALL allow running the script on oth
 
 ### Requirement: Command-line interface and result output
 The script SHALL be invoked as `node publish-walkthrough.mjs <input.json> [--root <dir>]`. It SHALL print exactly one JSON object to stdout:
-- **On success:** `ok: true`, the walkthrough ID, the project-relative artifact path, the step count, any warnings, and a short instruction for opening the walkthrough.
-- **On failure:** `ok: false` and a list of errors, each with an input path and a message.
+- **On success:** `ok: true`, the walkthrough ID, the artifact path, step count, warnings, and instructions to choose that artifact using Open Walkthrough. No launch URL is returned in this slice.
+- **On failure:** `ok: false` and a list of actionable structured errors.
 
 #### Scenario: Successful publish
 - **WHEN** a valid input file is published
 - **THEN** the script prints a single JSON object containing `ok: true`, the walkthrough ID, the artifact path, and the opening instruction
+
+### Requirement: Actionable structured errors
+Every publishing error SHALL include a stable `code`, affected field `path`, human-readable `message`, repair `hint`, and `recovery`: `fix-input`, `fix-environment`, or `report`. Source errors SHALL include the file and requested range where available. The script SHALL NOT create an artifact on failure. An unchanged invalid input SHALL NOT be recommended for retry.
+
+#### Scenario: Blank selection recovery
+- **WHEN** a selection contains only whitespace
+- **THEN** the error has code `EMPTY_SELECTION` and recovery `fix-input`, with a hint to read the source, correct the range or snippet, and retry after correction
+
+#### Scenario: Missing snippet recovery
+- **WHEN** the exact snippet does not occur in the requested lines
+- **THEN** the error has code `MATCH_NOT_FOUND` and recovery `fix-input`, naming the file and range and asking the agent to re-read the current source and correct the snippet or range
+
+#### Scenario: Ambiguous snippet recovery
+- **WHEN** the snippet occurs more than once within the requested lines
+- **THEN** the error has code `MATCH_AMBIGUOUS` and recovery `fix-input`, with occurrence lines and a hint to narrow the range or extend the snippet until unique
+
+#### Scenario: Environment recovery
+- **WHEN** Node is too old or the execution environment is unsupported
+- **THEN** the error has recovery `fix-environment` and describes the required setup, so the agent can report the blocker instead of retrying the same input
+
+#### Scenario: Unexpected tool failure
+- **WHEN** an unexpected internal error prevents publishing
+- **THEN** the error has code `INTERNAL_ERROR` and recovery `report`, telling the agent to report the failure without fabricating an artifact or repeatedly retrying
 
 ### Requirement: Exit codes
 The script SHALL exit with code 0 on success, 1 for input validation errors, and 2 for usage or environment errors.

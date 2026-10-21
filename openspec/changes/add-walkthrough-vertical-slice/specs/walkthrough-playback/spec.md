@@ -7,12 +7,7 @@ Defines how the Walk Me Through VS Code extension plays a walkthrough in the cur
 ## ADDED Requirements
 
 ### Requirement: Open walkthrough command
-The extension SHALL provide a **Walk Me Through: Open Walkthrough** command. Without an argument, it SHALL:
-- List the artifacts found under any `.walk-me-through/walkthroughs/` directory in the open workspace folders.
-- Sort them newest first, each showing its title, creation time, and project.
-- Offer an option to browse for an artifact file.
-
-When given an artifact path, the command SHALL open that artifact directly.
+The extension SHALL provide **Walk Me Through: Open Walkthrough**. Without an argument, it SHALL list workspace artifacts from `.walk-me-through/walkthroughs/` in a picker, newest first, showing title, ID, creation time, and project, with a Browse option. It SHALL wait for an explicit choice, never automatically play latest. Given an artifact path, it SHALL open that artifact directly.
 
 #### Scenario: Choose from list
 - **WHEN** the user runs the command in a workspace containing two artifacts
@@ -25,6 +20,10 @@ When given an artifact path, the command SHALL open that artifact directly.
 #### Scenario: No artifacts
 - **WHEN** no artifacts exist in the workspace
 - **THEN** the picker offers only the browse option and explains how walkthroughs are created
+
+#### Scenario: No automatic latest playback
+- **WHEN** a new artifact exists and the user runs the command without an argument
+- **THEN** the picker opens and no walkthrough starts until the user chooses one
 
 ### Requirement: Source paths resolved against artifact project
 Source paths SHALL be resolved against the project root that contains the artifact's `.walk-me-through/` directory. If that directory differs from the artifact's recorded project root, the player SHALL show a visible warning naming both paths, and SHALL still play the walkthrough. Project roots that are subfolders of a workspace folder, or that belong to a multi-root workspace, SHALL be supported.
@@ -174,7 +173,11 @@ When an artifact fails validation, the player SHALL show an error naming the fil
 - **THEN** an error is shown, and no walkthrough becomes active
 
 ### Requirement: Unsupported environment notice
-When the extension runs in a remote extension host, such as WSL, SSH, or a container, Open Walkthrough SHALL explain that the MVP supports desktop VS Code on native Windows only. It SHALL NOT start playback.
+Open Walkthrough SHALL support desktop VS Code on native Windows and native Linux. In WSL, SSH, containers, remote extension hosts, or other unsupported platforms, it SHALL explain the supported environments and SHALL NOT start playback.
+
+#### Scenario: Native Linux playback
+- **WHEN** Open Walkthrough runs in local desktop VS Code on native Linux
+- **THEN** the picker and playback work without a development override
 
 #### Scenario: Remote window
 - **WHEN** Open Walkthrough runs in a WSL remote window

@@ -4,7 +4,7 @@
 
 The repository currently contains only documentation (`README.md`, `IMPLEMENTATION.md`) and the OpenSpec/OpenCode setup. There is no application code, root `package.json`, `.gitignore`, or `.gitattributes`. Git runs with `core.autocrlf=true` on the owner's machine. The development environment observed in review was native Windows, PowerShell 7.6 in Windows Terminal, Node v24.16.0, and VS Code with `code.cmd` on the PATH.
 
-Product decisions are recorded in `IMPLEMENTATION.md`; motivation and scope are in `proposal.md`. Behavior contracts are in the specs:
+Product decisions are recorded in `IMPLEMENTATION.md`; motivation and scope are in `proposal.md`. The owner's later revisions preserve the normal agent answer alongside the walkthrough, accept picker-only delivery for this slice, include native Linux, require actionable error recovery, and prepare a Pages workflow. These revisions supersede the older short-reply/Windows-only handoff wording; the documentation task reconciles that handoff during apply. The owner reports that Pages is enabled with source main/root, which is branch publishing rather than workflow deployment. Behavior contracts are in the specs:
 - `walkthrough-artifact`
 - `walkthrough-publishing`
 - `source-anchoring`
@@ -21,13 +21,16 @@ This design covers how to build them.
 - Anchor capture and resolution that is cheap enough to run every time a step becomes current.
 - A player made from standard VS Code surfaces: Comments, Tree View, Webview View, and decorations.
 - Automated tests for all core logic and the main extension behaviors, plus a short manual checklist for visual rendering.
+- Native Windows and native Linux support using the same code paths, verified on both through CI.
+- Publishing errors that tell the agent what to change and whether to retry after correction or report a blocker.
 
 **Non-Goals:**
 - Launch URLs, URI handlers, window routing, pending-request persistence, or any prompt to install the skill.
 - Bundle update or customization detection. The manifest is produced, but nothing compares against it yet.
 - Restoring playback state after a window reload.
 - Re-resolving anchors while the user edits the current file. Anchors are resolved when a step becomes current.
-- Blocking local macOS/Linux VS Code hosts. Only remote extension hosts are refused; other local platforms are simply untested.
+- macOS, WSL, SSH, and container support.
+- Building the HTTPS launcher in this slice. Prepare its deployment workflow, gated on the future launcher existing.
 
 ## Decisions
 
@@ -57,6 +60,8 @@ packages/
     test-fixtures/workspace/ fixture project (artifacts are generated during test setup)
 examples/sample-project/     small TS project + walkthrough-input.json
 .vscode/launch.json          Extension Development Host with examples/sample-project
+.github/workflows/ci.yml     native Windows/Linux verification
+.github/workflows/pages.yml  gated deployment of future launcher/ assets (D11)
 ```
 
 - **npm workspaces** rather than pnpm/yarn, because they come with Node and avoid extra tools for contributors.
@@ -117,7 +122,7 @@ Only `publish`/`env` and the CLI touch `fs`, `child_process`, or `process`. File
 ```
 
 - Validation uses strict, hand-written checks with no schema library, so the script stays dependency-free. Unknown keys are rejected.
-- All errors are collected rather than stopping at the first one. Each error has a JSON path such as `steps[1].children[0].location.match` and a message that says how to fix it.
+- Independent errors are collected rather than stopping at the first one. Do not generate downstream source/range errors for a structurally invalid location. Structured errors use the contract in D7, including a JSON path such as `steps[1].children[0].location.match`, a repair hint, and recovery guidance.
 - **Limits** (constants in `limits.ts`, documented in the format reference):
 
   | Limit | Value |
@@ -204,13 +209,12 @@ The result is `{ state, range?, reason?, tie?, candidateCount }`. In the worst c
 **Startup order:**
 1. Check the Node version. This must run before anything else. The bundle uses `target: node18` syntax, so an older Node can still parse the file far enough to print the "Node 20+ required" message.
 2. Detect the environment (`env.ts`):
-   - Not `win32`: unsupported. The message names the actual environment:
-     - **WSL:** `WSL_DISTRO_NAME`, or `microsoft` in `/proc/version`.
-     - **Container:** `/.dockerenv`, or the `container` environment variable.
-     - **SSH:** `SSH_CONNECTION`, `SSH_CLIENT`, or `SSH_TTY`.
-     - Otherwise, the platform name.
-   - `win32` with SSH variables set: unsupported, as a remote session.
-   - `WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT=1` bypasses the check and records `unsupportedOverride: true`. This exists for CI and tests on Linux and is documented as development-only.
+   - Detect unsupported execution contexts before accepting a platform:
+     - **WSL:** `WSL_DISTRO_NAME`, or `microsoft` in `/proc/version` on Linux.
+     - **Container:** `/.dockerenv`, `/run/.containerenv`, or the `container` environment variable.
+     - **SSH:** `SSH_CONNECTION`, `SSH_CLIENT`, or `SSH_TTY` on either platform.
+   - Accept local `win32` and local `linux` when none of those markers is present; reject other platforms with their names. Native Linux requires no override.
+   - `WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT=1` bypasses only the execution-environment check and records `unsupportedOverride: true`. It is development-only, not normal Linux setup, and does not bypass the minimum Node version.
 3. Read the input file. The path is relative to the current working directory.
 4. Validate the input.
 5. Resolve and read source files, checking each realpath stays inside the root.
@@ -227,17 +231,36 @@ The result is `{ state, range?, reason?, tie?, candidateCount }`. In the worst c
 
 **Exit codes:** 0 for success, 1 for validation errors, 2 for usage and environment errors (unsupported environment, old Node, missing input, unresolvable root). Unexpected internal errors also exit with 2 and `ok: false`.
 
+**Success:** return `{ ok: true, id, artifactPath, stepCount, warnings, open }`. `artifactPath` is project-relative; `open` names the Open Walkthrough command and tells the user to choose the artifact using its title and ID. There is no URL in this slice and no automatic latest playback. Later HTTPS delivery will identify this same immutable artifact and provide multi-IDE launch choices.
+
+**Errors:** return `{ ok: false, errors: [...] }`. Every error has `{ code, path, message, hint, recovery, details? }`. `path` is a JSON field path, or `$` for document/runtime failures. `details` includes `sourcePath`, requested `startLine`/`endLine`, actual line count, and occurrence lines where applicable, without dumping the whole file.
+
+| Error examples | Recovery | Required repair hint |
+| --- | --- | --- |
+| `EMPTY_SELECTION` | `fix-input` | Inspect the file/range and choose meaningful code; do not simply broaden the range blindly. For eligible narrative/grouping steps, remove the location instead. |
+| `MATCH_NOT_FOUND` | `fix-input` | Re-read the current file and correct the snippet or line range. |
+| `MATCH_AMBIGUOUS` | `fix-input` | Use the reported occurrence lines to narrow the range or extend the snippet until unique. |
+| `RANGE_OUT_OF_BOUNDS` | `fix-input` | Correct the range using the reported current line count. |
+| `INVALID_INPUT`, `INVALID_JSON` | `fix-input` | Correct the named field/type or JSON syntax. |
+| `INPUT_FILE_NOT_FOUND`, `ROOT_NOT_RESOLVED` | `fix-input` | Correct the input path or use the installed script/explicit development root. |
+| `NODE_VERSION_UNSUPPORTED`, `ENVIRONMENT_UNSUPPORTED` | `fix-environment` | Report the required Node/platform/local execution setup. |
+| `ARTIFACT_WRITE_FAILED` | `fix-environment` | Report the filesystem failure and required permissions/free space. |
+| `INTERNAL_ERROR` | `report` | Report the tool failure; do not retry unchanged input repeatedly or fabricate an artifact. |
+
+`fix-input` means retry only after making a correction. It is not a signal to immediately repeat the same command. `fix-environment` and `report` are blockers to publishing until the environment/tool issue is resolved. Errors never create a published artifact, and the skill still provides the normal answer if publication fails.
+
 ### D8. Extension architecture
 - **Activation:** on commands and views only (no `*` or startup activation).
 - **Workspace trust:** `capabilities.untrustedWorkspaces.supported: true`, because the extension only reads files and renders untrusted Markdown safely.
 - **`engines.vscode`:** `^1.90.0`, provisional (see Open Questions).
-- **Remote hosts:** if `vscode.env.remoteName` is defined, Open Walkthrough shows the unsupported message.
+- **Environment:** accept local native Windows and Linux. If `vscode.env.remoteName` is defined, or the host environment identifies WSL/SSH/container execution, show the unsupported message. Reject other local platforms. Reuse the environment detection contract rather than treating all Linux execution as remote.
 
 **Store:**
 - For each workspace folder, `<folder>/.walk-me-through/walkthroughs/*.json` is read directly through `workspace.fs`.
 - `workspace.findFiles('**/.walk-me-through/walkthroughs/*.json', '**/node_modules/**')` is also queried, to find nested projects. Results are deduplicated.
 - Reading the folder directly means discovery works even if `findFiles` skips dot-folders or ignored paths.
 - The picker reads only the header fields of each artifact. Full validation runs when one is opened.
+- A no-argument invocation always waits for a choice. Sorting newest first never implies selecting or opening the newest artifact automatically. Show the ID so the agent's opening hint identifies the intended walkthrough even when titles repeat.
 - The project root used for playback is the directory containing `.walk-me-through/`. It is compared with `project.root` (realpath, case-insensitive on Windows), and a warning is shown if they differ.
 
 **Session:**
@@ -296,12 +319,12 @@ The result is `{ state, range?, reason?, tie?, candidateCount }`. In the worst c
   - `name: walk-me-through`
   - A `description` saying to use it for explanations and investigations that span several code locations.
 - **`SKILL.md` body:**
-  - Rules for writing explanations: evidence-backed, minimal ranges, `match` for expressions, honest evidence labels, and no chain-of-thought.
+  - Rules for writing explanations: evidence-backed, minimal ranges, `match` for expressions, honest evidence labels, and no private internal chain-of-thought.
   - The exact command: `node .agents/skills/walk-me-through/scripts/publish-walkthrough.mjs .walk-me-through/drafts/<slug>.json`.
-  - How to fix errors and rerun.
+  - How to follow the structured recovery contract: correct `fix-input` errors using the hint/current source, report environment/tool blockers, and stop when the same error repeats without a new correction available.
   - What to do when Node is missing.
-  - The reply format: a 1–3 sentence conclusion plus the `open` hint from the result, with no repeated content.
-- **Format reference:** documents every field, the limits, exit codes, and errors. Its example uses files from `examples/sample-project`. A test extracts that JSON block and publishes it with `--root examples/sample-project`.
+  - Preserve the normal user-facing answer at the requested depth: findings, supporting evidence, rationale, and uncertainty. Append the artifact ID/path and the `open` hint. Do not impose a 1–3 sentence limit or ask the agent to duplicate every step. If publishing fails, retain the normal answer and state the blocker without claiming success.
+- **Format reference:** documents every field, the limits, exit codes, error codes/fields, and recovery actions, with examples for blank selections, missing/ambiguous snippets, and environment/internal failures. Its input example uses files from `examples/sample-project`. A test extracts that JSON block and publishes it with `--root examples/sample-project`.
 - **Manifest:** `scripts/build.mjs` writes `manifest.json` with `manifestVersion` 1, `bundleVersion` 0.1.0 (kept equal to the skill package version), and `walkthroughSchemaVersion` 1. File hashes use the shared normalization (strip BOM, CRLF to LF) from core.
 
 ### D10. Developer install command and sample
@@ -311,6 +334,13 @@ The result is `{ state, range?, reason?, tie?, candidateCount }`. In the worst c
   - It never runs git.
 - **Sample project:** `examples/sample-project` holds a small, deliberately buggy TypeScript retry helper and `walkthrough-input.json`. The input covers a narrative step, a nested three-level path, a `match` expression, and a multiline method.
 - **Trying the flow:** `.vscode/launch.json` opens the sample project in the Extension Development Host. The README "Try the vertical slice" section lists the steps: build, publish with `--root`, then press F5 and run Open Walkthrough.
+
+### D11. Verification and Pages workflow preparation
+- **Native-platform CI:** `.github/workflows/ci.yml` runs build, type checking, core/script/bundle checks, and extension-host tests on `windows-latest` and `ubuntu-latest`. The Linux runner is native Linux, not WSL/container execution; publishing tests must pass without the unsupported-environment override. Use `xvfb-run` for Linux extension-host tests. Record automated results separately from manual desktop checks.
+- **Pages:** `.github/workflows/pages.yml` supports manual dispatch and pushes to `main` that touch `launcher/` or the workflow. It checks for `launcher/index.html` after checkout and skips upload/deploy with a clear summary when absent. The slice creates the workflow, not a placeholder launcher or a launch URL.
+- Once the launcher exists, use the official Pages configure/upload/deploy actions with contents-read, pages-write, and id-token-write permissions scoped appropriately, deployment concurrency, and the `github-pages` environment. Upload only `launcher/`, never the repository root, project artifacts, or `.agents/` files.
+- The owner's current Pages setting is main/root branch publishing. Document that **Settings -> Pages -> Source -> GitHub Actions** is required before workflow deployment; do not change repository settings as part of implementation or assume that branch publishing enables this workflow. The planned URL remains `https://pvrobays.github.io/walk-me-through/`.
+- Verify the workflow structure and its no-launcher skip path in this slice. Live Pages deployment and clickable walkthrough launch are acceptance work for the later launcher change, once the source setting and launcher assets are ready.
 
 ## Risks / Trade-offs
 
@@ -323,6 +353,8 @@ The result is `{ state, range?, reason?, tie?, candidateCount }`. In the worst c
 - **Millisecond IDs can collide or misorder within the same millisecond** → A collision is retried. Misordering within one millisecond is negligible for publishing driven by a human or an agent.
 - **`.gitattributes` renormalizes the existing docs to LF** → This is a one-time change that is acceptable now, while the repository holds only docs.
 - **The generated script is committed and can drift from its source** → `npm run check:bundle` catches drift and runs in the test script.
+- **Native Linux desktop behavior is not exercised by the current Windows session** → Run native Linux CI/extension-host tests; document which visual checks were actually performed and do not claim a Linux manual run without one.
+- **Branch publishing and Actions Pages deployment use different source settings** → Document the required source switch; skip deployment until the launcher exists so this change does not publish incomplete assets.
 
 ## Migration Plan
 
