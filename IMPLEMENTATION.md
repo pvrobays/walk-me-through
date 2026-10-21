@@ -1,6 +1,123 @@
 # Implementation handoff
 
-This document preserves product decisions, current implementation contracts, and follow-ups. Read it with [README.md](README.md). The authoring/publishing/current-window playback slice is implemented and accepted on Windows; the owner also reports a successful manual VS Code integration test on a native Linux host.
+This document preserves product decisions, current implementation contracts, and follow-ups. Read it with [README.md](README.md) (problem and quick start) and [how-it-works.md](how-it-works.md) (user-facing mechanics). The authoring/publishing/current-window playback slice is implemented and accepted on Windows; the owner also reports a successful manual VS Code integration test on a native Linux host. The VS Code extension is published on the Marketplace as [`pvrobays.walk-me-through`](https://marketplace.visualstudio.com/items?itemName=pvrobays.walk-me-through) (owner report, 2026-10-22).
+
+## Status, scope, and development (moved from README, 2026-10-22)
+
+### Current status
+
+- Requirements: Node 20+ and local desktop VS Code or Rider, outside WSL, SSH, containers, and remote extension hosts.
+- VS Code: Windows automated verification (VS Code 1.90.2), manual desktop acceptance (VS Code 1.138.0), and restarted-OpenCode authoring/recovery/playback checks passed. The owner also reports a successful manual VS Code integration test on a native Linux host; automated Linux results are not recorded here. Published on the VS Code Marketplace (owner report, 2026-10-22); GitHub Release `.vsix` files are not yet provided.
+- Rider: a local Kotlin plugin plays the same v1 artifacts in **native Windows Rider 2026.2.3.1 (RD-262.10968.170)**: docked Markdown explanation/outline, precise current-buffer highlights, Next/Previous/Skip Details/Return, and explicit artifact selection. The prototype and integrated player are owner-accepted; explicit offline verification is pending. Build/test/package and exact-target Plugin Verifier checks pass. No public plugin publication or wider Rider compatibility is claimed. See [packages/rider/README.md](packages/rider/README.md).
+- Links: the shared publisher and skill return a replayable HTTPS launch link. Each IDE plays it only in a window/project that already has the recorded checkout open. Correct-window routing and closed-IDE startup are the next routing milestone.
+
+**Current scope:** shared core, project skill and generated script, immutable artifacts, VS Code and Rider players, replayable HTTPS launch links through the live launcher page (playing only in a window/project that already has the checkout open), sample, native-platform CI, Pages deployment, and VS Code Marketplace publication. Correct-window routing, installation/update prompts, GitHub Release `.vsix` files, and Rider distribution remain follow-ups.
+
+### Develop from source
+
+```sh
+npm install
+npm run build
+npm run typecheck
+npm test
+npm run test:extension
+```
+
+`npm test` runs core/script/Markdown/launcher tests, the committed-bundle and launcher-asset checks, fixture drift checks, and workflow structure checks. Extension tests download VS Code 1.90.2 on first use. On native Linux, use `xvfb-run -a npm run test:extension`. CI repeats checks on Windows/Linux with Node 20; native Linux needs no override. `npm run package:vsix` builds a local VSIX.
+
+### Try the sample in an Extension Development Host
+
+```sh
+npm install
+npm run build
+node packages/skill/scripts/publish-walkthrough.mjs examples/sample-project/walkthrough-input.json --root examples/sample-project
+```
+
+Open this repository in desktop VS Code. After building, press **F5** and select **Walk Me Through sample** to open `examples/sample-project` in an Extension Development Host. Run **Walk Me Through: Open Walkthrough** in the new window, then choose **Why retries never back off** using the ID printed by the publisher. F5 does not build the extension automatically; if you change its source, run `npm run build` again and restart the F5 session.
+
+Detailed playback semantics: **Skip Details** is available in the Step view, a code comment's header, and the Command Palette. From a final nested branch it exits to the next branch of an ancestor; from the overview it enters the first top-level step. It is unavailable at the final branch even when **Next** can still enter children. **Previous** immediately after skipping returns to the preceding depth-first step, not the skip origin. **Return to Current Step** re-resolves against unsaved buffers; anchors refresh when a step becomes current, not continuously during edits. A VS Code link activates the extension on demand; a link that targets a step opens there, an unknown step opens the overview with a notice, and re-opening the active walkthrough reloads it in place.
+
+Uncertainty notices say explicitly that the original location is unconfirmed and the closest identical code is shown, including the earlier-candidate choice for ties. The Step view uses compact, moderately smaller warning text with theme-aware color and a warning indicator. Source comments use ordinary paragraph formatting with a warning icon; VS Code controls their font size. The red stale presentation and the informational relocation notice remain distinct.
+
+### Skill installation details
+
+`npm run skill:install -- <projectDir>` requires an existing directory and copies the four-file bundle into `.agents/skills/walk-me-through/`. It refuses differing files unless `--force` is supplied. Commit the bundle yourself, then quit and restart OpenCode in that project to discover it. Walkthrough authors make the top-level steps a concise, complete account, including consequences, essential caveats, and whether a proposed repair is untested. Optional children add evidence and deeper detail rather than repeating the parent. Simple explanations can stay flat; nested leaves still need precise source locations.
+
+### Preview the launcher locally
+
+The launcher source is `packages/launcher/src/`. `npm run build` regenerates the committed `launcher/launcher.js`, and `npm test` fails if that file is stale. `launcher/index.html` and `launcher/styles.css` are hand-written. To try links against the local page:
+
+```sh
+npm run build
+npm run launcher:serve
+node packages/skill/scripts/publish-walkthrough.mjs examples/sample-project/walkthrough-input.json --root examples/sample-project --launcher-url http://localhost:8123/
+```
+
+`launcher:serve` (`scripts/serve-launcher.mjs`, no dependencies) serves only the three launcher files on `127.0.0.1:8123`. Pass `--port <n>` to use another port. `--launcher-url` is a development-only publisher option. It accepts `https://` URLs, or `http://localhost` / `http://127.0.0.1` URLs, and the skill never uses it.
+
+Launcher install-help targets live in `packages/launcher/src/config.ts` and point at the README headings `#install-the-vs-code-extension` and `#install-the-rider-plugin`; a launcher test fails if those headings disappear.
+
+### Pages deployment
+
+The launcher is live at `https://pvrobays.github.io/walk-me-through/`. The Pages source is **GitHub Actions**. The `Deploy launcher to Pages` workflow runs on pushes to `main` that change `launcher/**` or the workflow itself, and it uploads only `launcher/`. On 2026-10-21 the deployed `index.html`, `styles.css`, and `launcher.js` matched the committed files, and repository files such as `README.md` returned 404. The owner confirmed that a published link renders there.
+
+### Intended complete experience
+
+1. Install the Walk Me Through extension from the VS Code Marketplace, or install a `.vsix` release from GitHub.
+2. When opening a Git workspace without the skill, accept an offer to install it into `.agents/skills/walk-me-through/`. The offer appears once per workspace, with workspace-specific and global dismissal options.
+3. Commit the versioned skill and bundled publishing script so teammates' compatible agents can discover them too.
+4. Ask your coding agent to explain a mechanism or investigate a bug.
+5. The agent writes a JSON file with concise Markdown explanations, nested steps, line ranges, and optional exact-text snippets. The bundled script resolves precise selections, captures code anchors, saves a local artifact, and generates a replayable link.
+6. Click the link in the terminal or agent chat. A static landing page offers **Open in VS Code**, plugin installation instructions, and retry controls.
+7. Open the walkthrough in the correct checkout and step through the explanation beside the actual code.
+
+Teammates can generate walkthroughs using the repository skill before installing the viewer. The link helps them install the extension and try opening the walkthrough again.
+
+### Design principles
+
+- **Frictionless hand-off:** get the agent's context to the human as quickly as possible, with one click from the reply to the highlighted code.
+- **Lightweight installation:** an IDE extension and a project-local skill/script bundle; no companion application, daemon, or required MCP server.
+- **Evidence-backed explanations:** curated findings, assumptions, and code references—not a transcript of a model's private internal reasoning.
+- **Useful output:** lead with walkthrough availability and opening details, then preserve the normal answer at the requested depth while referencing local source rather than repeating large excerpts. Generated files and tool arguments still consume model output tokens.
+- **Local playback:** navigating a walkthrough does not call a model.
+- **Precise references:** expression, single-line, and multiline ranges, with captured hashes to relocate unchanged code after surrounding edits.
+- **Visible uncertainty:** when original context cannot be recovered confidently, show a warning beside the nearest identical-code match; mark missing matches stale.
+- **Progressive detail:** a self-contained concise top-level path, with optional additive child evidence and at most four levels including the top level.
+- **Team-shared setup:** the skill always lives in the current project and is versioned through Git.
+- **Correct workspace:** identify the exact checkout, including worktrees and execution environment, rather than just the repository name or remote URL.
+
+### MVP
+
+The first implementation targets **desktop VS Code on native Windows and native Linux, with our own simple player**. It uses VS Code comments, a nested outline, a Step view, and precise highlight decorations. CodeTour is not a dependency.
+
+Build a thin vertical slice first: agent input -> publishing script -> saved artifact -> **Open Walkthrough** in the current window. Then improve the launcher, window routing, onboarding, and updates incrementally.
+
+The MVP includes:
+
+- Project-local, versioned skill and publishing script installation and update offers.
+- Explanation-only walkthroughs for exploration and bug investigations.
+- Stable walkthrough/step identities, Markdown descriptions, and up to four levels of steps. Top-level narrative steps and parent/grouping steps may omit a code location.
+- Precise highlights, Previous/Next navigation, captured-context relocation, and explicitly warned nearest-identical-match fallback.
+- Durable, replayable links to a specific walkthrough and optionally a step.
+- A static HTTPS launcher suitable for GitHub Pages, with launch data in the URL fragment.
+- Local artifacts in `.walk-me-through/`, ignored through that directory's own `.gitignore`; the project skill/script bundle remains versioned.
+- Opening the correct workspace, including when VS Code is closed or another repository is active, with subfolder and multi-root workspace support. If the same checkout is open twice, use the most recently focused matching window.
+- VS Code Marketplace distribution and downloadable `.vsix` files on GitHub Releases.
+
+### What comes next
+
+1. **Rider playback parity**, starting with a Rider-native explanation/highlight prototype and sharing the existing artifact format and repository skill.
+2. **Shared HTTPS launcher**, with explicit VS Code and Rider choices, installation help, and retry.
+3. **Correct-window routing for each IDE**, targeting the exact checkout without replacing unrelated workspaces.
+4. **Project onboarding, customization-aware bundle updates, and distribution**: VS Code is on the Marketplace; GitHub Release `.vsix` files and Rider distribution remain to be defined.
+
+Items 1 and 2 are implemented (see the status above). Later: portable export/sharing, optional MCP delivery, broader agent/remote compatibility, and richer investigation or change-review navigation. See [the agreed delivery sequence](#updated-delivery-sequence--owner-agreed-2026-10-21).
+
+### Related work
+
+[Agent CodeWalk](https://github.com/andylin-hao/agent-codewalk) already provides agent-authored explanations, nested steps, dependency views, change coverage, and hash-based relocation. Its architecture uses a bundled Rust MCP companion and a VS Code frontend. Our emphasis is project-shared setup, link-first delivery, precise expression ranges, and JetBrains playback without a companion application.
+
+[CodeTour](https://github.com/microsoft/codetour) was considered as a playback foundation, but its limited maintenance led us to choose our own player. Both related projects are MIT-licensed; any source reuse should preserve applicable notices. Details are in [§10](#10-existing-projects-and-research).
 
 ## Vertical-slice contracts and verification (2026-10-21)
 
@@ -13,10 +130,10 @@ This document preserves product decisions, current implementation contracts, and
 - `engines.vscode` is `^1.90.0`. Automated Development Host tests pass with VS Code 1.90.2 on Windows, verifying the 1.90 API line. The exact 1.90.0 binary has not been exercised; detailed Linux visual checks have not been recorded.
 - Input/artifact/manifest are v1. The [format reference](packages/skill/references/walkthrough-format.md) documents fields, limits, exit codes, and recovery. Artifacts use flat depth-first steps and immutable timestamp/base32 IDs. Positions are zero-based UTF-16 with exclusive ends. Strict UTF-8 decoding rejects binary files; BOM is stripped and CRLF/lone CR normalize to LF.
 - Context widens up to ten lines above/below. Resolution prefers exact context, then unique relocation, then warned nearest identical context/selection. Distance compares lines, then characters; ties choose the earlier offset and remain uncertain. No fuzzy or old-line fallback exists. Playback uses unsaved buffers and refreshes on step entry/Return to Current Step.
-- Delivery is explicit picker-only. Successful replies lead with the walkthrough title, opening instructions, saved artifact ID/path, then preserve the normal answer's requested findings/evidence/rationale/uncertainty. The required HTTPS launcher, multi-IDE choices, envelope, and window routing are later changes.
+- Delivery (superseded by `add-shared-launcher`): successful replies lead with **Walkthrough available**: the title, the publisher's replayable HTTPS `url` copied verbatim, the ID/path, and the picker fallback. They then keep the normal answer's requested findings, evidence, rationale, and uncertainty. Window routing is a later change.
 - Comments use untrusted Markdown. The Step view renders overview/narrative/stale explanations with a strict CSP and HTTP(S)-only links. Highlight colors and fenced-code rendering still require manual visual acceptance. Nested artifact discovery supplements `findFiles` with direct directory reads because ignored dot-folders may be excluded.
 - Windows full automated run on 2026-10-21 passed: `npm install`, `npm run build`, README sample publishing, `npm run typecheck`, `npm test` (45 tests across 16 files, bundle reproducibility and workflow checks), and `npm run test:extension` (7 tests on VS Code 1.90.2). Publishing ran without an environment override. The sample artifact is Git-ignored. Native Linux/Node 20 CI results remain unavailable; CI configuration is not proof of a hosted run.
-- Workflow YAML/commands validate locally. The missing-launcher gate selects `ready=false`; upload targets only `launcher/`. The owner reports main/root branch publishing. Before future deployment, set **Settings → Pages → Source → GitHub Actions**. Settings are unchanged. Live Pages acceptance belongs to the launcher change.
+- Pages (updated by `add-shared-launcher`): the source is GitHub Actions, and the gated workflow deploys only `launcher/` to `https://pvrobays.github.io/walk-me-through/`. That deployment was live and verified on 2026-10-21.
 - Acceptance is complete for this slice. Per owner decision on 2026-10-21, native Linux automated verification is not an acceptance blocker. The owner subsequently reported a successful manual VS Code integration test on a native Linux host; no Linux CI or detailed visual-check results are claimed. Windows manual Development Host Markdown/highlight/navigation checks, including fenced-code syntax coloring, and the restarted OpenCode discovery/authoring/recovery/playback run passed; details below.
 
 ### Manual acceptance session (2026-10-21, complete)
@@ -41,7 +158,7 @@ The owner uses OpenCode in a terminal extensively, especially to explore code an
 
 **Walk Me Through** presents a curated explanation trail in the IDE: ordered steps, highlighted source, and a description of why each location matters and how it supports the finding. It should help the reader verify claims and make informed decisions.
 
-The README must begin with a summary of this problem and retain this quote:
+The README must stay short (most readers read at most two paragraphs), place this quote above its problem summary, and stress getting the context to the human as quickly and frictionlessly as possible. Details belong in `how-it-works.md` and this file.
 
 > **“Moving the code context out of the model’s output and into the IDE, where it already exists.”**
 
@@ -62,7 +179,7 @@ The owner primarily uses JetBrains Rider, but chose **desktop VS Code on native 
 - A viewer-less teammate should be able to follow the generated link to installation instructions and retry playback after installing.
 - Skill, script, and support files must be versioned together. The plugin must inspect that version and offer updates when necessary.
 - Preserve local customization and never silently downgrade a newer project bundle.
-- Distribute the extension through the VS Code Marketplace and also support downloadable `.vsix` files on GitHub Releases. Publisher identity and actual publication remain to be configured.
+- Distribute the extension through the VS Code Marketplace and also support downloadable `.vsix` files on GitHub Releases. The extension is published on the Marketplace as `pvrobays.walk-me-through` (owner report, 2026-10-22); GitHub Release `.vsix` files are not yet provided.
 
 ### Walkthrough experience
 
@@ -250,9 +367,9 @@ Host static HTML/CSS/JavaScript on GitHub Pages, potentially at:
 https://pvrobays.github.io/walk-me-through/#<encoded-launch-data>
 ```
 
-This is the planned address. The owner reports Pages is enabled with main/root branch publishing. A gated Actions workflow is prepared; switch the Pages source to GitHub Actions before deploying future launcher assets. No live launcher deployment was performed.
+The launcher is live at this address. Pages deploys from GitHub Actions and publishes only `launcher/`.
 
-The future fragment will contain **base64url-encoded JSON** with root, environment, artifact identity, and optional step. Define its fields, limits, validation, and script encoding in the launcher change; test terminal clickability then. Models must not manually encode launch data.
+The fragment is a **base64url-encoded JSON** v1 envelope with the root, environment, artifact ID, an optional step, and a display-only title, at most 1,536 characters. Its fields, limits, and validation are specified in `add-shared-launcher` and shared through `tests/conformance/launch-v1.json`. Links were clickable in Windows Terminal during owner acceptance. Models never encode launch data.
 
 Fragments are not sent in the HTTP request. They remain visible to page JavaScript, browser history, copied links, and the receiving IDE. Keep the launcher self-contained with no analytics or third-party scripts. A hosted page cannot read arbitrary local files; it passes a reference to the IDE, which reads the artifact locally.
 
@@ -438,7 +555,7 @@ The product choices above are agreed. Resolve these smaller details while buildi
 - Exact input/artifact/manifest/envelope schemas, validation/size limits, anchor context cap, nearest-candidate distance metric, and equal-distance tie behavior. Ties must remain visibly uncertain.
 - The explanation surface for location-less steps and any Markdown rendering gaps in editor comments.
 - Actual cross-window focus/forwarding behavior, shared-request lifecycle, and path canonicalization. The routing proposal is not runtime-verified.
-- Marketplace publisher/extension ID (used in IDE links), release/deployment setup, and whether to add VS Code Insiders or Open VSX later. Marketplace plus GitHub Release `.vsix` support is selected; Insiders/Open VSX were not decided.
+- Release/deployment setup for GitHub Release `.vsix` files, and whether to add VS Code Insiders or Open VSX later. The Marketplace ID `pvrobays.walk-me-through` is settled and published; Insiders/Open VSX were not decided.
 - Final HTTPS launcher address and hosting configuration. Long URLs are accepted initially; terminal clickability still needs to be exercised.
 
 ## 12. Start the next implementation session here

@@ -122,8 +122,8 @@ describe('static assets', () => {
       expect(`${target.origin}${target.pathname}`).toBe(REPOSITORY_URL);
       expect(readme.has(target.hash.slice(1)), target.hash).toBe(true);
     }
-    expect(IDE_CONFIG.vscode.install.endsWith('#install-the-vs-code-extension-vsix')).toBe(true);
-    expect(IDE_CONFIG.rider.install.endsWith('#install-the-rider-plugin-zip')).toBe(true);
+    expect(IDE_CONFIG.vscode.install.endsWith('#install-the-vs-code-extension')).toBe(true);
+    expect(IDE_CONFIG.rider.install.endsWith('#install-the-rider-plugin')).toBe(true);
     const text = readFileSync('README.md', 'utf8');
     for (const [, file, anchor] of text.matchAll(/\]\((packages\/rider\/README\.md|)#([a-z0-9-]+)\)/g)) {
       expect(slugs(file || 'README.md').has(anchor), `${file}#${anchor}`).toBe(true);

@@ -5,8 +5,8 @@
   var REPOSITORY_URL = "https://github.com/pvrobays/walk-me-through";
   var IDES = ["vscode", "rider"];
   var IDE_CONFIG = {
-    vscode: { label: "VS Code", install: `${REPOSITORY_URL}#install-the-vs-code-extension-vsix` },
-    rider: { label: "Rider", install: `${REPOSITORY_URL}#install-the-rider-plugin-zip` }
+    vscode: { label: "VS Code", install: `${REPOSITORY_URL}#install-the-vs-code-extension` },
+    rider: { label: "Rider", install: `${REPOSITORY_URL}#install-the-rider-plugin` }
   };
   var PREFERENCE_KEY = "walk-me-through.ide";
 
