@@ -18,7 +18,7 @@
     "check:bundle": "node scripts/check-bundle.mjs",
     "launcher:serve": "node scripts/serve-launcher.mjs",
     "skill:install": "node scripts/install-skill.mjs",
-    "package:vsix": "npm run build && npm exec --workspace packages/vscode -- vsce package",
+    "package:vsix": "npm run build && node -e \"require('fs').copyFileSync('LICENSE', 'packages/vscode/LICENSE')\" && npm exec --workspace packages/vscode -- vsce package --no-dependencies",
     "test:extension": "npm exec --workspace packages/vscode -- vscode-test"
   },
   "devDependencies": {

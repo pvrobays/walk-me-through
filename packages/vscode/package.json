@@ -5,6 +5,8 @@
   "version": "0.1.0",
   "publisher": "pvrobays",
   "private": true,
+  "license": "MIT",
+  "repository": { "type": "git", "url": "https://github.com/pvrobays/walk-me-through" },
   "engines": { "vscode": "^1.90.0" },
   "main": "./dist/extension.js",
   "activationEvents": ["onUri", "onCommand:walkMeThrough.openWalkthrough", "onView:walkMeThrough.steps", "onView:walkMeThrough.step"],

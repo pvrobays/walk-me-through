@@ -8,3 +8,4 @@ out/
 /packages/rider/.intellijPlatform/
 /packages/rider/build/
 /packages/rider/local.properties
+/packages/vscode/LICENSE

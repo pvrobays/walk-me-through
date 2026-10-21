@@ -1,0 +1,6 @@
+# The extension is bundled into dist/extension.js (only `vscode` is external), so ship just that.
+**
+!dist/extension.js
+!media/**
+!package.json
+!LICENSE
