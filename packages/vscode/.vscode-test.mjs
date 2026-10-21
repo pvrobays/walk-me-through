@@ -5,4 +5,7 @@ export default defineConfig({
   workspaceFolder: './test-fixtures/workspace',
   extensionDevelopmentPath: '.',
   launchArgs: ['--disable-extensions', '--disable-workspace-trust'],
+  // Hosted Windows runners exceed mocha's 2s default for editor-driven playback; a timed-out test keeps
+  // running and its cleanup would then interfere with the next suite.
+  mocha: { timeout: 20000 },
 });
