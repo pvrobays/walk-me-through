@@ -4,3 +4,7 @@ out/
 *.vsix
 .vscode-test/
 /.agents/skills/walk-me-through/
+/packages/rider/.gradle/
+/packages/rider/.intellijPlatform/
+/packages/rider/build/
+/packages/rider/local.properties

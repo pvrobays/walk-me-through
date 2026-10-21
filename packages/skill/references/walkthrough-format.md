@@ -75,7 +75,7 @@ This example runs against `examples/sample-project` using `--root examples/sampl
 
 Stdout contains exactly one JSON object. Exit code **0** means success, **1** means invalid input/source selections, and **2** means usage, environment, filesystem, or internal failure.
 
-Success contains `ok: true`, `id`, project-relative `artifactPath`, `stepCount`, `warnings`, and `open` picker instructions identifying the title and ID. No launch URL is emitted. `non-unique-anchor` warnings name the affected `stepId` and input `path`. Artifacts are immutable under `.walk-me-through/walkthroughs/`; that tree ignores itself via `.walk-me-through/.gitignore` containing `*`.
+Success contains `ok: true`, `id`, project-relative `artifactPath`, `stepCount`, `warnings`, and `open` picker instructions identifying the title and ID. In VS Code or Rider, run **Walk Me Through: Open Walkthrough** and explicitly choose that title/ID. Both players consume the same v1 artifact and shared authoring bundle. No launch URL is emitted. `non-unique-anchor` warnings name the affected `stepId` and input `path`. Artifacts are immutable under `.walk-me-through/walkthroughs/`; that tree ignores itself via `.walk-me-through/.gitignore` containing `*`.
 
 Failures contain `ok: false` and `errors`. Every error has `code`, field `path` (`$` for document/runtime errors), `message`, repair `hint`, and `recovery`. Source failures also include `details.sourcePath`, requested `startLine`/`endLine`, and current `lineCount` where available. Ambiguity includes `occurrenceLines`. Files are not dumped into errors.
 

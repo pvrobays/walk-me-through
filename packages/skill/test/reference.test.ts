@@ -11,6 +11,12 @@ it('publishes the reference example against the sample source files', () => {
   try {
     const draft = path.join(directory, 'input.json'); writeFileSync(draft, example);
     const result = spawnSync(process.execPath, ['packages/skill/scripts/publish-walkthrough.mjs', draft, '--root', 'examples/sample-project'], { encoding: 'utf8' });
-    expect(result.status).toBe(0); expect(JSON.parse(result.stdout)).toMatchObject({ ok: true, stepCount: 4 });
+    expect(result.status).toBe(0);
+    const output = JSON.parse(result.stdout);
+    expect(output).toMatchObject({ ok: true, stepCount: 4 });
+    expect(output.open).toContain('VS Code or Rider');
+    expect(output.open).toContain(output.id);
+    expect(output.open).toContain('in the picker');
+    expect(reference).toContain('VS Code or Rider');
   } finally { rmSync(directory, { recursive: true, force: true }); }
 });

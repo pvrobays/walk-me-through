@@ -1,0 +1,21 @@
+<idea-plugin>
+    <id>io.github.pvrobays.walkmethrough</id>
+    <name>Walk Me Through</name>
+    <vendor>Walk Me Through contributors</vendor>
+    <description>Project-local walkthrough playback. Development prototype.</description>
+    <depends>com.intellij.modules.rider</depends>
+    <depends>com.intellij.modules.jcef</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Walk Me Through" anchor="right"
+                    factoryClass="io.github.pvrobays.walkmethrough.WalkthroughToolWindowFactory"/>
+    </extensions>
+    <actions>
+        <action id="WalkMeThrough.Next" class="io.github.pvrobays.walkmethrough.NextWalkthroughAction" text="Walk Me Through: Next Step"/>
+        <action id="WalkMeThrough.Previous" class="io.github.pvrobays.walkmethrough.PreviousWalkthroughAction" text="Walk Me Through: Previous Step"/>
+        <action id="WalkMeThrough.Skip" class="io.github.pvrobays.walkmethrough.SkipDetailsAction" text="Walk Me Through: Skip Details" description="Skip nested details and continue to the next available branch."/>
+        <action id="WalkMeThrough.Return" class="io.github.pvrobays.walkmethrough.ReturnToStepAction" text="Walk Me Through: Return to Current Step"/>
+        <action id="WalkMeThrough.Close" class="io.github.pvrobays.walkmethrough.CloseWalkthroughAction" text="Walk Me Through: Close Walkthrough"/>
+        <action id="WalkMeThrough.Open" class="io.github.pvrobays.walkmethrough.OpenWalkthroughAction"
+                text="Walk Me Through: Open Walkthrough" description="Choose a saved project walkthrough by title or ID"/>
+    </actions>
+</idea-plugin>

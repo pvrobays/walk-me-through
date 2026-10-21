@@ -4,6 +4,10 @@ This document preserves product decisions, current implementation contracts, and
 
 ## Vertical-slice contracts and verification (2026-10-21)
 
+### Rider playback development status
+
+`add-rider-playback` now has an owner-accepted docked prototype and integrated Kotlin player for native Windows Rider 2026.2.3.1 / RD-262.10968.170 / JBR 25.0.4+1-b508.27. Shared v1 fixtures verify validation, UTF-16/text/resolution and real-session traversal semantics across TypeScript/Kotlin. Current-buffer display, project-local loading, outline/actions and owned cleanup have automated coverage. The real Rider solution-backed harness passes; `test buildPlugin verifyPlugin` passes with 32 tests and exact-target compatibility, retaining advisory deprecated/experimental usages. Shared publisher/skill wording supports both IDEs. See `packages/rider/README.md` and the change's `verification.md` for exact commands/results. Final offline/integrated owner acceptance remains pending; no publication or broader compatibility is claimed.
+
 - npm workspaces: editor-independent `packages/core`, canonical `packages/skill`, and `packages/vscode`. Rebuild after source edits. `npm test` checks the committed script and manifest against a fresh build.
 - Node 20+ is required. Native Windows is verified, and the owner reports a successful native Linux manual VS Code integration test. WSL, SSH, containers, remote extension hosts, and other platforms are rejected. The explicit development override never bypasses Node requirements. Local automated checks use Windows/Node 24.16.0; Node 20/Linux verification remains configured in CI.
 - `engines.vscode` is `^1.90.0`. Automated Development Host tests pass with VS Code 1.90.2 on Windows, verifying the 1.90 API line. The exact 1.90.0 binary has not been exercised; detailed Linux visual checks have not been recorded.

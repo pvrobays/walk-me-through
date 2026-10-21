@@ -143,7 +143,7 @@ export function publish(inputValue: unknown, options: PublishOptions): PublishRe
         io.rename(temporary, final);
         return {
           ok: true, id: artifact.id, artifactPath: `.walk-me-through/walkthroughs/${artifact.id}.json`, stepCount: steps.length, warnings,
-          open: `Run Walk Me Through: Open Walkthrough in VS Code and choose "${artifact.title}" (ID ${artifact.id}) in the picker.`,
+          open: `Run Walk Me Through: Open Walkthrough in VS Code or Rider and choose "${artifact.title}" (ID ${artifact.id}) in the picker.`,
         };
       } finally { io.remove(temporary); io.remove(lock); }
     }

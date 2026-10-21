@@ -1,0 +1,4558 @@
+{
+  "fixtureVersion": 1,
+  "validation": [
+    {
+      "name": "narrative-metadata",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "unknown-fields-accepted",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            },
+            "future": 42
+          }
+        ],
+        "future": {
+          "retained": true
+        }
+      },
+      "expected": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "four-levels-evidence",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a1",
+            "parentId": "a",
+            "title": "a1",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a11",
+            "parentId": "a1",
+            "title": "a11",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a111",
+            "parentId": "a11",
+            "title": "a111",
+            "explanation": "**Evidence**",
+            "evidence": "hypothesis",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "b",
+            "parentId": null,
+            "title": "b",
+            "explanation": "**Evidence**",
+            "evidence": "conclusion",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "group-without-location",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          },
+          {
+            "id": "group",
+            "parentId": "a",
+            "title": "Group",
+            "explanation": "Group"
+          },
+          {
+            "id": "leaf",
+            "parentId": "group",
+            "title": "leaf",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": true,
+        "errors": []
+      }
+    },
+    {
+      "name": "bad-version",
+      "input": {
+        "schemaVersion": 2,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "schemaVersion",
+            "message": "Unsupported schemaVersion. Update the viewer to read this walkthrough.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-id",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "latest",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "id",
+            "message": "Expected a timestamp and six lowercase base32 characters.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-date",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-02-30T00:00:00.000Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "createdAt",
+            "message": "Expected an ISO-8601 UTC millisecond timestamp.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty-title",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": " ",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "title",
+            "message": "Title must contain 1–200 characters.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-source",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {},
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "source.git",
+            "message": "Expected git commit and dirty flag, or null.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "no-steps",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": []
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps",
+            "message": "Expected 1–200 steps.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "generator-version",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "latest"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "generator",
+            "message": "Expected generator name and semantic bundle version.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "relative-root",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "relative",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "Overview branch",
+            "explanation": "Narrative"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "project.root",
+            "message": "Expected an absolute project root.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "not-object",
+      "input": null,
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "$",
+            "message": "Expected an artifact object.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "duplicate",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[1].id",
+            "message": "Duplicate step ID.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "forward-cycle",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": "b",
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "b",
+            "parentId": "a",
+            "title": "b",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].parentId",
+            "message": "Parent must refer to an earlier step; missing, forward, and cyclic parents are invalid.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-parent",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": "missing",
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].parentId",
+            "message": "Parent must refer to an earlier step; missing, forward, and cyclic parents are invalid.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "self-parent",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": "a",
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].parentId",
+            "message": "Parent must refer to an earlier step; missing, forward, and cyclic parents are invalid.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "non-depth-first",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a1",
+            "parentId": "a",
+            "title": "a1",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "b",
+            "parentId": null,
+            "title": "b",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a2",
+            "parentId": "a",
+            "title": "a2",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[3].parentId",
+            "message": "Steps must be in depth-first pre-order.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fifth-level",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a1",
+            "parentId": "a",
+            "title": "a1",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a11",
+            "parentId": "a1",
+            "title": "a11",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a111",
+            "parentId": "a11",
+            "title": "a111",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a1111",
+            "parentId": "a111",
+            "title": "a1111",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[4]",
+            "message": "Step exceeds maximum depth 4.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "nested-leaf",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          },
+          {
+            "id": "a1",
+            "parentId": "a",
+            "title": "Leaf",
+            "explanation": "No location"
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[1].location",
+            "message": "Nested leaf steps require a source location.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsafe-path-../escape",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "../escape",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.path",
+            "message": "Expected a project-relative forward-slash path without escaping segments.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsafe-path-/absolute",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "/absolute",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.path",
+            "message": "Expected a project-relative forward-slash path without escaping segments.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsafe-path-C:/outside",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "C:/outside",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.path",
+            "message": "Expected a project-relative forward-slash path without escaping segments.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsafe-path-src\\file",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src\\file",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.path",
+            "message": "Expected a project-relative forward-slash path without escaping segments.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unsafe-path-src/../../escape",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/../../escape",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.path",
+            "message": "Expected a project-relative forward-slash path without escaping segments.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "empty-range",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 0
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.range",
+            "message": "Range must be nonempty and end after its start.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          },
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.range",
+            "message": "Range dimensions must match selection text.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "wrong-dimensions",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 2
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.range",
+            "message": "Range dimensions must match selection text.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "negative-position",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": -1,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.range",
+            "message": "Expected nonnegative integer line and character positions.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-hash",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "bad",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.context",
+            "message": "Expected bounded context line span, UTF-16 length, SHA-256 hash, and unique flag.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-algorithm",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "unknown",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.algorithm",
+            "message": "Unsupported anchor algorithm.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-context-span",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 10000,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.context",
+            "message": "Expected bounded context line span, UTF-16 length, SHA-256 hash, and unique flag.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-relative-offsets",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 2
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.selectionInContext",
+            "message": "Selection offsets must fit context and match the selected text length.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unnormalized-selection",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "\rx",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.selectionText",
+            "message": "Expected nonempty, normalized selection text within the source size limit.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          },
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.selectionInContext",
+            "message": "Selection offsets must fit context and match the selected text length.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          },
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.range",
+            "message": "Range dimensions must match selection text.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "binary-selection",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "observation",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "\u0000",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].location.anchor.selectionText",
+            "message": "Expected nonempty, normalized selection text within the source size limit.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    },
+    {
+      "name": "bad-evidence",
+      "input": {
+        "schemaVersion": 1,
+        "generator": {
+          "name": "walk-me-through",
+          "bundleVersion": "0.1.0"
+        },
+        "id": "20261021T143005123Z-abcdef",
+        "createdAt": "2026-10-21T14:30:05.123Z",
+        "title": "Conformance",
+        "summary": "**Shared** v1 fixture",
+        "project": {
+          "root": "C:/fixture",
+          "environment": {
+            "kind": "local",
+            "platform": "win32",
+            "unsupportedOverride": false
+          }
+        },
+        "source": {
+          "git": {
+            "commit": "abcdef123",
+            "dirty": true
+          }
+        },
+        "steps": [
+          {
+            "id": "a",
+            "parentId": null,
+            "title": "a",
+            "explanation": "**Evidence**",
+            "evidence": "proof",
+            "location": {
+              "path": "src/sample.cs",
+              "range": {
+                "start": {
+                  "line": 0,
+                  "character": 0
+                },
+                "end": {
+                  "line": 0,
+                  "character": 1
+                }
+              },
+              "anchor": {
+                "algorithm": "sha256-lf-v1",
+                "selectionText": "x",
+                "context": {
+                  "startLine": 0,
+                  "lineCount": 1,
+                  "length": 1,
+                  "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                  "unique": true
+                },
+                "selectionInContext": {
+                  "start": 0,
+                  "end": 1
+                }
+              }
+            }
+          }
+        ]
+      },
+      "expected": {
+        "ok": false,
+        "errors": [
+          {
+            "code": "INVALID_ARTIFACT",
+            "path": "steps[0].evidence",
+            "message": "Expected observation, hypothesis, or conclusion.",
+            "hint": "Correct the named field or type before retrying.",
+            "recovery": "fix-input"
+          }
+        ]
+      }
+    }
+  ],
+  "coordinates": [
+    {
+      "name": "text-0",
+      "original": "﻿\t😀x\r\ny\rz\n",
+      "normalized": "\t😀x\ny\nz\n",
+      "hash": "f9183a0f0f19379eeb42b8672cc65f519c4f3874e12598e4a161ecfa78eaf137",
+      "positions": [
+        {
+          "offset": 0,
+          "position": {
+            "line": 0,
+            "character": 0
+          }
+        },
+        {
+          "offset": 1,
+          "position": {
+            "line": 0,
+            "character": 1
+          }
+        },
+        {
+          "offset": 2,
+          "position": {
+            "line": 0,
+            "character": 2
+          }
+        },
+        {
+          "offset": 3,
+          "position": {
+            "line": 0,
+            "character": 3
+          }
+        },
+        {
+          "offset": 4,
+          "position": {
+            "line": 0,
+            "character": 4
+          }
+        },
+        {
+          "offset": 5,
+          "position": {
+            "line": 1,
+            "character": 0
+          }
+        },
+        {
+          "offset": 6,
+          "position": {
+            "line": 1,
+            "character": 1
+          }
+        },
+        {
+          "offset": 7,
+          "position": {
+            "line": 2,
+            "character": 0
+          }
+        },
+        {
+          "offset": 8,
+          "position": {
+            "line": 2,
+            "character": 1
+          }
+        },
+        {
+          "offset": 9,
+          "position": {
+            "line": 3,
+            "character": 0
+          }
+        }
+      ],
+      "occurrences": {
+        "needle": "x",
+        "offsets": [
+          3
+        ]
+      }
+    },
+    {
+      "name": "text-1",
+      "original": "a\n",
+      "normalized": "a\n",
+      "hash": "87428fc522803d31065e7bce3cf03fe475096631e5e07bbd7a0fde60c4cf25c7",
+      "positions": [
+        {
+          "offset": 0,
+          "position": {
+            "line": 0,
+            "character": 0
+          }
+        },
+        {
+          "offset": 1,
+          "position": {
+            "line": 0,
+            "character": 1
+          }
+        },
+        {
+          "offset": 2,
+          "position": {
+            "line": 1,
+            "character": 0
+          }
+        }
+      ],
+      "occurrences": {
+        "needle": "x",
+        "offsets": []
+      }
+    },
+    {
+      "name": "text-2",
+      "original": "😀\tvalue",
+      "normalized": "😀\tvalue",
+      "hash": "95d3c7ad1eb754794b9f4520a29033602c966d3be247fde4d0ac9fdb57c51ad9",
+      "positions": [
+        {
+          "offset": 0,
+          "position": {
+            "line": 0,
+            "character": 0
+          }
+        },
+        {
+          "offset": 1,
+          "position": {
+            "line": 0,
+            "character": 1
+          }
+        },
+        {
+          "offset": 2,
+          "position": {
+            "line": 0,
+            "character": 2
+          }
+        },
+        {
+          "offset": 3,
+          "position": {
+            "line": 0,
+            "character": 3
+          }
+        },
+        {
+          "offset": 4,
+          "position": {
+            "line": 0,
+            "character": 4
+          }
+        },
+        {
+          "offset": 5,
+          "position": {
+            "line": 0,
+            "character": 5
+          }
+        },
+        {
+          "offset": 6,
+          "position": {
+            "line": 0,
+            "character": 6
+          }
+        },
+        {
+          "offset": 7,
+          "position": {
+            "line": 0,
+            "character": 7
+          }
+        },
+        {
+          "offset": 8,
+          "position": {
+            "line": 0,
+            "character": 8
+          }
+        }
+      ],
+      "occurrences": {
+        "needle": "x",
+        "offsets": []
+      }
+    },
+    {
+      "name": "text-3",
+      "original": "a\r\nb\rc",
+      "normalized": "a\nb\nc",
+      "hash": "ea7fb08b7a2dc4619ffb7c7bb38d95a2047935fa165d71b12efd3852a2e6d0cc",
+      "positions": [
+        {
+          "offset": 0,
+          "position": {
+            "line": 0,
+            "character": 0
+          }
+        },
+        {
+          "offset": 1,
+          "position": {
+            "line": 0,
+            "character": 1
+          }
+        },
+        {
+          "offset": 2,
+          "position": {
+            "line": 1,
+            "character": 0
+          }
+        },
+        {
+          "offset": 3,
+          "position": {
+            "line": 1,
+            "character": 1
+          }
+        },
+        {
+          "offset": 4,
+          "position": {
+            "line": 2,
+            "character": 0
+          }
+        },
+        {
+          "offset": 5,
+          "position": {
+            "line": 2,
+            "character": 1
+          }
+        }
+      ],
+      "occurrences": {
+        "needle": "x",
+        "offsets": []
+      }
+    },
+    {
+      "name": "text-4",
+      "original": "aaa",
+      "normalized": "aaa",
+      "hash": "9834876dcfb05cb167a5c24953eba58c4ac89b1adf57f28f2f9d09af107ee8f0",
+      "positions": [
+        {
+          "offset": 0,
+          "position": {
+            "line": 0,
+            "character": 0
+          }
+        },
+        {
+          "offset": 1,
+          "position": {
+            "line": 0,
+            "character": 1
+          }
+        },
+        {
+          "offset": 2,
+          "position": {
+            "line": 0,
+            "character": 2
+          }
+        },
+        {
+          "offset": 3,
+          "position": {
+            "line": 0,
+            "character": 3
+          }
+        }
+      ],
+      "occurrences": {
+        "needle": "aa",
+        "offsets": [
+          0,
+          1
+        ]
+      }
+    }
+  ],
+  "resolutions": [
+    {
+      "name": "exact",
+      "original": "head\nvalue(x)\ntail",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 6
+        },
+        "end": {
+          "line": 1,
+          "character": 7
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 1,
+          "lineCount": 1,
+          "length": 8,
+          "hash": "b7631ec4d49d5bec4f4dad052974b59d53a07f27f37aa1027808be622ed4a2d1",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 6,
+          "end": 7
+        }
+      },
+      "current": "head\nvalue(x)\ntail",
+      "expected": {
+        "state": "exact",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 6
+          },
+          "end": {
+            "line": 1,
+            "character": 7
+          }
+        },
+        "candidateCount": 1
+      }
+    },
+    {
+      "name": "bom-crlf-unicode",
+      "original": "\t😀x\ny",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 1
+        },
+        "end": {
+          "line": 0,
+          "character": 4
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "😀x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 4,
+          "hash": "9306d332de29c38059efb9396e76646c338c98113d169b76f97ad3a1cfd1cb6e",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 1,
+          "end": 4
+        }
+      },
+      "current": "﻿\t😀x\r\ny",
+      "expected": {
+        "state": "exact",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 1
+          },
+          "end": {
+            "line": 0,
+            "character": 4
+          }
+        },
+        "candidateCount": 1
+      }
+    },
+    {
+      "name": "relocated",
+      "original": "head\nvalue(x)\ntail",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 6
+        },
+        "end": {
+          "line": 1,
+          "character": 7
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 1,
+          "lineCount": 1,
+          "length": 8,
+          "hash": "b7631ec4d49d5bec4f4dad052974b59d53a07f27f37aa1027808be622ed4a2d1",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 6,
+          "end": 7
+        }
+      },
+      "current": "new\nhead\nvalue(x)\ntail",
+      "expected": {
+        "state": "relocated",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 6
+          },
+          "end": {
+            "line": 2,
+            "character": 7
+          }
+        },
+        "candidateCount": 1
+      }
+    },
+    {
+      "name": "context-lost-single",
+      "original": "value(x)",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 6
+        },
+        "end": {
+          "line": 0,
+          "character": 7
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 8,
+          "hash": "b7631ec4d49d5bec4f4dad052974b59d53a07f27f37aa1027808be622ed4a2d1",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 6,
+          "end": 7
+        }
+      },
+      "current": "changed(x)",
+      "expected": {
+        "state": "uncertain",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 8
+          },
+          "end": {
+            "line": 0,
+            "character": 9
+          }
+        },
+        "reason": "context-changed",
+        "tie": false,
+        "candidateCount": 1
+      }
+    },
+    {
+      "name": "multiple-contexts",
+      "original": "x",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 0,
+          "character": 1
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 1,
+          "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "current": "new\nx\nx",
+      "expected": {
+        "state": "uncertain",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 1
+          }
+        },
+        "reason": "multiple-context-matches",
+        "tie": false,
+        "candidateCount": 2
+      }
+    },
+    {
+      "name": "equidistant-contexts",
+      "original": "prefix\nx\nsuffix",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 5
+        },
+        "end": {
+          "line": 0,
+          "character": 6
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 6,
+          "hash": "e7a2e8b216e5aec3facf743962d3997f2e7d70088ef257de472d6a258049832e",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 5,
+          "end": 6
+        }
+      },
+      "current": "prefix\nx\nsuffix\nchanged\nprefix\nx\nsuffix",
+      "expected": {
+        "state": "exact",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 5
+          },
+          "end": {
+            "line": 0,
+            "character": 6
+          }
+        },
+        "candidateCount": 1
+      }
+    },
+    {
+      "name": "earlier-offset-tie",
+      "original": "a\nb\nx\nz",
+      "range": {
+        "start": {
+          "line": 2,
+          "character": 0
+        },
+        "end": {
+          "line": 2,
+          "character": 1
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 2,
+          "lineCount": 1,
+          "length": 1,
+          "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "current": "a\nx\nb\nx",
+      "expected": {
+        "state": "uncertain",
+        "range": {
+          "start": {
+            "line": 1,
+            "character": 0
+          },
+          "end": {
+            "line": 1,
+            "character": 1
+          }
+        },
+        "reason": "multiple-context-matches",
+        "tie": true,
+        "candidateCount": 2
+      }
+    },
+    {
+      "name": "line-before-character",
+      "original": "aaaaax",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 5
+        },
+        "end": {
+          "line": 0,
+          "character": 6
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 6,
+          "hash": "d4fdeb3c208116a745a8610e90a362c08aeefe7ff24378c213df23e6edd5ee6d",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 5,
+          "end": 6
+        }
+      },
+      "current": "x\nbbbbbx",
+      "expected": {
+        "state": "uncertain",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 0
+          },
+          "end": {
+            "line": 0,
+            "character": 1
+          }
+        },
+        "reason": "context-changed",
+        "tie": false,
+        "candidateCount": 2
+      }
+    },
+    {
+      "name": "character-distance",
+      "original": "aaaaax",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 5
+        },
+        "end": {
+          "line": 0,
+          "character": 6
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 6,
+          "hash": "d4fdeb3c208116a745a8610e90a362c08aeefe7ff24378c213df23e6edd5ee6d",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 5,
+          "end": 6
+        }
+      },
+      "current": "x aaaax",
+      "expected": {
+        "state": "uncertain",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 6
+          },
+          "end": {
+            "line": 0,
+            "character": 7
+          }
+        },
+        "reason": "context-changed",
+        "tie": false,
+        "candidateCount": 2
+      }
+    },
+    {
+      "name": "overlapping",
+      "original": "aaaa",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 1
+        },
+        "end": {
+          "line": 0,
+          "character": 3
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "aa",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 4,
+          "hash": "61be55a8e2f6b4e172338bddf184d6dbee29c98853e0a0485ecee7f27b9af0b4",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 1,
+          "end": 3
+        }
+      },
+      "current": "baaaab",
+      "expected": {
+        "state": "uncertain",
+        "range": {
+          "start": {
+            "line": 0,
+            "character": 1
+          },
+          "end": {
+            "line": 0,
+            "character": 3
+          }
+        },
+        "reason": "context-changed",
+        "tie": false,
+        "candidateCount": 3
+      }
+    },
+    {
+      "name": "multiline-exclusive-end",
+      "original": "head\na\nb\ntail",
+      "range": {
+        "start": {
+          "line": 1,
+          "character": 0
+        },
+        "end": {
+          "line": 3,
+          "character": 0
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "a\nb\n",
+        "context": {
+          "startLine": 1,
+          "lineCount": 3,
+          "length": 8,
+          "hash": "573bd5943adeab9d0a9ec70ace6fcee19fd96daac36f5d3491454f1f09b48006",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 4
+        }
+      },
+      "current": "new\nhead\na\nb\ntail",
+      "expected": {
+        "state": "relocated",
+        "range": {
+          "start": {
+            "line": 2,
+            "character": 0
+          },
+          "end": {
+            "line": 4,
+            "character": 0
+          }
+        },
+        "candidateCount": 1
+      }
+    },
+    {
+      "name": "missing",
+      "original": "x",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 0,
+          "character": 1
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 1,
+          "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "current": null,
+      "expected": {
+        "state": "stale",
+        "reason": "file-missing",
+        "candidateCount": 0
+      }
+    },
+    {
+      "name": "unreadable",
+      "original": "x",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 0,
+          "character": 1
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 1,
+          "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "current": {
+        "unreadable": true
+      },
+      "expected": {
+        "state": "stale",
+        "reason": "unreadable",
+        "candidateCount": 0
+      }
+    },
+    {
+      "name": "nul",
+      "original": "x",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 0,
+          "character": 1
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 1,
+          "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "current": "x\u0000",
+      "expected": {
+        "state": "stale",
+        "reason": "unreadable",
+        "candidateCount": 0
+      }
+    },
+    {
+      "name": "stale",
+      "original": "x",
+      "range": {
+        "start": {
+          "line": 0,
+          "character": 0
+        },
+        "end": {
+          "line": 0,
+          "character": 1
+        }
+      },
+      "anchor": {
+        "algorithm": "sha256-lf-v1",
+        "selectionText": "x",
+        "context": {
+          "startLine": 0,
+          "lineCount": 1,
+          "length": 1,
+          "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+          "unique": true
+        },
+        "selectionInContext": {
+          "start": 0,
+          "end": 1
+        }
+      },
+      "current": "y",
+      "expected": {
+        "state": "stale",
+        "reason": "not-found",
+        "candidateCount": 0
+      }
+    }
+  ],
+  "navigation": {
+    "artifact": {
+      "schemaVersion": 1,
+      "generator": {
+        "name": "walk-me-through",
+        "bundleVersion": "0.1.0"
+      },
+      "id": "20261021T143005123Z-abcdef",
+      "createdAt": "2026-10-21T14:30:05.123Z",
+      "title": "Conformance",
+      "summary": "**Shared** v1 fixture",
+      "project": {
+        "root": "C:/fixture",
+        "environment": {
+          "kind": "local",
+          "platform": "win32",
+          "unsupportedOverride": false
+        }
+      },
+      "source": {
+        "git": {
+          "commit": "abcdef123",
+          "dirty": true
+        }
+      },
+      "steps": [
+        {
+          "id": "a",
+          "parentId": null,
+          "title": "a",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "a1",
+          "parentId": "a",
+          "title": "a1",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "a11",
+          "parentId": "a1",
+          "title": "a11",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "a111",
+          "parentId": "a11",
+          "title": "a111",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "a2",
+          "parentId": "a",
+          "title": "a2",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "b",
+          "parentId": null,
+          "title": "b",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        },
+        {
+          "id": "b1",
+          "parentId": "b",
+          "title": "b1",
+          "explanation": "**Evidence**",
+          "evidence": "observation",
+          "location": {
+            "path": "src/sample.cs",
+            "range": {
+              "start": {
+                "line": 0,
+                "character": 0
+              },
+              "end": {
+                "line": 0,
+                "character": 1
+              }
+            },
+            "anchor": {
+              "algorithm": "sha256-lf-v1",
+              "selectionText": "x",
+              "context": {
+                "startLine": 0,
+                "lineCount": 1,
+                "length": 1,
+                "hash": "2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881",
+                "unique": true
+              },
+              "selectionInContext": {
+                "start": 0,
+                "end": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "cases": [
+      {
+        "name": "full-forward-back",
+        "actions": [
+          "open",
+          "next",
+          "next",
+          "next",
+          "next",
+          "next",
+          "next",
+          "next",
+          "next",
+          "next",
+          "previous",
+          "previous",
+          "previous",
+          "previous",
+          "previous",
+          "previous",
+          "previous",
+          "previous",
+          "previous"
+        ],
+        "expected": [
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 1,
+            "current": "a",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 2,
+            "current": "a1",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 3,
+            "current": "a11",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 4,
+            "current": "a111",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 5,
+            "current": "a2",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 5,
+            "current": "a2",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 4,
+            "current": "a111",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 3,
+            "current": "a11",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 2,
+            "current": "a1",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 1,
+            "current": "a",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          }
+        ]
+      },
+      {
+        "name": "skip-then-previous",
+        "actions": [
+          "open",
+          "skip",
+          "skip",
+          "previous"
+        ],
+        "expected": [
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 1,
+            "current": "a",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 5,
+            "current": "a2",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          }
+        ]
+      },
+      {
+        "name": "ancestor-exits",
+        "actions": [
+          "open",
+          "select:a1",
+          "skip",
+          "skip",
+          "skip",
+          "next",
+          "next"
+        ],
+        "expected": [
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 2,
+            "current": "a1",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 5,
+            "current": "a2",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          }
+        ]
+      },
+      {
+        "name": "deep-selection-return",
+        "actions": [
+          "open",
+          "select:a111",
+          "return",
+          "skip",
+          "previous",
+          "select:missing",
+          "select:overview"
+        ],
+        "expected": [
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 4,
+            "current": "a111",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 4,
+            "current": "a111",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 5,
+            "current": "a2",
+            "previous": true,
+            "next": true,
+            "skip": "b"
+          },
+          {
+            "active": true,
+            "index": 4,
+            "current": "a111",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 4,
+            "current": "a111",
+            "previous": true,
+            "next": true,
+            "skip": "a2"
+          },
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          }
+        ]
+      },
+      {
+        "name": "inactive-boundaries",
+        "actions": [
+          "next",
+          "previous",
+          "skip",
+          "select:a",
+          "return",
+          "open",
+          "close",
+          "next",
+          "skip",
+          "previous"
+        ],
+        "expected": [
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": false,
+            "index": 0,
+            "current": null,
+            "previous": false,
+            "next": false,
+            "skip": null
+          }
+        ]
+      },
+      {
+        "name": "final-parent",
+        "actions": [
+          "open",
+          "select:b",
+          "skip",
+          "next",
+          "skip",
+          "previous"
+        ],
+        "expected": [
+          {
+            "active": true,
+            "index": 0,
+            "current": "overview",
+            "previous": false,
+            "next": true,
+            "skip": "a"
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 7,
+            "current": "b1",
+            "previous": true,
+            "next": false,
+            "skip": null
+          },
+          {
+            "active": true,
+            "index": 6,
+            "current": "b",
+            "previous": true,
+            "next": true,
+            "skip": null
+          }
+        ]
+      }
+    ]
+  }
+}

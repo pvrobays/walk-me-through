@@ -11,7 +11,9 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "test": "vitest run && npm run check:bundle && node scripts/check-workflows.mjs",
+    "test": "vitest run && npm run check:bundle && npm run fixtures:check && node scripts/check-workflows.mjs",
+    "fixtures:generate": "node scripts/conformance.mjs --write",
+    "fixtures:check": "node scripts/conformance.mjs",
     "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/skill && tsc --noEmit -p packages/vscode",
     "check:bundle": "node scripts/check-bundle.mjs",
     "skill:install": "node scripts/install-skill.mjs",

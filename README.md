@@ -32,6 +32,12 @@ Exact and confidently relocated code uses the normal highlight. Uncertain neares
 
 Uncertainty notices explicitly say the original location is unconfirmed and the closest identical code is shown, including the earlier-candidate choice for ties. The Step view uses compact, moderately smaller warning text with theme-aware color and a warning indicator. Source comments use ordinary paragraph formatting with a warning icon; VS Code controls their font size. The red stale presentation and informational relocation notice remain distinct.
 
+### Rider development player
+
+A local Kotlin plugin now plays the same saved v1 artifacts in **native Windows Rider 2026.2.3.1 (RD-262.10968.170)**. It provides a docked Markdown explanation/outline, precise current-buffer highlights, Next/Previous/Skip Details/Return and explicit artifact selection. The prototype and integrated player are owner-accepted in Rider and VS Code; explicit offline verification is pending. Build/test/package and exact-target Plugin Verifier checks pass. See [Rider build/run/install and usage](packages/rider/README.md) for its isolated sandbox and development ZIP. No public plugin publication or wider Rider compatibility is claimed.
+
+The shared publisher/skill now offers **Walk Me Through: Open Walkthrough** in VS Code or Rider, selecting the returned title/ID. Publishing needs Node 20+; Rider playback itself does not need Node.
+
 ### Use the skill in a project
 
 ```sh
