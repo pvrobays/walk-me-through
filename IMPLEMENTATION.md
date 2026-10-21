@@ -14,7 +14,7 @@ The README must begin with a summary of this problem and retain this quote:
 
 The artifact is an evidence-backed explanation, not private chain-of-thought. Useful content includes observations, hypotheses, conclusions, uncertainty, and connections between code locations. Avoid turning ordinary source navigation into a claim that an agent's explanation has been proven correct.
 
-The owner primarily uses JetBrains Rider, but explicitly chose **VS Code + CodeTour for the first implementation**, followed by Rider after UX validation. OpenCode is the first authoring client. Compatibility with other agents, especially Copilot in IDEs, is desirable.
+The owner primarily uses JetBrains Rider, but chose **desktop VS Code on native Windows with our own simple player for the first implementation**, followed by Rider after UX validation. CodeTour was originally selected but has been rejected because of its limited maintenance. OpenCode is the first authoring client. Compatibility with other agents, especially Copilot in IDEs, is desirable.
 
 ## 2. Agreed requirements
 
@@ -23,22 +23,25 @@ The owner primarily uses JetBrains Rider, but explicitly chose **VS Code + CodeT
 - No separate companion application, daemon, background service, or required MCP server.
 - A small script bundled beside the skill is explicitly acceptable. It is invoked on demand and exits.
 - Install the authoring skill **only in the current project**, at `.agents/skills/walk-me-through/`.
-- When the IDE plugin sees the skill is absent, offer to install it in that project. Respect dismissal; do not prompt repeatedly.
+- When the IDE plugin sees the skill is absent in a Git workspace, offer to install it once per workspace. Provide "Not for this workspace" and "Never" dismissal options and respect them. Keep an explicit installation command available.
 - The developer commits the bundle so teammates receive it through Git. Do not commit automatically.
 - Teammates' compatible agents can discover the skill without installing the IDE viewer.
 - A viewer-less teammate should be able to follow the generated link to installation instructions and retry playback after installing.
 - Skill, script, and support files must be versioned together. The plugin must inspect that version and offer updates when necessary.
 - Preserve local customization and never silently downgrade a newer project bundle.
+- Distribute the extension through the VS Code Marketplace and also support downloadable `.vsix` files on GitHub Releases. Publisher identity and actual publication remain to be configured.
 
 ### Walkthrough experience
 
 - Each code step has a source range and a concise explanation of its significance and connection to the finding.
+- Preserve Markdown formatting in explanations, including emphasis and inline code. Use VS Code comments with `MarkdownString` as the initial rich-text surface; verify rendering in the first vertical slice.
+- Top-level narrative steps may omit a code location. Parent/grouping steps may also omit a location; nested leaf steps require one.
 - Support character/expression selections, single lines, methods or other multiline blocks. Prefer the smallest useful range rather than arbitrary large excerpts.
 - Steps can have children: **at most four levels total**, with top-level steps at level 1.
 - Provide backward/forward navigation and direct selection of a step.
 - Navigation and replay are local; they do not require model calls.
 - Capture original code anchors during generation, validate on playback, and relocate an unchanged block if surrounding edits shifted it.
-- If no unique trustworthy match exists, show the reference as stale rather than highlighting a guessed location.
+- Prefer the captured original context. If several identical matches exist, choose the one nearest the original position and visibly warn that the original location could not be identified confidently. If the context no longer matches, an identical selection may be used with the same warning. If no identical selection remains, mark stale; do not invent a fuzzy or semantic match.
 - Keep a short summary and replayable link in the agent conversation; avoid duplicating the full walkthrough there.
 
 ### Delivery and workspace identity
@@ -76,8 +79,8 @@ Existing coding agent --writes--> Walkthrough input
                               - Resolve workspace
                               - Validate artifact
                               - Check/relocate anchors
-                              - Adapt to CodeTour playback
-                              - Own missing navigation UI
+                              - Render Markdown explanations
+                              - Own highlights and nested navigation
 ```
 
 Keep the walkthrough contract editor-independent. Rider and future MCP delivery should use the same artifacts, not require regenerating explanations.
@@ -94,13 +97,21 @@ Keep the walkthrough contract editor-independent. Rider and future MCP delivery 
     publish-walkthrough.mjs
 ```
 
-This is the directory installed into a consuming project. Where its canonical source lives in this application's repository is an implementation choice. Keep a single canonical source and package it into each IDE extension.
+This is the directory installed into a consuming project. Keep a single canonical bundle source in `packages/skill` and package it into each IDE extension.
+
+### Source layout and shared implementation
+
+Use a TypeScript monorepo with `packages/core`, `packages/skill`, `packages/vscode`, and `launcher/`. Share schema validation, coordinates, hashing, anchor resolution, and launch-envelope logic through `packages/core`. Use esbuild to bundle that code into both the extension and the single committed `publish-walkthrough.mjs`. Consuming projects run the generated script without build tools or package installation.
 
 ### Runtime: recommendation, not yet a compatibility promise
 
-Use dependency-free JavaScript with Node built-ins if practical. Document a minimum Node version after choosing and testing it. Do not assume VS Code's internal Node runtime makes a `node` executable available to OpenCode or another external agent. No `npm install`, network downloads, or native compilation should be needed to run the publishing script.
+Ship a dependency-free JavaScript bundle using Node built-ins. TypeScript and esbuild are development-time tools only. Document a minimum Node version after choosing and testing it. Do not assume VS Code's internal Node runtime makes a `node` executable available to OpenCode or another external agent. No `npm install`, network downloads, or native compilation should be needed to run the publishing script.
 
 If a required runtime is missing, provide an actionable message. Do not let the model fabricate hashes. Additional-runtime-free fallback using short exact-text anchors was discussed but not selected or designed.
+
+### Observed development environment
+
+The review session on 2026-10-21 ran OpenCode natively on Windows, in PowerShell 7.6 inside Windows Terminal. Node v24.16.0 and the VS Code `code.cmd` CLI were available. WSL Ubuntu was installed but not used by this session. These are observed development facts, not a minimum runtime or compatibility promise. The MVP supports native Windows only; stop with an actionable unsupported-environment message for WSL, SSH, containers, and other unsupported execution environments.
 
 ## 4. Versioning and update contract
 
@@ -124,7 +135,7 @@ The following is a **proposed shape**, not a shipped schema:
 - `walkthroughSchemaVersion`: artifact format compatibility. Define a supported range/capability contract if one value becomes insufficient.
 - The plugin includes its own known bundle manifest and compares it with the project's installation.
 - Record generator bundle and artifact schema versions in generated walkthroughs.
-- Published-file hashes allow customization detection. Define reproducible encoding/line-ending handling so Git CRLF conversion does not look like a user customization.
+- Published-file hashes allow customization detection. Hash UTF-8 text after stripping a leading BOM and normalizing CRLF to LF, so Git CRLF conversion does not look like a user customization. Preserve all other whitespace.
 - Do not include a recursively self-hashing manifest entry.
 - Missing bundle: offer installation. Older unchanged bundle: offer update. Modified bundle: show differences and preserve edits unless the user chooses replacement. Newer bundle: do not downgrade it.
 - Keep project updates atomic enough to avoid a skill/script version mismatch after interruption.
@@ -140,13 +151,21 @@ Design a small validated schema rather than asking the agent to write internal p
 - Title and concise summary.
 - Creation time and source revision when available; a commit alone is insufficient for dirty working-tree state.
 - Exact local checkout identity and execution-environment information for launch/routing, separated from portable source references.
-- Steps with stable IDs, optional `parentId`, title, explanation, project-relative source path, and range.
-- Captured anchor metadata and optional observation/hypothesis/conclusion classification.
+- Steps with stable IDs, optional `parentId`, title, Markdown explanation, and optional project-relative source path/range under the narrative/grouping rules above.
+- Captured anchor metadata and optional observation/hypothesis/conclusion classification. Accept and preserve these optional labels now; displaying them is a later enhancement.
+
+### Agent-authored input
+
+Keep authoring input separate from the stored artifact. The agent writes a JSON file with title, summary, and nested steps using `children` arrays. For code references it supplies a project-relative path, a line range, and optionally an exact-text `match` snippet. It does not calculate UTF-16 columns, hashes, IDs, timestamps, or URL encoding.
+
+Use human-facing 1-based inclusive start/end lines in input; the script converts these into the stored coordinate convention below. A supplied snippet must match exactly and uniquely within the supplied line range after the documented line-ending normalization; reject missing or ambiguous snippets so the agent can refine the input. Without a snippet, select the supplied whole-line span. Narrative top-level steps and grouping parents can omit a reference; nested leaves cannot.
+
+The script generates walkthrough/step IDs and flattens `children` into stored `parentId` relationships. This avoids asking the agent to reference IDs it cannot know yet. Imported flat artifacts still require parent/cycle/depth validation.
 
 The script should:
 
-1. Read agent-authored input from a file or stdin; choose a documented CLI.
-2. Resolve the checkout root even if invoked from a subdirectory.
+1. Read an agent-authored JSON file with `node <bundle>/scripts/publish-walkthrough.mjs <input.json>`. File input is the MVP interface; avoid shell-dependent stdin quoting.
+2. Resolve the project root from the installed script's location under `.agents/skills/walk-me-through/`, even if invoked from a subdirectory. Git is not required to find the root; record revision/dirty-state metadata when available.
 3. Validate paths, ranges, IDs, parent relationships, cycles, and maximum hierarchy depth.
 4. Read the referenced source as it exists at generation and capture original anchors.
 5. Generate IDs/timestamps/encoding itself rather than spending model output on mechanical metadata.
@@ -157,28 +176,30 @@ The script does not launch or focus the IDE by default. Clicking the link is the
 
 ### Coordinates
 
-Choose and document exactly one convention, covering line/column bases, UTF-16 versus code points, tabs, inclusive/exclusive ends, and CRLF/LF handling. A prior proposal used 1-based lines and UTF-16 columns with an exclusive end, but this has not been finalized. Convert explicitly at CodeTour/VS Code and future Rider boundaries.
+Stored ranges use **0-based lines and 0-based UTF-16 character offsets, with an exclusive end**. Tabs count as their underlying character, not expanded display columns. Normalize CRLF to LF and strip a leading BOM for anchor comparisons, retaining mappings to document positions where needed. Convert the agent's 1-based inclusive line ranges and optional snippet into this convention in the script; agents never count columns. Convert explicitly at editor boundaries, including future Rider support.
 
 ### Hash anchors
 
 Capture anchors **when generating the artifact**, not only on first playback. Otherwise edits made before the first click destroy the original reference.
 
-Proposed algorithm:
+Agreed algorithm:
 
-1. Hash a normalized original code block with SHA-256 and store its original range and length.
-2. On playback, hash the current original range and compare.
-3. If mismatched, search the same file for an identical normalized block.
-4. Relocate only on exactly one match; otherwise mark stale.
+1. Starting with the selected span, widen the surrounding context by whole lines until it is unique in the file or a documented context cap is reached. Hash the normalized block with SHA-256 and store its original range, length, and the selection's relative offsets.
+2. Also retain enough exact selection text/metadata to find the identical selected code when its surrounding context changes. SHA-256 alone does not enable variable-context selection recovery.
+3. On playback, compare the current original context range against its hash. If it matches, retain the original selection.
+4. Otherwise search the same file for identical normalized context blocks. A unique context match relocates the selection using its relative offsets.
+5. If multiple context matches exist, choose the one closest to the original selection position and show an explicit uncertain-location warning. If no context matches, search for the identical normalized selection and use the closest candidate with the warning, even if only one selection match exists: the captured context was lost.
+6. If no identical selection remains, show stale state without a source highlight. Do not fall back to the old line number or fuzzy similarity. Equal-distance candidate handling and the exact distance metric must be specified and tested during implementation; do not present such a tie as confident.
 
-Normalize line endings consistently. Do not introduce broad whitespace normalization without evaluating false matches. For precise expression highlights, capture a surrounding anchor block and the selection's relative offsets within it. A tiny expression alone may occur many times.
+Normalize line endings consistently and strip a leading BOM. Do not introduce broad whitespace normalization. A tiny expression alone may occur many times; context-first matching reduces uncertainty, and nearest-identical fallback must remain visibly distinct from a confident match. Keep captured source text bounded to what the resolver needs rather than duplicating whole files.
 
-This survives changes above/below an unchanged block. It does not establish semantic equivalence after editing the block itself. An optional symbol label is not a semantic resolver.
+This survives changes above/below an unchanged block and can offer warned navigation when context changes but the selected code remains identical. It does not establish semantic equivalence, and an identical match near the original position is not proof of identity. An optional symbol label is not a semantic resolver.
 
 Account explicitly for unsaved IDE buffers: the script normally sees disk contents, while the plugin may see a newer buffer. Compare against the current document before highlighting.
 
-### Storage and sharing: still to finalize
+### Storage and sharing
 
-The latest recommendation was a Git-ignored `.walk-me-through/` directory in the consuming project for generated artifacts, with explicit export later. This was not separately confirmed as a final storage specification.
+Store generated artifacts in `<project-root>/.walk-me-through/`. Create that directory's own `.gitignore` containing `*`; do not edit the project's top-level `.gitignore`. Keep immutable artifacts addressable by stable IDs; retain them by default so older links remain replayable. Explicit export/sharing is later work.
 
 Distinguish:
 
@@ -186,7 +207,7 @@ Distinguish:
 - **Team skill sharing:** commit the skill/script bundle; each teammate generates artifacts against their own checkout.
 - **Sharing one walkthrough across machines:** requires an embedded/exported artifact or committed artifact plus checkout mapping. An author's absolute path is not portable.
 
-The initial preference is compact file-backed links. Fully embedded URLs were discussed as an option for small artifacts, not a requirement to embed every walkthrough. Avoid claiming a file-backed local link is automatically cross-machine shareable.
+The selected launch envelope identifies the saved local artifact, checkout, environment, and optional step. Start with this self-describing URL even if it is long; do not introduce a per-user short-link index or URL-shortening service to solve terminal wrapping upfront. Fully embedded artifact URLs are not required for the MVP. A local artifact reference is not automatically cross-machine shareable.
 
 ## 6. Launcher and IDE routing
 
@@ -198,7 +219,7 @@ https://pvrobays.github.io/walk-me-through/#<encoded-launch-data>
 
 This is a proposed address. Hosting is not configured, and no deployment has been requested yet.
 
-The fragment can contain a versioned launch envelope with the artifact reference, target workspace/environment, and optional step ID. Define encoding, size limits, and validation. The script performs encoding; the model should not manually generate base64 or URL escapes.
+The fragment contains **base64url-encoded JSON**: a versioned launch envelope with project root, execution environment, walkthrough ID/artifact reference, and optional step ID. Define exact field names, size limits, and validation in the first implementation. The script performs encoding; the model must not manually generate base64 or URL escapes. Accept the initial URL length and test it in OpenCode/Windows Terminal before optimizing it.
 
 Fragments are not sent in the HTTP request. They remain visible to page JavaScript, browser history, copied links, and the receiving IDE. Keep the launcher self-contained with no analytics or third-party scripts. A hosted page cannot read arbitrary local files; it passes a reference to the IDE, which reads the artifact locally.
 
@@ -206,29 +227,31 @@ Provide explicit Open buttons, plugin Marketplace links, installation instructio
 
 Local HTML next to the skill was considered, but `file://` handling is less reliable across terminals/browsers. Use HTTPS as the primary route; offline support is a later option.
 
-### Routing is an early technical spike
+### Routing plan: verify after the first vertical slice
 
-VS Code supports opening folders with URLs and extension URI handlers, but an extension URL does **not** inherently target the window with the requested repository. Verify actual behavior before choosing the routing implementation.
+VS Code supports opening folders with URLs and extension URI handlers, but an extension URL does **not** inherently target the window with the requested repository. Implement and verify routing after the current-window playback slice, rather than blocking the first demonstration on a routing spike.
+
+The proposed mechanism is for the receiving extension window to persist a pending playback request in shared extension storage, then forward it to the matching instance or open/focus its folder/workspace. The target instance consumes the request after activation/open/reload; startup activation and request watching may be needed. Try `vscode.openFolder` with appropriate new-window options without replacing unrelated windows. **Do not assume `forceNewWindow` focuses an existing instance**: verify the actual behavior and adapt discovery/forwarding as necessary. Shared request persistence is part of the extension, not a companion daemon.
 
 Requirements:
 
 - Compare canonical checkout paths, not just remote URLs.
 - Distinguish worktrees/clones and local/WSL/SSH/container environments.
-- Handle a checkout opened as a subfolder and multi-root workspaces deliberately.
+- Reuse a matching window when the checkout is within a larger workspace, opened through a subfolder, or present in a multi-root workspace. Resolve source paths against the artifact's project root, not an arbitrary workspace folder.
 - Preserve pending playback across workspace opening, extension activation, reload, or a newly opened window.
 - Do not replace an unrelated window's workspace just because it was last active.
 - If necessary, add instance discovery/forwarding inside the extension architecture; do not introduce a companion daemon as a shortcut.
-- Define behavior for the same checkout open in two windows.
+- If the same checkout is available in two windows, route to the most recently focused matching window; track focus changes rather than letting the first claimant win.
 
-Start with desktop VS Code on native Windows (the owner's environment) unless the implementation session agrees otherwise. Document unsupported remote scenarios; do not advertise universal remote routing before testing it.
+The MVP supports desktop VS Code on native Windows only. Detect unsupported WSL/SSH/container execution and explain the limitation; do not treat a coincidentally matching path in another environment as the same checkout.
 
-## 7. Playback and CodeTour
+## 7. Custom playback UI
 
-Use CodeTour's public extension API rather than fork it initially. A VS Code extension dependency can give users one installation action while installing both extensions internally.
+Build our own simple player; do not depend on or fork CodeTour. Start with VS Code's Comments API for explanations beside source, a Tree View for the nested outline, and editor decorations/selections for precise source highlights. Keep agent chat available alongside playback.
 
-CodeTour supports source selections, descriptions, local Previous/Next, a step list, and file-based tours. Its UI uses editor comments, leaving agent chat available.
+The VS Code API defines `Comment.body` as `string | MarkdownString`, so comments support rich Markdown rather than plain text only. Preserve agent-authored bold/italic emphasis, inline code, lists, and code blocks through `MarkdownString`. Verify actual rendering, including code-block highlighting, in the first vertical slice. Arbitrary HTML/CSS styling or custom text background colors are not promised. If the comment surface cannot preserve the required Markdown experience, adapt our own UI (for example, a small webview) rather than returning to CodeTour.
 
-**Known mismatch:** CodeTour's native artifact is linear; it has no native `parentId` hierarchy. Spike a flattened depth-first playback adapter plus a nested outline/controls owned by Walk Me Through. Preserve the four-level hierarchy in our canonical artifact. If UX cannot meet requirements through its public API, report the tradeoff before replacing the selected foundation.
+Top-level narrative steps and parent/grouping steps without source locations still need an explanation surface; do not attach them to fabricated source positions. The player must show them in its walkthrough view while leaving the current editor context available. Preserve the four-level hierarchy in the canonical artifact and outline.
 
 Proposed navigation semantics:
 
@@ -239,32 +262,36 @@ Proposed navigation semantics:
 - Provide return-to-current-step after the reader explores other code.
 - Playback should not steal focus merely because another artifact is generated.
 
-Hash validation and stale-state handling belong to our adapter. Do not silently fall back to CodeTour's nearest/first text match or old line number after our anchor fails.
+The player owns context validation, relocation, and stale-state handling. Make original/confidently relocated, uncertain-nearest-match, and stale states visibly distinct. An uncertain match must say that the original location could not be recovered confidently and that the closest identical code is being shown.
 
-Only pass the source-navigation and explanation capabilities required by our schema into CodeTour. CodeTour also supports executable commands and trusted command links; do not expose arbitrary command execution through imported walkthrough content.
+Keep Markdown command links disabled (`MarkdownString.isTrusted` unset/false). Custom links between walkthrough steps or source files are a later enhancement. Optional evidence labels can be accepted and retained in artifacts before the UI displays them.
 
 ## 8. MVP scope and acceptance criteria
 
-### Milestone A: integration and UX spikes
+### Milestone A: first vertical slice
 
-- Verify supported CodeTour version/API and expression/multiline selections.
-- Prototype nested steps up to four levels while reusing its player.
-- Prove the TUI -> HTTPS launcher -> extension URI path, including correct-window routing.
-- Inspect actual OpenCode/terminal hyperlink behavior; the owner's terminal host and native-versus-WSL agent execution are still unknown.
+- Build shared TypeScript core, generated dependency-free script, and a minimal VS Code extension.
+- Demonstrate agent-authored JSON -> script invocation -> captured anchors and immutable local artifact -> **Open Walkthrough** command in the current window.
+- Show Markdown-rich explanations, precise expression/multiline selections, a nested outline, and local Previous/Next in our own player.
+- Include a small sample walkthrough so the owner can try the flow before investing in routing or onboarding polish.
+- Keep a manually installed development bundle sufficient for this slice; complete installation/update UX later.
 
-### Milestone B: project onboarding and authoring
+### Milestone B: link delivery and workspace routing
+
+- Add the HTTPS launcher and versioned base64url launch envelope, explicit Open/Install/Retry controls, and extension URI handling.
+- Verify OpenCode/Windows Terminal hyperlink behavior with the initial self-describing URL, accepting long URLs before optimizing.
+- Implement pending-request handoff and correct-window routing; exercise closed-editor, wrong-active-window, duplicate-window, subfolder, and multi-root cases.
+- Improve anchor recovery and warned-nearest-match/stale presentation using the first-slice feedback.
+
+### Milestone C: project onboarding, updates, and distribution
 
 - Plugin offers project-only installation at `.agents/skills/walk-me-through/`.
 - Bundle manifest, reproducible file hashes, customization-aware update offers.
 - Skill defines concise explanations and one script invocation.
 - Script validates input, captures anchors, writes an artifact, and emits a replay link.
 - A second checkout containing the committed skill can generate a walkthrough without its viewer installed.
-
-### Milestone C: end-to-end explanation playback
-
-- Import a stable artifact and navigate source in VS Code.
-- Show summary, step titles/descriptions, hierarchy, exact selections, and local Previous/Next.
-- Reject malformed references and make stale anchors visible.
+- Support Marketplace packaging and downloadable GitHub Release `.vsix` artifacts; actual publication is a separate action.
+- Complete input/import validation, update handling, and end-to-end acceptance checks.
 - Keep terminal output to a concise conclusion and link.
 
 ### Required acceptance scenarios
@@ -274,13 +301,17 @@ Only pass the source-navigation and explanation capabilities required by our sch
 3. No viewer installed: landing page offers installation and retry; the original link works afterward.
 4. Re-click an older link: opens the same artifact, not the newest one.
 5. Insert lines above a target before the first click: captured hash relocates it correctly.
-6. Two matching relocation candidates or an edited target: stale state, no guessed highlight.
+6. Multiple identical relocation candidates: choose the closest to the original position with a visible uncertainty warning. Changed context but unchanged selection: nearest-identical-selection fallback with a warning. Edited selection with no identical match: stale state and no highlight.
 7. Expression and multiline selections show the intended source span.
 8. Four-level hierarchy works; a fifth level and parent cycles are rejected.
 9. Missing/older/customized/newer bundles produce the correct installation/update behavior.
 10. Playback requires no model calls, companion app, MCP registration, or package download.
+11. Markdown emphasis, inline code, lists, and code blocks survive authoring and playback. Top-level narrative steps and location-less grouping parents display without fabricated code references; nested leaves without locations are rejected.
+12. Same checkout in two windows: use the most recently focused matching one. Subfolder and multi-root workspaces are reused without replacing unrelated workspaces.
+13. The script works from a subdirectory using its installation to find the project root, produces artifacts under a self-ignored `.walk-me-through/`, and requires no git command to resolve that root.
+14. Missing-skill prompts appear once per Git workspace and respect both workspace and global dismissal. WSL/remote execution produces an actionable unsupported-environment message.
 
-Use meaningful unit tests for schema, anchors, coordinate conversion, version/update decisions, hierarchy, and launch parsing. Use extension-host/manual integration tests for CodeTour and window routing. Documentation-only work does not need application tests. Do not claim runtime scenarios passed without exercising them.
+Use meaningful unit tests for schema, anchors (including context expansion, nearest-candidate distance/ties, and uncertainty states), coordinate conversion, version/update decisions, hierarchy, and launch parsing. Use extension-host/manual integration tests for Markdown comments, our player, and window routing. Documentation-only work does not need application tests. Do not claim runtime scenarios passed without exercising them.
 
 ### Out of MVP
 
@@ -290,6 +321,7 @@ Use meaningful unit tests for schema, anchors, coordinate conversion, version/up
 - Dependency graph visualization beyond the required child hierarchy.
 - Hosted artifact storage, accounts, or model API integration.
 - Guaranteed support for all agents, browsers, terminals, or remote environments.
+- Custom description links between steps/files and displaying optional evidence classifications.
 
 ## 9. Follow-up roadmap
 
@@ -327,6 +359,8 @@ Relevant source:
 
 ### CodeTour and other related work
 
+CodeTour is historical research only, **not an implementation dependency**. Its latest observed release was v0.0.59 (March 2023); the reviewed main-branch history showed one later fix merged in August 2025. The owner rejected it because of its limited maintenance and selected our own simple player.
+
 - https://github.com/microsoft/codetour (MIT)
 - https://github.com/microsoft/codetour/blob/main/src/api.ts
 - https://github.com/microsoft/codetour/blob/main/src/extension.ts
@@ -334,7 +368,7 @@ Relevant source:
 - https://github.com/puyopop/codetour-mcp (MIT; creates/manages CodeTour files through MCP)
 - https://github.com/saurabh-yergattikar/codetour_ai (MIT; separate model-driven onboarding-tour generation)
 
-CodeTour has a URI handler selecting an already discovered tour, but that handler alone does not solve workspace routing or arbitrary artifact import. Its selection positions are converted from 1-based values in the inspected player; verify the exact API/version before adapting coordinates.
+CodeTour's URI handler selects an already discovered tour but does not solve workspace routing or arbitrary artifact import. Its linear format also does not model our required hierarchy. These observations are background, not tasks to integrate its API.
 
 ### Platform documentation
 
@@ -342,20 +376,33 @@ CodeTour has a URI handler selecting an already discovered tour, but that handle
 - VS Code agent skills: https://code.visualstudio.com/docs/agent-customization/agent-skills
 - VS Code extension URI handlers: https://code.visualstudio.com/api/references/vscode-api#UriHandler
 - VS Code folder URLs: https://code.visualstudio.com/docs/configure/command-line#_opening-vs-code-with-urls
+- VS Code Markdown comments: https://code.visualstudio.com/api/references/vscode-api#Comment
+- VS Code Markdown formatting: https://code.visualstudio.com/api/references/vscode-api#MarkdownString
 - Rider plugin architecture: https://plugins.jetbrains.com/docs/intellij/rider.html
 - Rider MCP support (future transport): https://www.jetbrains.com/help/rider/mcp-server.html
 - JetBrains tool extension documentation: https://github.com/JetBrains/intellij-community/blob/master/plugins/mcp-server/README.md
 
 OpenCode and current VS Code Copilot docs support `.agents/skills/`. Other clients' discovery rules and version requirements still need verification. Adding a skill makes it available, not guaranteed to be invoked. Quit and restart OpenCode after installation/update to pick up config-time changes.
 
-## 11. Start the next implementation session here
+## 11. Remaining implementation details
+
+The product choices above are agreed. Resolve these smaller details while building the vertical slice and record the concrete contracts:
+
+- Minimum supported Node and VS Code versions, tested rather than inferred from the development environment.
+- Exact input/artifact/manifest/envelope schemas, validation/size limits, anchor context cap, nearest-candidate distance metric, and equal-distance tie behavior. Ties must remain visibly uncertain.
+- The explanation surface for location-less steps and any Markdown rendering gaps in editor comments.
+- Actual cross-window focus/forwarding behavior, shared-request lifecycle, and path canonicalization. The routing proposal is not runtime-verified.
+- Marketplace publisher/extension ID (used in IDE links), release/deployment setup, and whether to add VS Code Insiders or Open VSX later. Marketplace plus GitHub Release `.vsix` support is selected; Insiders/Open VSX were not decided.
+- Final HTTPS launcher address and hosting configuration. Long URLs are accepted initially; terminal clickability still needs to be exercised.
+
+## 12. Start the next implementation session here
 
 1. Inspect repository instructions and current state; do not assume only these files exist by then.
 2. Read this handoff and preserve agreed requirements versus provisional choices.
-3. Confirm the owner's terminal host, agent execution environment, and Node availability. Continue independent platform spikes while clarifying.
-4. Start with CodeTour hierarchy and link/window-routing spikes; they are the largest architectural uncertainties.
-5. Finalize schema/coordinates, bundle manifest/update rules, runtime, artifact location, and launch envelope based on the spike results.
-6. Implement in small end-to-end milestones, keeping README status and setup instructions accurate.
+3. Use the observed native-Windows/Windows Terminal/Node environment as the starting point; recheck availability when implementing rather than reopening settled product choices.
+4. Build Milestone A first: one small agent-input/script/artifact/current-window-playback flow with our own Markdown-capable player. Do not front-load CodeTour or routing spikes.
+5. Finalize concrete schema field names and remaining implementation details within the agreed input, coordinate, storage, runtime-bundling, and launch contracts.
+6. Extend the slice with launcher/routing, then onboarding/updates/distribution, adapting each part after trying the preceding end-to-end flow. Keep README status and setup instructions accurate.
 7. Do not configure GitHub Pages, publish marketplace extensions, or change global agent configuration implicitly. Those are separate explicit deployment/configuration actions.
 
 The desired outcome is a working, lightweight explanation tool—not a reimplementation of all Agent CodeWalk features.
