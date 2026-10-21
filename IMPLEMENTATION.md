@@ -1,6 +1,35 @@
 # Implementation handoff
 
-This document preserves the product discussion and decisions for the next coding session. Read it together with [README.md](README.md) before implementing. The repository currently contains documentation and its original MIT license; the application is not implemented.
+This document preserves product decisions, current implementation contracts, and follow-ups. Read it with [README.md](README.md). The authoring/publishing/current-window playback slice is implemented and accepted on Windows. Linux is unofficially supported, pending a later native-host trial.
+
+## Vertical-slice contracts and verification (2026-10-21)
+
+- npm workspaces: editor-independent `packages/core`, canonical `packages/skill`, and `packages/vscode`. Rebuild after source edits. `npm test` checks the committed script and manifest against a fresh build.
+- Node 20+ is required. Native Windows is verified; native Linux is unofficially supported pending the owner's later native-host trial. WSL, SSH, containers, remote extension hosts, and other platforms are rejected. The explicit development override never bypasses Node requirements. Local checks use Windows/Node 24.16.0; Node 20/Linux verification remains configured in CI.
+- `engines.vscode` is `^1.90.0`. Automated Development Host tests pass with VS Code 1.90.2 on Windows, verifying the 1.90 API line. The exact 1.90.0 binary and Linux desktop visuals have not been exercised.
+- Input/artifact/manifest are v1. The [format reference](packages/skill/references/walkthrough-format.md) documents fields, limits, exit codes, and recovery. Artifacts use flat depth-first steps and immutable timestamp/base32 IDs. Positions are zero-based UTF-16 with exclusive ends. Strict UTF-8 decoding rejects binary files; BOM is stripped and CRLF/lone CR normalize to LF.
+- Context widens up to ten lines above/below. Resolution prefers exact context, then unique relocation, then warned nearest identical context/selection. Distance compares lines, then characters; ties choose the earlier offset and remain uncertain. No fuzzy or old-line fallback exists. Playback uses unsaved buffers and refreshes on step entry/Return to Current Step.
+- Delivery is explicit picker-only. Successful replies lead with the walkthrough title, opening instructions, saved artifact ID/path, then preserve the normal answer's requested findings/evidence/rationale/uncertainty. The required HTTPS launcher, multi-IDE choices, envelope, and window routing are later changes.
+- Comments use untrusted Markdown. The Step view renders overview/narrative/stale explanations with a strict CSP and HTTP(S)-only links. Highlight colors and fenced-code rendering still require manual visual acceptance. Nested artifact discovery supplements `findFiles` with direct directory reads because ignored dot-folders may be excluded.
+- Windows full automated run on 2026-10-21 passed: `npm install`, `npm run build`, README sample publishing, `npm run typecheck`, `npm test` (45 tests across 16 files, bundle reproducibility and workflow checks), and `npm run test:extension` (7 tests on VS Code 1.90.2). Publishing ran without an environment override. The sample artifact is Git-ignored. Native Linux/Node 20 CI results remain unavailable; CI configuration is not proof of a hosted run.
+- Workflow YAML/commands validate locally. The missing-launcher gate selects `ready=false`; upload targets only `launcher/`. The owner reports main/root branch publishing. Before future deployment, set **Settings → Pages → Source → GitHub Actions**. Settings are unchanged. Live Pages acceptance belongs to the launcher change.
+- Acceptance is complete for this slice. Per owner decision on 2026-10-21, the native Linux acceptance blocker is obsolete: Linux is unofficially supported and will be tried on a native Linux host at a later stage. No Linux pass is claimed. Windows manual Development Host Markdown/highlight/navigation checks, including fenced-code syntax coloring, and the restarted OpenCode discovery/authoring/recovery/playback run passed; details below.
+
+### Manual acceptance session (2026-10-21, complete)
+
+- Host: native Windows, installed VS Code 1.138.0, Extension Development Host launched with **Walk Me Through sample**. Sample artifact: `20261021T095239797Z-6cucvh`.
+- Task 12.3, scenario 1 — user reports all checks passed: Open Walkthrough waits for an explicit picker choice; the overview renders its summary with bold emphasis; Step-view Next enters **Follow the delay** and displays its narrative; the existing `retry.ts` editor remains open without a source comment or highlight for these location-less entries; current-entry marking, text, and controls are readable.
+- Task 12.3, scenario 2 — user reports both parts passed: **Retry loop** highlights exactly lines 3–14 and shows a read-only comment with bold, inline code, a bullet list, and a formatted fenced TypeScript block; the fenced block has syntax coloring. Direct tree selection of **Attempt zero every time** highlights only `retryDelay(0)` on line 9, removes the previous multiline highlight/comment, renders italic emphasis and inline code, and marks the selected step current.
+- Task 12.3, scenario 3 — user reports all four navigation checks passed: comment-header Next/Previous navigate between the expression and timing-helper steps; Command Palette Previous/Next traverse the location-less grouping step and expression; Step-view Next enters a collapsed parent's child and reveals it; Return to Current Step restores the expression's source and comment after browsing another file.
+- Task 12.3, scenario 4 — user reports all uncertain-state checks passed after appending an unsaved comment to the expression's line: only `retryDelay(0)` remains highlighted, its dashed warning border is distinct, both explanation surfaces warn about uncertain nearest-identical selection, and the tree shows a warning. UX feedback: the warning is very easy to spot, possibly too prominent; consider smaller warning text where the rendering surface allows it.
+- Task 12.3, scenario 5 — user reports all stale-state checks passed after changing the unsaved expression to `retryDelay(1)`: no highlight/comment remains, the Step view retains the explanation and original path/line with a stale banner, the tree marks the step stale, and playback does not navigate to the old position. Requested refinement implemented, pending visual recheck: error-themed stale banner and tree icon, with concise wording that the original code was not found and may have changed since generation.
+- Task 12.3, scenario 6 — user approves the updated stale presentation after reload: error-themed banner/tree icon, condensed missing-original-code explanation, and no source highlight/comment. Build, typecheck, and all 7 Windows extension-host tests passed after this refinement. Task 12.3 manual acceptance is complete on Windows/VS Code 1.138.0.
+- Task 12.4, scenario 7 — installed the canonical bundle with `npm run skill:install -- <scratch project>` into `C:\Users\pvrobays\AppData\Local\Temp\opencode\wmt-agent-acceptance-20261021`. User reports a fresh OpenCode process discovered/loaded the skill from an explanation request that did not name it, wrote a draft, and published successfully. Its supplied final reply preserves a detailed source-referenced explanation, reports assertions against unchanged source and their timer-measurement limits, distinguishes the unexecuted proposed fix, and appends title, ID `20261021T110546176Z-k6v55p`, artifact path, and picker instructions. Assertions are reported by the scratch agent, not independently rerun in this session. Playback and intentional recovery/blocker scenarios remain pending.
+- Task 12.4, scenario 8 — user reports the real-agent artifact plays correctly in the scratch-project Development Host and its sequence makes sense. UX feedback: the explanation is too verbose for this reader. Proposed follow-up: use hierarchy for progressive disclosure, with a complete concise account at the top level and optional detailed evidence/deep dives in children. Consider explicit navigation for skipping details; current depth-first Next intentionally visits children even when collapsed. This authoring/navigation refinement is not yet implemented. Intentional recovery/blocker scenarios remain pending.
+- Task 12.4, scenario 9 — user reports intentional empty-selection recovery succeeded. The agent's supplied reply identifies `EMPTY_SELECTION` at `steps[0].location`, `fix-input` recovery, the original blank `src/retry.ts:2–2` selection, and the repair guidance. It reports inspecting source and changing the location to line 9 with `match: "retryDelay(0)"` before retrying. The corrected publish produced four steps without warnings, ID `20261021T112027988Z-kdbjkr`; source was unchanged. User additionally requests walkthrough availability/opening details at the beginning of successful final replies; skill and contracts updated, pending fresh-process verification. Publishing-blocker scenario remains pending.
+- Task 12.4, scenario 10 — user confirms the updated skill leads a fresh-process final reply with **Walkthrough available**, title/opening instructions, ID `20261021T112519967Z-txci7p`, and artifact path. Build, all 45 unit/script tests, bundle/workflow checks, and strict OpenSpec validation passed after the delivery-order update. Publishing-blocker scenario remains pending.
+- Task 12.4, scenario 11 — supplied agent reply confirms the simulated child-only SSH environment returned `ENVIRONMENT_UNSUPPORTED` with `fix-environment` and native Windows/Linux/Node 20+ setup guidance. It explicitly stopped without override/retry, left the parent environment unchanged, and reported no new published walkthrough (only the draft). User additionally confirms the reply preserved the normal explanation. Blocker handling passes; task 12.4 is complete.
+- Task 12.2 Windows verification passed. Its native Linux acceptance blocker is obsolete by owner decision (2026-10-21); Linux support is unofficial until later native-host verification.
 
 ## 1. Problem, audience, and product
 
@@ -14,7 +43,7 @@ The README must begin with a summary of this problem and retain this quote:
 
 The artifact is an evidence-backed explanation, not private chain-of-thought. Useful content includes observations, hypotheses, conclusions, uncertainty, and connections between code locations. Avoid turning ordinary source navigation into a claim that an agent's explanation has been proven correct.
 
-The owner primarily uses JetBrains Rider, but chose **desktop VS Code on native Windows with our own simple player for the first implementation**, followed by Rider after UX validation. CodeTour was originally selected but has been rejected because of its limited maintenance. OpenCode is the first authoring client. Compatibility with other agents, especially Copilot in IDEs, is desirable.
+The owner primarily uses JetBrains Rider, but chose **desktop VS Code on native Windows and native Linux with our own simple player for the first implementation**, followed by Rider after UX validation. CodeTour was rejected because of its limited maintenance. OpenCode is the first authoring client; other-agent compatibility remains desirable.
 
 ## 2. Agreed requirements
 
@@ -42,7 +71,7 @@ The owner primarily uses JetBrains Rider, but chose **desktop VS Code on native 
 - Navigation and replay are local; they do not require model calls.
 - Capture original code anchors during generation, validate on playback, and relocate an unchanged block if surrounding edits shifted it.
 - Prefer the captured original context. If several identical matches exist, choose the one nearest the original position and visibly warn that the original location could not be identified confidently. If the context no longer matches, an identical selection may be used with the same warning. If no identical selection remains, mark stale; do not invent a fuzzy or semantic match.
-- Keep a short summary and replayable link in the agent conversation; avoid duplicating the full walkthrough there.
+- Begin successful replies with walkthrough availability, title, ID/path, and picker instructions; include a replayable link there when the launcher exists. Follow with the normal agent answer at the requested depth, including evidence, rationale, and uncertainty. Do not require duplication of every step.
 
 ### Delivery and workspace identity
 
@@ -101,7 +130,7 @@ This is the directory installed into a consuming project. Keep a single canonica
 
 ### Source layout and shared implementation
 
-Use a TypeScript monorepo with `packages/core`, `packages/skill`, `packages/vscode`, and `launcher/`. Share schema validation, coordinates, hashing, anchor resolution, and launch-envelope logic through `packages/core`. Use esbuild to bundle that code into both the extension and the single committed `publish-walkthrough.mjs`. Consuming projects run the generated script without build tools or package installation.
+Use a TypeScript monorepo with `packages/core`, `packages/skill`, and `packages/vscode`; add `launcher/` in the follow-up. Share schema validation, coordinates, hashing, and resolution through core. Bundle with esbuild into the extension and committed script. Launch-envelope logic is follow-up work. Consuming projects need no build tools or package installation.
 
 ### Runtime: recommendation, not yet a compatibility promise
 
@@ -111,7 +140,7 @@ If a required runtime is missing, provide an actionable message. Do not let the 
 
 ### Observed development environment
 
-The review session on 2026-10-21 ran OpenCode natively on Windows, in PowerShell 7.6 inside Windows Terminal. Node v24.16.0 and the VS Code `code.cmd` CLI were available. WSL Ubuntu was installed but not used by this session. These are observed development facts, not a minimum runtime or compatibility promise. The MVP supports native Windows only; stop with an actionable unsupported-environment message for WSL, SSH, containers, and other unsupported execution environments.
+The review session on 2026-10-21 ran OpenCode on native Windows, PowerShell 7.6, Node v24.16.0, with `code.cmd` available. WSL was not used. The selected runtime contract is Node 20+ on native Windows/Linux; WSL, SSH, containers, and other unsupported environments receive actionable errors.
 
 ## 4. Versioning and update contract
 
@@ -170,9 +199,9 @@ The script should:
 4. Read the referenced source as it exists at generation and capture original anchors.
 5. Generate IDs/timestamps/encoding itself rather than spending model output on mechanical metadata.
 6. Write an immutable, versioned artifact atomically.
-7. Return a small result containing the artifact location and ready-to-print launch URL.
+7. Return the artifact ID/path and instructions to choose its title/ID through Open Walkthrough. Add the required HTTPS launch URL in the launcher follow-up.
 
-The script does not launch or focus the IDE by default. Clicking the link is the primary interaction.
+The script does not launch or focus the IDE. The current slice uses an explicit picker; clicking the HTTPS link becomes the primary interaction in the delivery follow-up.
 
 ### Coordinates
 
@@ -217,9 +246,9 @@ Host static HTML/CSS/JavaScript on GitHub Pages, potentially at:
 https://pvrobays.github.io/walk-me-through/#<encoded-launch-data>
 ```
 
-This is a proposed address. Hosting is not configured, and no deployment has been requested yet.
+This is the planned address. The owner reports Pages is enabled with main/root branch publishing. A gated Actions workflow is prepared; switch the Pages source to GitHub Actions before deploying future launcher assets. No live launcher deployment was performed.
 
-The fragment contains **base64url-encoded JSON**: a versioned launch envelope with project root, execution environment, walkthrough ID/artifact reference, and optional step ID. Define exact field names, size limits, and validation in the first implementation. The script performs encoding; the model must not manually generate base64 or URL escapes. Accept the initial URL length and test it in OpenCode/Windows Terminal before optimizing it.
+The future fragment will contain **base64url-encoded JSON** with root, environment, artifact identity, and optional step. Define its fields, limits, validation, and script encoding in the launcher change; test terminal clickability then. Models must not manually encode launch data.
 
 Fragments are not sent in the HTTP request. They remain visible to page JavaScript, browser history, copied links, and the receiving IDE. Keep the launcher self-contained with no analytics or third-party scripts. A hosted page cannot read arbitrary local files; it passes a reference to the IDE, which reads the artifact locally.
 
@@ -243,7 +272,7 @@ Requirements:
 - If necessary, add instance discovery/forwarding inside the extension architecture; do not introduce a companion daemon as a shortcut.
 - If the same checkout is available in two windows, route to the most recently focused matching window; track focus changes rather than letting the first claimant win.
 
-The MVP supports desktop VS Code on native Windows only. Detect unsupported WSL/SSH/container execution and explain the limitation; do not treat a coincidentally matching path in another environment as the same checkout.
+The MVP supports desktop VS Code on native Windows and native Linux. Reject WSL/SSH/container/remote execution; a matching path in another environment is not the same checkout.
 
 ## 7. Custom playback UI
 
@@ -267,6 +296,19 @@ The player owns context validation, relocation, and stale-state handling. Make o
 Keep Markdown command links disabled (`MarkdownString.isTrusted` unset/false). Custom links between walkthrough steps or source files are a later enhancement. Optional evidence labels can be accepted and retained in artifacts before the UI displays them.
 
 ## 8. MVP scope and acceptance criteria
+
+### Updated delivery sequence — owner agreed 2026-10-21
+
+After the accepted VS Code vertical slice and progressive-depth UX refinement, prioritize:
+
+1. **Rider playback parity**, beginning with a Rider-native explanation/highlight prototype. Reuse the existing project skill and v1 artifacts. Target the same reading/navigation semantics: nested outline, overview/narrative/stale explanations, Markdown beside precise source highlights, Next/Previous/Skip Details, direct selection, Return to Current Step, current-buffer anchor resolution, and replacement/close cleanup. Validate the explanation surface before committing to its full implementation.
+2. **Shared HTTPS launcher**, offering explicit VS Code and Rider choices, installation help, and retry through a versioned launch envelope.
+3. **Correct-window routing for each IDE**, including exact checkout identity, closed-editor startup, unrelated active windows, duplicate windows, subfolder projects, and multi-root equivalents where applicable.
+4. **Project onboarding, bundle updates, and distribution**, preserving project-local ownership and customizations.
+
+This sequence supersedes the earlier VS Code-first milestone ordering below and Rider's previous placement after the complete VS Code feature set. Rider is the owner's primary IDE; validating it now should inform the shared delivery design. Same UX means equivalent reading and navigation behavior using appropriate Rider-native surfaces; an equivalent of VS Code comments has not yet been established. Rider version/build compatibility and the concrete explanation surface must be settled in the Rider change.
+
+The `refine-progressive-depth-ux` change has 11/11 tracked tasks complete. Manual acceptance and the owner's explicit closure of fresh-agent acceptance are recorded in that change's `verification.md`; no additional scratch-agent run is claimed.
 
 ### Milestone A: first vertical slice
 
@@ -292,7 +334,7 @@ Keep Markdown command links disabled (`MarkdownString.isTrusted` unset/false). C
 - A second checkout containing the committed skill can generate a walkthrough without its viewer installed.
 - Support Marketplace packaging and downloadable GitHub Release `.vsix` artifacts; actual publication is a separate action.
 - Complete input/import validation, update handling, and end-to-end acceptance checks.
-- Keep terminal output to a concise conclusion and link.
+- Lead with replay instructions/link, followed by the requested normal explanation, without requiring duplication of every walkthrough step.
 
 ### Required acceptance scenarios
 

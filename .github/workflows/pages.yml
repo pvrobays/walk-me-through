@@ -1,0 +1,47 @@
+name: Deploy launcher to Pages
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [launcher/**, .github/workflows/pages.yml]
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.launcher.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check launcher assets
+        id: launcher
+        shell: bash
+        run: |
+          if test -f launcher/index.html; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "### Pages skipped: launcher/index.html does not exist yet." >> "$GITHUB_STEP_SUMMARY"
+          fi
+  deploy:
+    needs: inspect
+    if: needs.inspect.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: launcher/
+      - uses: actions/deploy-pages@v4
+        id: deployment

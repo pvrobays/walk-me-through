@@ -59,11 +59,11 @@ Each file hash SHALL be computed over UTF-8 text with any leading BOM removed an
 - **THEN** its steps explain findings and supporting code, including uncertainty where appropriate, rather than exposing private internal reasoning
 
 ### Requirement: Walkthrough supplements the normal answer
-The skill SHALL preserve the agent's normal user-facing answer, including findings, evidence, rationale, and uncertainty at the detail requested by the user. It SHALL append the walkthrough ID, artifact path, and Open Walkthrough picker instructions. It SHALL NOT replace the answer with only a short conclusion or require a copy of every walkthrough step. It SHALL NOT request private internal chain-of-thought.
+Successful final replies SHALL begin with a compact walkthrough-availability section containing its title, Open Walkthrough picker instructions, ID, and artifact path. The full normal answer SHALL follow, preserving findings, evidence, rationale, and uncertainty at the requested depth. The skill SHALL NOT substitute a short conclusion, require duplication of every step, or request private internal chain-of-thought.
 
 #### Scenario: Normal explanation preserved
 - **WHEN** the user requests a detailed explanation and the agent publishes a walkthrough
-- **THEN** the reply still provides the requested explanation and adds the artifact path, ID, and instructions for choosing it in VS Code
+- **THEN** the reply begins with walkthrough availability, title, instructions for choosing it in VS Code, ID, and artifact path, followed by the requested explanation
 
 #### Scenario: Walkthrough unavailable
 - **WHEN** publishing cannot finish because of an environment or tool failure

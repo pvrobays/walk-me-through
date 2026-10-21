@@ -21,7 +21,7 @@ This design covers how to build them.
 - Anchor capture and resolution that is cheap enough to run every time a step becomes current.
 - A player made from standard VS Code surfaces: Comments, Tree View, Webview View, and decorations.
 - Automated tests for all core logic and the main extension behaviors, plus a short manual checklist for visual rendering.
-- Native Windows and native Linux support using the same code paths, verified on both through CI.
+- Native Windows and native Linux use the same code paths, with CI configured for both. Windows is verified; Linux is unofficially supported pending a later native-host trial. Per owner decision on 2026-10-21, native Linux results are no longer a slice acceptance blocker.
 - Publishing errors that tell the agent what to change and whether to retry after correction or report a blocker.
 
 **Non-Goals:**
@@ -323,7 +323,7 @@ The result is `{ state, range?, reason?, tie?, candidateCount }`. In the worst c
   - The exact command: `node .agents/skills/walk-me-through/scripts/publish-walkthrough.mjs .walk-me-through/drafts/<slug>.json`.
   - How to follow the structured recovery contract: correct `fix-input` errors using the hint/current source, report environment/tool blockers, and stop when the same error repeats without a new correction available.
   - What to do when Node is missing.
-  - Preserve the normal user-facing answer at the requested depth: findings, supporting evidence, rationale, and uncertainty. Append the artifact ID/path and the `open` hint. Do not impose a 1–3 sentence limit or ask the agent to duplicate every step. If publishing fails, retain the normal answer and state the blocker without claiming success.
+  - Lead successful final replies with a compact walkthrough-availability section containing the title, `open` instructions, and artifact ID/path. Follow with the normal user-facing answer at the requested depth: findings, supporting evidence, rationale, and uncertainty. Do not impose a 1–3 sentence limit or ask the agent to duplicate every step. If publishing fails, retain the normal answer and state the blocker without claiming success.
 - **Format reference:** documents every field, the limits, exit codes, error codes/fields, and recovery actions, with examples for blank selections, missing/ambiguous snippets, and environment/internal failures. Its input example uses files from `examples/sample-project`. A test extracts that JSON block and publishes it with `--root examples/sample-project`.
 - **Manifest:** `scripts/build.mjs` writes `manifest.json` with `manifestVersion` 1, `bundleVersion` 0.1.0 (kept equal to the skill package version), and `walkthroughSchemaVersion` 1. File hashes use the shared normalization (strip BOM, CRLF to LF) from core.
 

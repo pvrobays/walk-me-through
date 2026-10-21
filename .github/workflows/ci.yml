@@ -1,0 +1,30 @@
+name: Verify native platforms
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run typecheck
+      - run: npm test
+      - name: Extension host (Windows)
+        if: runner.os == 'Windows'
+        run: npm run test:extension
+      - name: Extension host (Linux desktop under Xvfb)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npm run test:extension

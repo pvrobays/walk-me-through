@@ -1,0 +1,33 @@
+{
+  "name": "walk-me-through-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "vitest run && npm run check:bundle && node scripts/check-workflows.mjs",
+    "typecheck": "tsc --noEmit -p packages/core && tsc --noEmit -p packages/skill && tsc --noEmit -p packages/vscode",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "skill:install": "node scripts/install-skill.mjs",
+    "package:vsix": "npm run build && npm exec --workspace packages/vscode -- vsce package",
+    "test:extension": "npm exec --workspace packages/vscode -- vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.0",
+    "@types/node": "^22.0.0",
+    "@types/vscode": "^1.90.0",
+    "@vscode/test-cli": "^0.0.11",
+    "@vscode/test-electron": "^2.4.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.25.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0",
+    "yaml": "^2.9.1"
+  }
+}

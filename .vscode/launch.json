@@ -1,0 +1,10 @@
+{
+  "version": "0.2.0",
+  "configurations": [{
+    "name": "Walk Me Through sample",
+    "type": "extensionHost",
+    "request": "launch",
+    "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/vscode", "${workspaceFolder}/examples/sample-project"],
+    "outFiles": ["${workspaceFolder}/packages/vscode/dist/**/*.js"]
+  }]
+}

@@ -1,0 +1,48 @@
+{
+  "name": "walk-me-through",
+  "displayName": "Walk Me Through",
+  "description": "Play evidence-backed, code-anchored walkthroughs.",
+  "version": "0.1.0",
+  "publisher": "pvrobays",
+  "private": true,
+  "engines": { "vscode": "^1.90.0" },
+  "main": "./dist/extension.js",
+  "activationEvents": ["onCommand:walkMeThrough.openWalkthrough", "onView:walkMeThrough.steps", "onView:walkMeThrough.step"],
+  "capabilities": { "untrustedWorkspaces": { "supported": true } },
+  "contributes": {
+    "commands": [
+      { "command": "walkMeThrough.openWalkthrough", "title": "Walk Me Through: Open Walkthrough" },
+      { "command": "walkMeThrough.closeWalkthrough", "title": "Walk Me Through: Close Walkthrough", "icon": "$(close)" },
+      { "command": "walkMeThrough.next", "title": "Walk Me Through: Next", "icon": "$(arrow-right)" },
+      { "command": "walkMeThrough.previous", "title": "Walk Me Through: Previous", "icon": "$(arrow-left)" },
+      { "command": "walkMeThrough.skipDetails", "title": "Walk Me Through: Skip Details", "icon": "$(debug-step-over)", "enablement": "walkMeThrough.canSkipDetails" },
+      { "command": "walkMeThrough.goToStep", "title": "Walk Me Through: Go to Step" },
+      { "command": "walkMeThrough.returnToCurrentStep", "title": "Walk Me Through: Return to Current Step" }
+    ],
+    "viewsContainers": { "activitybar": [{ "id": "walkMeThrough", "title": "Walk Me Through", "icon": "media/walkthrough.svg" }] },
+    "views": { "walkMeThrough": [
+      { "id": "walkMeThrough.steps", "name": "Steps" },
+      { "id": "walkMeThrough.step", "name": "Step", "type": "webview" }
+    ] },
+    "menus": {
+      "commandPalette": [
+        { "command": "walkMeThrough.skipDetails", "when": "walkMeThrough.canSkipDetails" }
+      ],
+      "comments/commentThread/title": [
+        { "command": "walkMeThrough.previous", "when": "commentController == walk-me-through && walkMeThrough.hasPrevious", "group": "navigation@1" },
+        { "command": "walkMeThrough.next", "when": "commentController == walk-me-through && walkMeThrough.hasNext", "group": "navigation@2" },
+        { "command": "walkMeThrough.skipDetails", "when": "commentController == walk-me-through && walkMeThrough.canSkipDetails", "group": "navigation@3" },
+        { "command": "walkMeThrough.closeWalkthrough", "when": "commentController == walk-me-through", "group": "navigation@4" }
+      ]
+    },
+    "colors": [
+      { "id": "walkMeThrough.highlightBackground", "description": "Walkthrough source selection background.", "defaults": { "dark": "#3794ff30", "light": "#007acc25", "highContrast": "#3794ff30", "highContrastLight": "#007acc25" } },
+      { "id": "walkMeThrough.uncertainBorder", "description": "Border for uncertain source matches.", "defaults": { "dark": "editorWarning.foreground", "light": "editorWarning.foreground", "highContrast": "editorWarning.foreground", "highContrastLight": "editorWarning.foreground" } }
+    ]
+  },
+  "dependencies": {
+    "@walk-me-through/core": "0.1.0",
+    "markdown-it": "^14.1.0"
+  },
+  "devDependencies": { "@types/markdown-it": "^14.1.0" }
+}

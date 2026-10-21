@@ -1,0 +1,10 @@
+{
+  "manifestVersion": 1,
+  "bundleVersion": "0.1.0",
+  "walkthroughSchemaVersion": 1,
+  "files": {
+    "SKILL.md": "2f151905914905af7652269c6969355a060ccd317d948f7a91d08d6b5224f9a5",
+    "references/walkthrough-format.md": "8df24e5929e1b9910c90abc6491cf6eb54cd379b1e07ba68cc00ae26b5a743f9",
+    "scripts/publish-walkthrough.mjs": "2159c0752f04baf7c4b3b765f18b1de0ae4b6a6ac066dff0fe2dd0c8e66c15d7"
+  }
+}

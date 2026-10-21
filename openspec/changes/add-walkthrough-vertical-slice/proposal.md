@@ -38,12 +38,12 @@ Walk Me Through currently exists only as design documentation. We need one compl
   - Precise highlight decorations.
   - Previous, Next, and direct navigation in depth-first order.
 - Add the skill bundle:
-  - `SKILL.md`, which tells the agent to write concise, evidence-backed input, publish it, and append the walkthrough ID, artifact path, and opening instructions to its normal user-facing explanation. Preserve findings, evidence, uncertainty, and rationale; do not request private internal chain-of-thought.
+  - `SKILL.md`, which tells the agent to write concise, evidence-backed input, publish it, and lead its final reply with walkthrough availability, title, opening instructions, ID, and artifact path, followed by its normal user-facing explanation. Preserve findings, evidence, uncertainty, and rationale; do not request private internal chain-of-thought.
   - A format reference.
   - A manifest with versions and normalized file hashes.
   - A developer-only command that copies the bundle into a project.
 - Add a sample project and walkthrough input so the whole flow can be tried locally.
-- Support authoring and playback on native Windows and native Linux, with checks on both platforms. WSL, SSH, containers, and other unsupported environments remain excluded.
+- Support authoring and playback on native Windows, with unofficial native Linux support pending a later native-host trial. Keep CI checks configured for both platforms; native Linux results are not an acceptance blocker for this slice (owner decision, 2026-10-21). WSL, SSH, containers, and other unsupported environments remain excluded.
 - Prepare a GitHub Pages deployment workflow targeting the future `launcher/` directory. It skips deployment until `launcher/index.html` exists. The launcher itself remains a follow-up; document the change from the owner's current main/root branch publishing setting to the GitHub Actions Pages source when enabling workflow deployment.
 
 Out of scope, and left for follow-up changes:

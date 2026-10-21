@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "title": "Why retries never back off",
+  "summary": "The helper retries failed operations, but every delay uses attempt zero. The **exponential calculation** is correct; its caller supplies the wrong argument.",
+  "steps": [
+    {
+      "title": "Retries run, but the delay never grows",
+      "explanation": "The loop retries failed operations up to the configured limit and rethrows the final failure. Each earlier failure waits, but the caller always passes `0` to the exponential helper, so every wait is the default **100 ms**. This finding comes from source inspection, not runtime measurement."
+    },
+    {
+      "title": "Use the attempt counter for exponential backoff",
+      "explanation": "Passing `attempt` instead of `0` would make successive waits 100, 200, 400 ms with the default base. This is a **proposed repair, not an executed or tested fix**; validate retry counts, timing, and final-error behavior before relying on it.",
+      "evidence": "hypothesis",
+      "location": { "path": "src/retry.ts", "startLine": 9, "endLine": 9, "match": "retryDelay(0)" },
+      "children": [
+        {
+          "title": "Failure handling separates retry from final throw",
+          "explanation": "The final-attempt guard precedes both delay calculation and the timer, so the last failure does not schedule another wait. A successful operation returns directly from the try block.",
+          "evidence": "observation",
+          "location": { "path": "src/retry.ts", "startLine": 5, "endLine": 10 },
+          "children": [
+            {
+              "title": "The loop owns a zero-based counter",
+              "explanation": "`attempt` begins at zero and increments once per iteration. Using it preserves a base-delay first wait; changing to a one-based counter would change that first delay.",
+              "evidence": "observation",
+              "location": { "path": "src/retry.ts", "startLine": 4, "endLine": 4, "match": "let attempt = 0; attempt < attempts; attempt++" },
+              "children": [
+                {
+                  "title": "Default budget allows two waits",
+                  "explanation": "With `attempts = 3`, failures at counters 0 and 1 wait; failure at counter 2 is rethrown. The proposed argument change would therefore yield 100 and 200 ms waits for the default budget.",
+                  "evidence": "conclusion",
+                  "location": { "path": "src/retry.ts", "startLine": 3, "endLine": 3, "match": "attempts = 3" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Helper defaults and arithmetic",
+          "explanation": "The helper defaults `baseDelay` to 100 and returns `baseDelay * 2 ** attempt`. There is no cap or jitter in this implementation; the suggested call-site repair adds neither.",
+          "evidence": "observation",
+          "location": { "path": "src/timing.ts", "startLine": 1, "endLine": 3 }
+        }
+      ]
+    }
+  ]
+}
