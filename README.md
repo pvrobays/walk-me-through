@@ -12,7 +12,7 @@ Walk Me Through turns these explanations into navigable, code-anchored walkthrou
 
 ## Try the vertical slice
 
-**Status:** the authoring/publishing/current-window playback slice is implemented and accepted on Windows. Requirements: Node 20+ and local desktop VS Code, outside WSL, SSH, containers, and remote extension hosts. Windows automated verification (VS Code 1.90.2), manual desktop acceptance (VS Code 1.138.0), and restarted-OpenCode authoring/recovery/playback checks passed. **Native Linux is unofficially supported**, pending a later trial on a native Linux host; Linux verification is no longer an acceptance blocker for this slice.
+**Status:** the authoring/publishing/current-window playback slice is implemented and accepted on Windows. Requirements: Node 20+ and local desktop VS Code, outside WSL, SSH, containers, and remote extension hosts. Windows automated verification (VS Code 1.90.2), manual desktop acceptance (VS Code 1.138.0), and restarted-OpenCode authoring/recovery/playback checks passed. The owner also reports a successful manual VS Code integration test on a native Linux host; automated Linux results are not recorded here.
 
 From the repository root:
 
@@ -22,7 +22,7 @@ npm run build
 node packages/skill/scripts/publish-walkthrough.mjs examples/sample-project/walkthrough-input.json --root examples/sample-project
 ```
 
-Open this repository in desktop VS Code. Press **F5** and select **Walk Me Through sample** to open `examples/sample-project` in an Extension Development Host. Run **Walk Me Through: Open Walkthrough**, then choose **Why retries never back off** using the ID printed by the publisher. Opening waits for your choice; it never automatically plays the latest artifact.
+Open this repository in desktop VS Code. After building, press **F5** and select **Walk Me Through sample** to open `examples/sample-project` in an Extension Development Host. Run **Walk Me Through: Open Walkthrough** in the new window, then choose **Why retries never back off** using the ID printed by the publisher. F5 does not build the extension automatically; if you change its source, run `npm run build` again and restart the F5 session. Opening waits for your choice; it never automatically plays the latest artifact.
 
 The Steps tree preserves the hierarchy. The Step view shows the overview, narrative explanations, and stale steps. Code steps show read-only Markdown comments and precise expression/multiline highlights. Use **Next**, **Previous**, or direct selection. **Return to Current Step** re-resolves against unsaved buffers. Anchors refresh when a step becomes current, rather than continuously during edits.
 
