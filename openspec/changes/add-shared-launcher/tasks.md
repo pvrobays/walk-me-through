@@ -37,7 +37,7 @@
 ## 7. Deployment and integrated acceptance
 
 - [x] 7.1 Run `npm run build`, `npm run typecheck`, `npm test`, `npm run test:extension`, the Rider `test buildPlugin verifyPlugin`, and `openspec validate add-shared-launcher --strict`. Record the actual versions, counts and results in `verification.md`.
-- [ ] 7.2 Pause for the owner to switch **Settings → Pages → Source → GitHub Actions** and to push or merge the launcher to `main`. Verify the Pages run deployed only `launcher/`, and that the live `https://pvrobays.github.io/walk-me-through/` page renders a published link. Update the README and IMPLEMENTATION.md Pages status.
+- [x] 7.2 Pause for the owner to switch **Settings → Pages → Source → GitHub Actions** and to push or merge the launcher to `main`. Verify the Pages run deployed only `launcher/`, and that the live `https://pvrobays.github.io/walk-me-through/` page renders a published link. Update the README and IMPLEMENTATION.md Pages status.
 - [ ] 7.3 Owner acceptance on native Windows: publish from OpenCode in Windows Terminal, click the real link, and open it in installed VS Code and in Rider. Cover: an older link after a newer publish; a wrong active VS Code window (notice, unchanged workspace); Rider with no matching project; uninstalled-viewer help and retry, followed by re-clicking the original link after install; and offline IDE playback. Record terminal clickability, link lengths, prompts and observations in `verification.md`, then update the README and IMPLEMENTATION.md status without claiming routing or publication.
 
 ## Workflow follow-up

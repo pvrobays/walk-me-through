@@ -183,3 +183,34 @@ Local preview used `npm run launcher:serve` (`scripts/serve-launcher.mjs`). A sm
 - Rider: launches through local preview into the installed real Rider 2026.2.3.1, with the reinstalled full plugin ZIP, at the overview and a nested step, plus the no-matching-project notice.
 
 Owner report: **"all verified, they work like a charm."** These results come from the owner, not from automated checks. The owner did not separately report the exact wording of VS Code's confirmation prompt or any console CSP messages. The README therefore describes the prompt without quoting it.
+
+## Task 7.2 — Pages deployment (2026-10-21)
+
+- The owner switched **Settings → Pages → Source → GitHub Actions**. `gh api repos/pvrobays/walk-me-through/pages` reports `build_type: workflow` and `status: built`. No further Pages configuration was needed.
+- Push `6485d28` to `main` triggered `Deploy launcher to Pages` run 39628149103. The `inspect` job selected deployment, and `deploy` succeeded. The `github-pages` artifact was 7,206 bytes compressed.
+- Live checks with `Invoke-WebRequest`:
+  - `/`, `/index.html`, `/styles.css` and `/launcher.js` return 200, and their content is identical to the committed `launcher/` files.
+  - `/README.md`, `/package.json`, `/packages/launcher/src/main.ts` and `/launcher/index.html` return 404, so only the contents of `launcher/` were deployed.
+- The owner confirmed that the live page renders the published sample link: title, ID, project and both IDE choices.
+- CI follow-up:
+  - The `Verify native platforms` Windows extension-host job had already been failing on the two earlier commits, because `Source playback` exceeded mocha's 2 s default timeout on hosted runners. The test kept running after the timeout, and its cleanup then closed the session during one launch test.
+  - Commit `5989883` set `mocha.timeout = 20000` in `packages/vscode/.vscode-test.mjs`. CI run 39628774943 then passed on both Windows and Ubuntu.
+  - Commit `c18819b` fixed `npm run package:vsix`, which had been pulling the workspace into the VSIX and hung. It added `.vscodeignore`, the license and repository metadata, and `--no-dependencies`; the VSIX is now 6 files and 82 KB. CI passed after re-running an Ubuntu job whose VS Code download was aborted by a network error.
+- README (`Pages deployment`, current scope) and IMPLEMENTATION.md (delivery, Pages, and §6 launcher status) were updated.
+
+## Task 7.3 — owner acceptance (2026-10-21, partial)
+
+Setup:
+
+- The skill bundle was installed into `C:\git\pow4-dirk` with `npm run skill:install`. Those files are untracked in that repository.
+- The VS Code extension was installed from the fixed local VSIX.
+- The full Rider plugin ZIP was installed.
+
+Owner report:
+
+- The link that OpenCode returned in Windows Terminal was **clickable**.
+- It opened the walkthrough in **installed VS Code** and in **Rider**.
+- The only prompt was the **browser's** confirmation before opening the external app. The owner reported no VS Code URI-confirmation dialog and no Toolbox prompt.
+- The link length was not reported.
+
+**Not tested** (owner: "did not test but I'm quite sure will work"): an older link after a newer publish, a wrong active VS Code window, Rider with no matching project, help and retry for an uninstalled viewer followed by re-clicking after install, and offline IDE playback. Automated tests cover the older-link, wrong-window, no-matching-project and step cases in both IDEs. The page cannot be tested against an uninstalled viewer or offline playback automatically. Task 7.3 therefore stays unchecked until the owner either runs these checks or explicitly accepts them as not verified.
