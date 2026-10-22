@@ -15,10 +15,12 @@ class PresentationTest {
         assertEquals("&lt;script&gt;&amp;", escape("<script>&"))
     }
 
-    @Test fun `environment refuses remote headless and unaccepted platforms`() {
-        assertNull(PlaybackEnvironment.refusal("Windows 11", false, false))
-        assertTrue(PlaybackEnvironment.refusal("Windows 11", true, false)!!.contains("Remote development hosts"))
-        assertNotNull(PlaybackEnvironment.refusal("Windows 11", false, true))
-        assertNotNull(PlaybackEnvironment.refusal("Linux", false, false))
+    @Test fun `environment accepts every native desktop OS and refuses remote and headless hosts`() {
+        for (os in listOf("Windows 11", "Linux", "Mac OS X")) {
+            assertNull(os, PlaybackEnvironment.refusal(os, false, false))
+            assertTrue(PlaybackEnvironment.refusal(os, true, false)!!.contains("Remote development hosts"))
+            assertTrue(PlaybackEnvironment.refusal(os, false, true)!!.contains("local desktop Rider"))
+        }
+        assertFalse(PlaybackEnvironment.LOCAL_DESKTOP.contains("accepted only"))
     }
 }

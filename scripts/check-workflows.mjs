@@ -8,9 +8,12 @@ export async function workflow(name) {
   return document.toJS();
 }
 const ci = await workflow('ci');
-assert.deepEqual(ci.jobs.verify.strategy.matrix.os, ['windows-latest', 'ubuntu-latest']);
+assert.deepEqual(ci.jobs.verify.strategy.matrix.os, ['windows-latest', 'ubuntu-latest', 'macos-latest']);
 const commands = ci.jobs.verify.steps.map(step => step.run).filter(Boolean);
 for (const command of ['npm ci', 'npm run build', 'npm run typecheck', 'npm test', 'npm run test:extension', 'xvfb-run -a npm run test:extension']) assert.ok(commands.includes(command));
+const extensionHost = ci.jobs.verify.steps.find(step => step.run === 'npm run test:extension');
+assert.ok(extensionHost.if.includes("runner.os == 'Windows'") && extensionHost.if.includes("runner.os == 'macOS'"), 'Windows and macOS run extension-host tests without Xvfb.');
+assert.equal(ci.jobs.verify.steps.find(step => step.run === 'xvfb-run -a npm run test:extension').if, "runner.os == 'Linux'");
 assert.ok(!JSON.stringify(ci).includes('WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT'));
 console.log('Native-platform CI YAML and verification commands are valid.');
 const pages = await workflow('pages');

@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -9,6 +9,17 @@ const { version } = JSON.parse(await readFile(path.join(root, 'packages/skill/pa
 const textModule = await build({ absWorkingDir: root, entryPoints: ['packages/core/src/text.ts'], bundle: true, write: false, format: 'esm', platform: 'node' });
 const { hashFile } = await import(`data:text/javascript;base64,${Buffer.from(textModule.outputFiles[0].text).toString('base64')}`);
 export const bundleFiles = ['SKILL.md', 'references/walkthrough-format.md', 'scripts/publish-walkthrough.mjs'];
+/** The four files an installed skill consists of, including the manifest. */
+export const installedFiles = ['SKILL.md', 'manifest.json', 'references/walkthrough-format.md', 'scripts/publish-walkthrough.mjs'];
+
+/** Copies the canonical skill bundle into the VS Code package (gitignored), so the VSIX ships it. */
+export async function copySkillToExtension(target = path.join(root, 'packages/vscode/skill')) {
+  await rm(target, { recursive: true, force: true });
+  for (const file of installedFiles) {
+    await mkdir(path.dirname(path.join(target, file)), { recursive: true });
+    await copyFile(path.join(root, 'packages/skill', file), path.join(target, file));
+  }
+}
 
 export async function buildManifest(directory = path.join(root, 'packages/skill')) {
   const files = {};
@@ -30,6 +41,7 @@ export async function buildSkill(outfile = path.join(root, 'packages/skill/scrip
     platform: 'node',
     target: 'node18',
     minify: false,
+    define: { __WMT_BUNDLE_VERSION__: JSON.stringify(version) },
     banner: { js: `// GENERATED — Walk Me Through bundle ${version}. Source: packages/skill/src/cli.ts and packages/core/src/.` },
   });
 }
@@ -71,5 +83,5 @@ export async function buildLauncher(outfile = path.join(root, 'launcher/launcher
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  await Promise.all([buildSkill().then(() => buildManifest()), buildExtension(), buildLauncher()]);
+  await Promise.all([buildSkill().then(() => buildManifest()).then(() => copySkillToExtension()), buildExtension(), buildLauncher()]);
 }

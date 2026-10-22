@@ -16,6 +16,7 @@ Store users currently get a viewer that refuses macOS, and in Rider also Linux. 
 - **Skill onboarding in both IDEs.**
   - A **Walk Me Through: Install Skill into Project** command copies the skill bundle shipped inside the extension or plugin into the project's Git root, at `.agents/skills/walk-me-through/`. It never overwrites differing files.
   - When a Git project without the skill is opened, the IDE shows a notification with three buttons: **Install**, **Not for This Project** (remembered per project) and **Don't Ask Again** (remembered globally).
+  - Whenever the Walk Me Through view is shown in such a project, a top banner says the skill is missing, so the AI agent cannot create walkthroughs, and offers **Install**. It ignores the dismissals, so no reset command is needed.
 - **Help and docs point to the stores.** The launcher's install help targets and the README install sections lead to the Marketplace pages. The local VSIX and ZIP builds stay documented as a development path.
 - **Owner pauses for manual store uploads.** Release automation is explicitly deferred.
 

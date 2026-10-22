@@ -36,6 +36,7 @@ it('runs from a subdirectory with no node_modules, publishes twice immutably, an
   expect(first.json.url.startsWith(base)).toBe(true);
   expect(first.json.open.startsWith(`Open ${first.json.url} and choose VS Code or Rider, or run Walk Me Through: Open Walkthrough`)).toBe(true);
   const saved = JSON.parse(readFileSync(path.join(root, first.json.artifactPath), 'utf8'));
+  expect(saved.generator).toEqual({ name: 'walk-me-through', bundleVersion: '0.2.0' });
   expect(decodeEnvelope(first.json.url.slice(base.length))).toEqual({ ok: true, envelope: {
     v: 1, root: saved.project.root, env: { kind: saved.project.environment.kind, platform: saved.project.environment.platform }, id: first.json.id, title: 'Retry investigation' } });
   const firstPath = path.join(root, first.json.artifactPath); const content = readFileSync(firstPath, 'utf8');
@@ -85,7 +86,7 @@ it('collects independent validation failures and returns source-specific selecti
 it('reports environment blockers with setup hints and no published artifact', () => {
   const { root, run } = fixture();
   const result = run(undefined, undefined, { ...process.env, WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT: '', SSH_CONNECTION: 'test-session' });
-  expect(result.status).toBe(2); expect(result.json).toMatchObject({ ok: false, errors: [{ code: 'ENVIRONMENT_UNSUPPORTED', recovery: 'fix-environment', hint: expect.stringContaining('native Windows') }] });
+  expect(result.status).toBe(2); expect(result.json).toMatchObject({ ok: false, errors: [{ code: 'ENVIRONMENT_UNSUPPORTED', recovery: 'fix-environment', hint: expect.stringContaining('native Windows, Linux or macOS') }] });
   expect(existsSync(path.join(root, '.walk-me-through/walkthroughs'))).toBe(false);
 });
 it('leaves a git fixture clean after publishing', () => {

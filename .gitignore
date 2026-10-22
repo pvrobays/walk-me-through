@@ -8,4 +8,9 @@ out/
 /packages/rider/.intellijPlatform/
 /packages/rider/build/
 /packages/rider/local.properties
+# Plugin signing material stays outside the repository; these guard against accidental copies.
+/packages/rider/**/*.pem
+/packages/rider/**/*.crt
+/packages/rider/**/*.key
 /packages/vscode/LICENSE
+/packages/vscode/skill/

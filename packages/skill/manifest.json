@@ -1,10 +1,10 @@
 {
   "manifestVersion": 1,
-  "bundleVersion": "0.1.0",
+  "bundleVersion": "0.2.0",
   "walkthroughSchemaVersion": 1,
   "files": {
-    "SKILL.md": "d490ddec06592856aa8568242c352a79fbeaa472cf70e81975e1f4e0066cc32e",
-    "references/walkthrough-format.md": "c9a0fb400ec66ef28a8d26b694875560935e9cbda50f1037198f28349b40726a",
-    "scripts/publish-walkthrough.mjs": "57164c88ae618e760b710058a97e00d6dccc6a6f0be274167aa05c62f95a186d"
+    "SKILL.md": "410b59ce6787fe02414fc4e4e3eafe0b1db8360a20a76d80b8798c5f23d66787",
+    "references/walkthrough-format.md": "3776282e66c04a963295f0fb2b41279970571a8db1ac4cfa38b26fdee409047c",
+    "scripts/publish-walkthrough.mjs": "314e406a40786aebce29297705f390db9f7b94639eca69c37cef63d6272a0403"
   }
 }

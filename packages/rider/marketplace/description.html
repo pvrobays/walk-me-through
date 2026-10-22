@@ -1,0 +1,26 @@
+<p>Play the code-anchored walkthroughs your coding agent publishes, step by step next to the highlighted code in Rider.</p>
+<p>Instead of pasting code excerpts into its reply, the agent saves a walkthrough in your project and gives you one link. Rider opens it in the <b>Walk Me Through</b> tool window: an outline, a Markdown explanation for each step, and a precise highlight in the current editor.</p>
+<h3>Get started</h3>
+<ol>
+  <li>Install <a href="https://www.jetbrains.com/toolbox-app/">JetBrains Toolbox</a> if you don't have it; it delivers <code>jetbrains://</code> links to Rider.</li>
+  <li>Open your project and run <b>Walk Me Through: Install Skill into Project</b> (Find Action). It copies the project skill shipped inside this plugin into <code>.agents/skills/walk-me-through/</code> at the Git root, without network access or Node.</li>
+  <li>Commit that folder and restart your agent (for example OpenCode) so it discovers the skill.</li>
+  <li>Ask the agent to explain something that spans several files, click the link in its reply, and choose <b>Open in Rider</b>.</li>
+</ol>
+<h3>The project skill</h3>
+<ul>
+  <li>The install command adds only missing files. If a skill file already exists with different content, it changes nothing and names that file.</li>
+  <li>When a Git project without the skill opens, a notification offers <b>Install</b>, <b>Not for This Project</b> and <b>Don't Ask Again</b>. These choices are stored in Rider's own settings, never in the project.</li>
+  <li>While the skill is missing, the tool window shows a banner with <b>Install Skill</b>, even after the offer was dismissed.</li>
+</ul>
+<h3>Reading a walkthrough</h3>
+<p>Use <b>Next</b>, <b>Previous</b>, <b>Skip Details</b> and <b>Return</b>, or pick any step in the outline. <b>Walk Me Through: Open Walkthrough</b> lists the project's saved walkthroughs by title and ID. When code has changed since the walkthrough was written, moved code is followed, uncertain matches are marked, and missing code is reported instead of highlighting something else.</p>
+<h3>Launch links</h3>
+<p>A link opens the walkthrough only in a Rider window that already has the recorded project open. The plugin never opens projects or runs anything; other links only show a notice.</p>
+<h3>Platforms and privacy</h3>
+<ul>
+  <li>Local desktop Rider on native Windows, Linux or macOS, with the bundled Web Browser (JCEF) enabled. Windows is tested by the maintainers; Linux and macOS are supported but not verified by the maintainers.</li>
+  <li>Not supported: remote development hosts, SSH, WSL, containers and headless IDEs.</li>
+  <li>Walkthroughs are JSON files in the project's self-ignoring <code>.walk-me-through/</code> folder. The plugin makes no network requests of its own and collects no telemetry.</li>
+</ul>
+<p><a href="https://github.com/pvrobays/walk-me-through">Source, documentation and VS Code extension</a> · <a href="https://github.com/pvrobays/walk-me-through/issues">Issues</a></p>

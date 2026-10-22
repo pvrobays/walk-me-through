@@ -3,10 +3,12 @@
 (() => {
   // packages/launcher/src/config.ts
   var REPOSITORY_URL = "https://github.com/pvrobays/walk-me-through";
+  var VSCODE_MARKETPLACE_URL = "https://marketplace.visualstudio.com/items?itemName=pvrobays.walk-me-through";
+  var JETBRAINS_MARKETPLACE_URL = "https://plugins.jetbrains.com/plugin/35375-walk-me-through";
   var IDES = ["vscode", "rider"];
   var IDE_CONFIG = {
-    vscode: { label: "VS Code", install: `${REPOSITORY_URL}#install-the-vs-code-extension` },
-    rider: { label: "Rider", install: `${REPOSITORY_URL}#install-the-rider-plugin` }
+    vscode: { label: "VS Code", install: VSCODE_MARKETPLACE_URL },
+    rider: { label: "Rider", install: JETBRAINS_MARKETPLACE_URL }
   };
   var PREFERENCE_KEY = "walk-me-through.ide";
 

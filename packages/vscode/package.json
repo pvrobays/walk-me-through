@@ -1,15 +1,22 @@
 {
   "name": "walk-me-through",
   "displayName": "Walk Me Through",
-  "description": "Play evidence-backed, code-anchored walkthroughs.",
-  "version": "0.1.0",
+  "description": "Play the code-anchored walkthroughs your coding agent publishes, step by step next to the highlighted code.",
+  "version": "0.2.0",
   "publisher": "pvrobays",
   "private": true,
   "license": "MIT",
   "repository": { "type": "git", "url": "https://github.com/pvrobays/walk-me-through" },
+  "homepage": "https://github.com/pvrobays/walk-me-through#readme",
+  "bugs": { "url": "https://github.com/pvrobays/walk-me-through/issues" },
+  "icon": "media/icon.png",
+  "galleryBanner": { "color": "#3574F0", "theme": "dark" },
+  "pricing": "Free",
+  "categories": ["AI", "Education", "Other"],
+  "keywords": ["walkthrough", "code tour", "agent", "explanation", "opencode", "onboarding", "code review"],
   "engines": { "vscode": "^1.90.0" },
   "main": "./dist/extension.js",
-  "activationEvents": ["onUri", "onCommand:walkMeThrough.openWalkthrough", "onView:walkMeThrough.steps", "onView:walkMeThrough.step"],
+  "activationEvents": ["onStartupFinished", "onUri", "onCommand:walkMeThrough.openWalkthrough", "onCommand:walkMeThrough.installSkill", "onView:walkMeThrough.steps", "onView:walkMeThrough.step"],
   "capabilities": { "untrustedWorkspaces": { "supported": true } },
   "contributes": {
     "commands": [
@@ -19,7 +26,8 @@
       { "command": "walkMeThrough.previous", "title": "Walk Me Through: Previous", "icon": "$(arrow-left)" },
       { "command": "walkMeThrough.skipDetails", "title": "Walk Me Through: Skip Details", "icon": "$(debug-step-over)", "enablement": "walkMeThrough.canSkipDetails" },
       { "command": "walkMeThrough.goToStep", "title": "Walk Me Through: Go to Step" },
-      { "command": "walkMeThrough.returnToCurrentStep", "title": "Walk Me Through: Return to Current Step" }
+      { "command": "walkMeThrough.returnToCurrentStep", "title": "Walk Me Through: Return to Current Step" },
+      { "command": "walkMeThrough.installSkill", "title": "Walk Me Through: Install Skill into Project" }
     ],
     "viewsContainers": { "activitybar": [{ "id": "walkMeThrough", "title": "Walk Me Through", "icon": "media/walkthrough.svg" }] },
     "views": { "walkMeThrough": [

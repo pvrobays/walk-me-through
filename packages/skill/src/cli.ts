@@ -8,6 +8,9 @@ import { publish } from '@walk-me-through/core/publish';
 import { decodeText } from '@walk-me-through/core/text';
 import type { Problem } from '@walk-me-through/core/validation';
 
+// Injected by scripts/build.mjs from packages/skill/package.json so the script and manifest always agree.
+declare const __WMT_BUNDLE_VERSION__: string;
+
 type Failure = { ok: false; errors: Problem[] };
 function failure(code: string, message: string, hint: string, recovery: Problem['recovery'] = 'fix-input'): Failure {
   return { ok: false, errors: [{ code, path: '$', message, hint, recovery }] };
@@ -48,7 +51,7 @@ function main(): { result: object; exitCode: number } {
   catch (error) { return { result: failure('INVALID_JSON', `Input is not valid UTF-8 JSON: ${String(error)}`, 'Correct the JSON syntax or UTF-8 encoding before retrying.'), exitCode: 1 }; }
   const result = publish(value, {
     scriptPath: fileURLToPath(import.meta.url), root, cwd: process.cwd(), platform: process.platform,
-    environment: environment.value, bundleVersion: '0.1.0', launcherBase,
+    environment: environment.value, bundleVersion: __WMT_BUNDLE_VERSION__, launcherBase,
   });
   if (!result.ok) return { result: { ok: false, errors: result.errors }, exitCode: result.exitCode };
   return { result, exitCode: 0 };

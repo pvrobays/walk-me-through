@@ -325,6 +325,145 @@ class PlayerPlatformTest : TestCase() {
         } finally { edt { Disposer.dispose(presenter); session.close() } }
     }
 
+    private class SkillRecorder : SkillHost {
+        var answer: String? = null
+        var folders: List<Path>? = null
+        var refusal: String? = null
+        val shown = java.util.Collections.synchronizedList(mutableListOf<Triple<NotificationType, String, List<String>>>())
+        override fun roots(project: Project) = folders ?: DefaultSkillHost.roots(project)
+        override fun refusal(): String? = refusal
+        override val state = object : SkillOfferState { override var never = false; override var dismissedRoots = emptyList<String>() }
+        override fun notify(project: Project, type: NotificationType, message: String, actions: List<String>, onChoice: (String) -> Unit) {
+            shown.add(Triple(type, message, actions)); if (actions.isNotEmpty()) answer?.let(onChoice)
+        }
+        override fun pick(project: Project, targets: List<SkillTarget>, onChosen: (SkillTarget) -> Unit) = onChosen(targets.last())
+    }
+    private fun skillFile(root: Path, name: String = "SKILL.md") = SkillInstaller.skillDirectory(root).resolve(name)
+
+    fun testInstallSkillActionOnFixtureSolution() {
+        Files.createDirectories(directory.resolve(".git"))
+        val recorder = SkillRecorder()
+        try {
+            edt {
+                SkillOnboarding.reset(recorder)
+                val action = com.intellij.openapi.actionSystem.ActionManager.getInstance().getAction("WalkMeThrough.InstallSkill")
+                assertEquals("Walk Me Through: Install Skill into Project", action.templatePresentation.text)
+                val run = {
+                    val e = AnActionEvent.createFromAnAction(action, null, "test", SimpleDataContext.getSimpleContext(CommonDataKeys.PROJECT, project))
+                    action.update(e); assertTrue(e.presentation.isEnabled); action.actionPerformed(e)
+                }
+                recorder.refusal = PlaybackEnvironment.LOCAL_DESKTOP
+                run()
+                assertEquals(NotificationType.ERROR to SkillInstaller.UNSUPPORTED, recorder.shown.last().let { it.first to it.second })
+                assertFalse(Files.exists(SkillInstaller.skillDirectory(directory)))
+                recorder.refusal = null
+                run()
+                for (name in SkillInstaller.FILES) assertTrue(name, Files.isRegularFile(skillFile(directory, name)))
+                assertTrue(recorder.shown.last().second.contains("Commit .agents/skills/walk-me-through/ and restart your agent"))
+                run()
+                assertTrue(recorder.shown.last().second.contains("already installed"))
+                Files.writeString(skillFile(directory), "customized\n")
+                run()
+                assertEquals(NotificationType.WARNING, recorder.shown.last().first)
+                assertTrue(recorder.shown.last().second.contains("SKILL.md") && recorder.shown.last().second.contains("left unchanged"))
+                assertEquals("customized\n", Files.readString(skillFile(directory)))
+            }
+        } finally { SkillOnboarding.reset() }
+    }
+
+    fun testToolWindowSkillBannerIgnoresDismissalsAndHidesAfterInstall() {
+        Files.createDirectories(directory.resolve(".git"))
+        val customized = Files.createTempDirectory("wmt-rider-banner-").toRealPath().also { Files.createDirectories(it.resolve(".git")) }
+        val recorder = SkillRecorder()
+        try {
+            edt {
+                assertFalse("headless default host never shows the banner", PlayerPanel(project).also { Disposer.dispose(it) }.skillBanner.isVisible)
+                recorder.state.never = true
+                recorder.state.dismissedRoots = listOf(SkillInstaller.key(directory.toRealPath()))
+                SkillOnboarding.reset(recorder)
+                val panel = PlayerPanel(project)
+                try {
+                    assertTrue(panel.skillBanner.isVisible)
+                    assertEquals(SkillOnboarding.BANNER, panel.skillBanner.text)
+                    assertFalse(Files.exists(SkillInstaller.skillDirectory(directory)))
+                    panel.installFromBanner()
+                    assertTrue(Files.isRegularFile(skillFile(directory)))
+                    assertFalse(panel.skillBanner.isVisible)
+                    Files.createDirectories(SkillInstaller.skillDirectory(customized)); Files.writeString(skillFile(customized), "mine\n")
+                    recorder.folders = listOf(customized)
+                    panel.refreshSkillBanner(); assertFalse(panel.skillBanner.isVisible)
+                    recorder.folders = listOf(Files.createTempDirectory("wmt-rider-banner-").also { Files.createDirectories(it.resolve(".git")); it.toFile().deleteOnExit() })
+                    panel.refreshSkillBanner(); assertTrue(panel.skillBanner.isVisible)
+                    recorder.refusal = PlaybackEnvironment.LOCAL_DESKTOP
+                    panel.refreshSkillBanner(); assertFalse(panel.skillBanner.isVisible)
+                } finally { Disposer.dispose(panel) }
+            }
+        } finally { SkillOnboarding.reset(); customized.toFile().deleteRecursively() }
+    }
+
+    fun testSkillOfferOncePerSessionWithRememberedDismissals() {
+        Files.createDirectories(directory.resolve(".git"))
+        val other = Files.createTempDirectory("wmt-rider-offer-").toRealPath().also { Files.createDirectories(it.resolve(".git")) }
+        val third = Files.createTempDirectory("wmt-rider-offer-").toRealPath().also { Files.createDirectories(it.resolve(".git")) }
+        val plain = Files.createTempDirectory("wmt-rider-plain-").toRealPath()
+        val recorder = SkillRecorder()
+        try {
+            edt {
+                SkillOnboarding.reset(recorder)
+                val shown = SkillOnboarding.offer(project)
+                assertEquals(directory.toRealPath(), shown.root)
+                assertEquals(listOf("Install", "Not for This Project", "Don't Ask Again"), recorder.shown.single().third)
+                assertTrue(recorder.shown.single().second.contains("agents need the Walk Me Through project skill to create walkthroughs"))
+                assertFalse(Files.exists(SkillInstaller.skillDirectory(directory)))
+                assertEquals("no-target", SkillOnboarding.offer(project).skipped)
+                assertEquals(1, recorder.shown.size)
+
+                recorder.answer = SkillOnboarding.NOT_FOR_PROJECT
+                SkillOnboarding.reset(recorder) // A later session.
+                SkillOnboarding.offer(project)
+                assertEquals(listOf(SkillInstaller.key(directory.toRealPath())), recorder.state.dismissedRoots)
+                SkillOnboarding.reset(recorder)
+                assertEquals("no-target", SkillOnboarding.offer(project).skipped)
+                recorder.folders = listOf(directory, other)
+                recorder.answer = null
+                assertEquals(other, SkillOnboarding.offer(project).root)
+
+                recorder.folders = listOf(plain)
+                SkillOnboarding.reset(recorder)
+                assertEquals("no-target", SkillOnboarding.offer(project).skipped)
+                Files.createDirectories(SkillInstaller.skillDirectory(third)); Files.writeString(skillFile(third), "mine\n")
+                recorder.folders = listOf(third)
+                assertEquals("no-target", SkillOnboarding.offer(project).skipped)
+                recorder.refusal = PlaybackEnvironment.LOCAL_DESKTOP
+                recorder.folders = listOf(other)
+                assertEquals("environment", SkillOnboarding.offer(project).skipped)
+                recorder.refusal = null
+
+                recorder.answer = SkillOnboarding.NEVER
+                SkillOnboarding.offer(project)
+                assertTrue(recorder.state.never)
+                SkillOnboarding.reset(recorder)
+                assertEquals("never", SkillOnboarding.offer(project).skipped)
+                assertFalse(Files.exists(SkillInstaller.skillDirectory(other)))
+                var outcome: InstallOutcome? = null
+                SkillOnboarding.install(project) { outcome = it }
+                assertEquals("installed", outcome!!.kind)
+                assertTrue(Files.isRegularFile(skillFile(other)))
+
+                recorder.state.never = false
+                recorder.folders = listOf(plain.also { Files.createDirectories(it.resolve(".git")) })
+                recorder.answer = SkillOnboarding.INSTALL
+                var installed: InstallOutcome? = null
+                SkillOnboarding.offer(project) { _, result -> installed = result }
+                assertEquals("installed", installed!!.kind)
+                assertTrue(Files.isRegularFile(skillFile(plain)))
+            }
+        } finally {
+            SkillOnboarding.reset()
+            listOf(other, third, plain).forEach { it.toFile().deleteRecursively() }
+        }
+    }
+
     private class Recorder : LaunchFeedback {
         val notices = java.util.Collections.synchronizedList(mutableListOf<Triple<Project?, NotificationType, String>>())
         override fun notify(project: Project?, type: NotificationType, message: String) { notices.add(Triple(project, type, message)) }
@@ -377,14 +516,16 @@ class PlayerPlatformTest : TestCase() {
                 launch(envelope(directory.resolve("missing-root"), ids[0])) to "no-match",
                 launch(envelope(directory, ids[3])) to "artifact-removed",
                 launch(envelope(directory, ids[0], platform = "linux")) to "environment",
-                launch(envelope(directory, ids[0]), refusal = PlaybackEnvironment.refusal("Linux", false, false)) to "environment",
+                launch(envelope(directory, ids[0], platform = "darwin")) to "environment",
+                launch(envelope(directory, ids[0]), refusal = PlaybackEnvironment.refusal("Windows 11", true, false)) to "environment",
                 launch("not*valid") to "invalid-link",
                 launch(envelope(directory, ids[0]).dropLast(3)) to "invalid-link",
                 launch(envelope(directory, ids[0], version = 2)) to "newer-version",
                 launch(envelope(directory, ids[0]), target = "other") to "invalid-link",
                 launch(null) to "invalid-link",
             )) { assertEquals(result.message, kind, result.kind); unchanged() }
-            assertEquals(PlaybackEnvironment.refusal("Linux", false, false), recorder.notices.first { it.third.contains("native Windows Rider") }.third)
+            assertEquals(PlaybackEnvironment.refusal("Windows 11", true, false), recorder.notices.first { it.third.contains("Remote development hosts") }.third)
+            assertNull(PlaybackEnvironment.refusal("Linux", false, false))
             assertTrue(recorder.notices.first { it.third.contains("is not open in Rider") }.third.contains(unrelated.toString()))
             assertEquals(project, recorder.notices.first { it.third.contains("was removed") }.first)
             assertNull(recorder.notices.first { it.third.contains("is not open in Rider") }.first)
@@ -446,5 +587,6 @@ class LaunchPathTest {
         org.junit.Assert.assertNull(LaunchHandling.canonical(temp.resolve("missing").toString(), true))
         org.junit.Assert.assertEquals("win32", LaunchHandling.platformOf("Windows 11"))
         org.junit.Assert.assertEquals("linux", LaunchHandling.platformOf("Linux"))
+        org.junit.Assert.assertEquals("darwin", LaunchHandling.platformOf("Mac OS X"))
     }
 }

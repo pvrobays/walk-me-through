@@ -23,7 +23,7 @@ From the project root, run:
 node .agents/skills/walk-me-through/scripts/publish-walkthrough.mjs .walk-me-through/drafts/<slug>.json
 ```
 
-The script requires Node 20 or later, on native Windows or native Linux outside WSL, SSH, or containers. It needs no package installation. If `node` is missing, report that Node 20+ must be installed and available to the agent; never write an artifact or invent hashes by hand.
+The script requires Node 20 or later on a local desktop (native Windows, Linux or macOS), outside WSL, SSH, or containers. It needs no package installation. If `node` is missing, report that Node 20+ must be installed and available to the agent; never write an artifact or invent hashes by hand.
 
 Read the single JSON result:
 
@@ -32,7 +32,7 @@ Read the single JSON result:
 - `recovery: fix-environment`: report the required runtime, local execution setup, filesystem permissions, or free space. This is a publishing blocker until fixed.
 - `recovery: report`: report the tool failure. Never fabricate an artifact or anchors.
 
-Stop if the same error repeats and no new correction is available. Do not loop on unchanged invalid input. The development environment override is for explicit development/test use, not normal native Linux setup.
+Stop if the same error repeats and no new correction is available. Do not loop on unchanged invalid input. The development environment override is for explicit development/test use, not normal native Linux or macOS setup.
 
 ## Reply
 

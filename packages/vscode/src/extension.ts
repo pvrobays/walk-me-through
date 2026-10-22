@@ -11,13 +11,16 @@ import { Comments } from './comments';
 import { Highlights } from './highlights';
 import { StepsTree } from './tree';
 import { StepView } from './stepView';
+import { SkillOnboarding, defaultSkillHost } from './skillOnboarding';
 
 export function activate(context: vscode.ExtensionContext): TestApi | undefined {
   const session = new Session();
   const comments = new Comments();
   const highlights = new Highlights();
-  const tree = new StepsTree(session);
-  const stepView = new StepView(session);
+  // The onboarding host is created below; until then no skill banner is shown.
+  let skillMissing = () => false;
+  const tree = new StepsTree(session, () => skillMissing());
+  const stepView = new StepView(session, () => skillMissing());
   context.subscriptions.push(vscode.window.registerWebviewViewProvider('walkMeThrough.step', stepView));
   session.clearPresentation = () => { comments.clear(); highlights.clear(); };
   session.show = async (step, generation) => {
@@ -51,7 +54,7 @@ export function activate(context: vscode.ExtensionContext): TestApi | undefined 
   /** Local desktop requirement shared by the picker and launch links; undefined when playback is allowed. */
   const environmentRefusal = (): string | undefined => {
     const environment = checkEnvironment({ nodeVersion: process.versions.node, platform: process.platform, env: process.env, exists: existsSync, readText: name => readFileSync(name, 'utf8') });
-    if (vscode.env.remoteName) return 'Walk Me Through supports local desktop VS Code on native Windows and native Linux; remote hosts are unsupported.';
+    if (vscode.env.remoteName) return 'Walk Me Through supports local desktop VS Code on native Windows, Linux or macOS; remote hosts are unsupported.';
     return environment.ok ? undefined : environment.errors.map(error => error.message).join('\n');
   };
   /**
@@ -95,6 +98,19 @@ export function activate(context: vscode.ExtensionContext): TestApi | undefined 
     } catch (error) { void vscode.window.showErrorMessage(`Cannot open walkthrough: ${String(error)}`); }
   });
   register('closeWalkthrough', async () => { openRequest++; await session.close(); });
+  const skillHost = defaultSkillHost(context, environmentRefusal);
+  const onboarding = new SkillOnboarding(skillHost);
+  register('installSkill', () => onboarding.install());
+  skillMissing = () => onboarding.missingTarget() !== undefined;
+  const refreshSkillBanner = () => { tree.refreshMessage(); stepView.refresh(); };
+  refreshSkillBanner();
+  context.subscriptions.push(onboarding, onboarding.onDidInstall(refreshSkillBanner), vscode.workspace.onDidChangeWorkspaceFolders(refreshSkillBanner));
+  if (context.extensionMode !== vscode.ExtensionMode.Test) {
+    // The missing-skill offer runs after startup (onStartupFinished) and again when trust or folders change.
+    const offer = () => void onboarding.offer().then(undefined, () => undefined);
+    offer();
+    context.subscriptions.push(vscode.workspace.onDidGrantWorkspaceTrust(offer), vscode.workspace.onDidChangeWorkspaceFolders(offer));
+  }
   const launchHost = (folders?: readonly vscode.Uri[]): LaunchHost => ({
     openArtifact, environmentRefusal, platform: process.platform,
     workspaceFolders: () => folders ?? vscode.workspace.workspaceFolders?.map(folder => folder.uri) ?? [],
@@ -116,5 +132,12 @@ export function activate(context: vscode.ExtensionContext): TestApi | undefined 
   return context.extensionMode === vscode.ExtensionMode.Test ? {
     getState: () => ({ ...session.getState(), ...(session.isActive ? { thread: comments.getState(), decoration: highlights.getState(), view: stepView.getState() } : {}) }),
     launch: (uri, folders) => handleLaunchUri(uri, launchHost(folders)),
+    skill: {
+      configure: overrides => { onboarding.setHost(overrides ? { ...skillHost, ...overrides } : skillHost); refreshSkillBanner(); },
+      banner: () => ({ stepView: stepView.getHtml(), treeMessage: tree.view.message }),
+      pressBannerInstall: () => stepView.handle({ type: 'installSkill' }),
+      offer: () => onboarding.offer(),
+      install: () => onboarding.install(),
+    },
   } : undefined;
 }

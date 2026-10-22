@@ -96,7 +96,7 @@ Failures contain `ok: false` and `errors`. Every error has `code`, field `path` 
 | `SOURCE_UNREADABLE`, `SOURCE_OUTSIDE_ROOT` | `fix-input`: choose an existing UTF-8 source inside the real project root |
 | `INPUT_FILE_NOT_FOUND`, `ROOT_NOT_RESOLVED`, `USAGE` | `fix-input`: correct invocation, input path, or development `--root` |
 | `INVALID_LAUNCHER_URL` | `fix-input`: development-only `--launcher-url` was not `https://` or `http://localhost`/`127.0.0.1`; omit it in normal use |
-| `NODE_VERSION_UNSUPPORTED`, `ENVIRONMENT_UNSUPPORTED` | `fix-environment`: report Node 20+ / native Windows or native Linux local setup requirements |
+| `NODE_VERSION_UNSUPPORTED`, `ENVIRONMENT_UNSUPPORTED` | `fix-environment`: report Node 20+ / local desktop (native Windows, Linux or macOS) setup requirements |
 | `ARTIFACT_WRITE_FAILED` | `fix-environment`: report filesystem failure; check permissions/free space |
 | `INTERNAL_ERROR` | `report`: report the tool failure without fabricating an artifact |
 
@@ -107,5 +107,5 @@ Failures contain `ok: false` and `errors`. Every error has `code`, field `path` 
 - Blank line: `EMPTY_SELECTION`, path `steps[0].location`, details `{sourcePath: "src/retry.ts", startLine: 2, endLine: 2, lineCount: 15}`. Read the source and select meaningful code; do not blindly broaden the range.
 - Missing snippet: `MATCH_NOT_FOUND`, path `steps[0].location.match`. Re-read the current file and correct the snippet or range.
 - Repeated snippet: `MATCH_AMBIGUOUS`, details include `occurrenceLines: [9, 12]`. Narrow the range or extend the snippet until unique.
-- WSL, SSH, or container: `ENVIRONMENT_UNSUPPORTED`, recovery `fix-environment`. Use a native Windows/Linux local process. Native Linux needs no override. `WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT=1` is development/test-only, records `unsupportedOverride: true`, and never bypasses Node 20+.
+- WSL, SSH, or container: `ENVIRONMENT_UNSUPPORTED`, recovery `fix-environment`. Use a local desktop process on native Windows, Linux or macOS. Native Linux and macOS need no override. `WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT=1` is development/test-only, records `unsupportedOverride: true`, and never bypasses Node 20+.
 - Tool failure: `INTERNAL_ERROR`, recovery `report`. State the blocker; do not repeatedly retry or manufacture anchors.

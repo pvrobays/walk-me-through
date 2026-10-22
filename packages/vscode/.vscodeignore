@@ -1,6 +1,11 @@
-# The extension is bundled into dist/extension.js (only `vscode` is external), so ship just that.
+# The extension is bundled into dist/extension.js (only `vscode` is external), so ship just that,
+# the listing files, the icon and the bundled project skill.
 **
 !dist/extension.js
 !media/**
 !package.json
 !LICENSE
+!README.md
+!CHANGELOG.md
+!ThirdPartyNotices.txt
+!skill/**

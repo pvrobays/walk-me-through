@@ -3,10 +3,12 @@ package io.github.pvrobays.walkmethrough
 import com.intellij.icons.AllIcons
 import com.intellij.ide.ui.LafManagerListener
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.openapi.editor.colors.EditorColorsListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
+import com.intellij.ui.EditorNotificationPanel
 import com.intellij.ui.JBColor
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBPanel
@@ -43,6 +45,20 @@ class PlayerPanel(private val project: Project) : JBPanel<PlayerPanel>(BorderLay
     private var outlineArtifact: Artifact? = null
     private val nodes = mutableMapOf<String, DefaultMutableTreeNode>()
     private val removeListener: () -> Unit
+    private val removeInstallListener: () -> Unit
+    /** Top banner shown while the project's Git root lacks the skill; it ignores offer dismissals. */
+    internal val skillBanner = EditorNotificationPanel(EditorNotificationPanel.Status.Warning).apply {
+        text = SkillOnboarding.BANNER
+        createActionLabel("Install Skill") { installFromBanner() }
+        isVisible = false
+    }
+    internal fun installFromBanner() = SkillOnboarding.install(project) { refreshSkillBanner() }
+    /** Recomputes the banner; called when the tool window is shown, after installs and on creation. */
+    internal fun refreshSkillBanner() {
+        if (project.isDisposed) return
+        skillBanner.isVisible = SkillOnboarding.missingTarget(project) != null
+        revalidate(); repaint()
+    }
     internal val outline get() = tree
     internal val explanationStatus get() = status.text
     internal fun control(text: String) = buttons.first { it.first.text == text }.first
@@ -62,7 +78,8 @@ class PlayerPanel(private val project: Project) : JBPanel<PlayerPanel>(BorderLay
         button("Skip Details", { session.skipTarget != null }, "Skip nested details and continue to the next available branch.") { session.skipDetails() }
         button("Return", { session.active }) { session.refresh() }
         val header = JPanel(GridLayout(0, 1, 0, 4)).apply { add(title); add(context); add(status) }
-        val north = JPanel(BorderLayout(0, 6)).apply { add(toolbar, BorderLayout.NORTH); add(header, BorderLayout.SOUTH) }
+        val controls = JPanel(BorderLayout(0, 6)).apply { add(toolbar, BorderLayout.NORTH); add(header, BorderLayout.SOUTH) }
+        val north = JPanel(BorderLayout(0, 6)).apply { add(skillBanner, BorderLayout.NORTH); add(controls, BorderLayout.CENTER) }
         add(north, BorderLayout.NORTH)
         tree.isRootVisible = true
         tree.cellRenderer = object : DefaultTreeCellRenderer() {
@@ -80,6 +97,11 @@ class PlayerPanel(private val project: Project) : JBPanel<PlayerPanel>(BorderLay
         }
         add(JSplitPane(JSplitPane.VERTICAL_SPLIT, JBScrollPane(tree), explanation).apply { resizeWeight = 0.3 }, BorderLayout.CENTER)
         removeListener = session.listen(::render)
+        removeInstallListener = SkillOnboarding.onInstall { ApplicationManager.getApplication().invokeLater({ refreshSkillBanner() }, project.disposed) }
+        addHierarchyListener { event ->
+            if (event.changeFlags and java.awt.event.HierarchyEvent.SHOWING_CHANGED.toLong() != 0L && isShowing) refreshSkillBanner()
+        }
+        refreshSkillBanner()
         project.messageBus.connect(this).apply {
             subscribe(LafManagerListener.TOPIC, LafManagerListener { presenter.themeChanged(); render() })
             subscribe(EditorColorsManager.TOPIC, EditorColorsListener { presenter.themeChanged(); render() })
@@ -138,7 +160,7 @@ class PlayerPanel(private val project: Project) : JBPanel<PlayerPanel>(BorderLay
             if (dark) "#cf8e6d" else "#7a3e00", if (dark) "#a5c48a" else "#276526",
             if (dark) "#a3a3a3" else "#595959", if (dark) "#8bb7e8" else "#164a85", JBUI.Fonts.label().size, dark)))
     }
-    override fun dispose() { removeListener() }
+    override fun dispose() { removeListener(); removeInstallListener() }
 }
 
 internal fun escape(text: String) = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")

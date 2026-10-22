@@ -1,0 +1,421 @@
+{
+  "skillDirectory": ".agents/skills/walk-me-through",
+  "files": [
+    "SKILL.md",
+    "manifest.json",
+    "references/walkthrough-format.md",
+    "scripts/publish-walkthrough.mjs"
+  ],
+  "cases": [
+    {
+      "name": "fresh",
+      "description": "Repository without the skill: all four files are created.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        }
+      ],
+      "folders": [
+        "repo"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "SKILL.md",
+          "manifest.json",
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "bundle",
+          "manifest.json": "bundle",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    },
+    {
+      "name": "crlf-identical",
+      "description": "All four files present with a BOM and CRLF line endings: identical after normalization.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/SKILL.md",
+          "type": "bundle",
+          "file": "SKILL.md",
+          "variant": "bom-crlf"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/manifest.json",
+          "type": "bundle",
+          "file": "manifest.json",
+          "variant": "bom-crlf"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/references/walkthrough-format.md",
+          "type": "bundle",
+          "file": "references/walkthrough-format.md",
+          "variant": "bom-crlf"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/scripts/publish-walkthrough.mjs",
+          "type": "bundle",
+          "file": "scripts/publish-walkthrough.mjs",
+          "variant": "bom-crlf"
+        }
+      ],
+      "folders": [
+        "repo"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "already-installed",
+        "created": [],
+        "differing": [],
+        "message": "The Walk Me Through skill is already installed in {skillDir}. Nothing was changed.",
+        "after": {
+          "SKILL.md": "setup",
+          "manifest.json": "setup",
+          "references/walkthrough-format.md": "setup",
+          "scripts/publish-walkthrough.mjs": "setup"
+        }
+      }
+    },
+    {
+      "name": "customized-skill",
+      "description": "A customized SKILL.md: nothing is written, including the missing files.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/SKILL.md",
+          "type": "file",
+          "text": "# My customized skill\n"
+        }
+      ],
+      "folders": [
+        "repo"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "refused",
+        "created": [],
+        "differing": [
+          "SKILL.md"
+        ],
+        "message": "The Walk Me Through skill in {skillDir} was left unchanged because these files differ from the bundled version: SKILL.md. Review or remove them, then run Install Skill into Project again.",
+        "after": {
+          "SKILL.md": "setup",
+          "manifest.json": "missing",
+          "references/walkthrough-format.md": "missing",
+          "scripts/publish-walkthrough.mjs": "missing"
+        }
+      }
+    },
+    {
+      "name": "several-differing",
+      "description": "Differing files are named in bundle order.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/scripts/publish-walkthrough.mjs",
+          "type": "file",
+          "text": "// old\n"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/SKILL.md",
+          "type": "file",
+          "text": "old\n"
+        }
+      ],
+      "folders": [
+        "repo"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "refused",
+        "created": [],
+        "differing": [
+          "SKILL.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "message": "The Walk Me Through skill in {skillDir} was left unchanged because these files differ from the bundled version: SKILL.md, scripts/publish-walkthrough.mjs. Review or remove them, then run Install Skill into Project again.",
+        "after": {
+          "SKILL.md": "setup",
+          "manifest.json": "missing",
+          "references/walkthrough-format.md": "missing",
+          "scripts/publish-walkthrough.mjs": "setup"
+        }
+      }
+    },
+    {
+      "name": "partial",
+      "description": "Some identical files present: only the missing files are created.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/SKILL.md",
+          "type": "bundle",
+          "file": "SKILL.md",
+          "variant": "exact"
+        },
+        {
+          "path": "repo/.agents/skills/walk-me-through/manifest.json",
+          "type": "bundle",
+          "file": "manifest.json",
+          "variant": "bom-crlf"
+        }
+      ],
+      "folders": [
+        "repo"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "setup",
+          "manifest.json": "setup",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    },
+    {
+      "name": "worktree",
+      "description": "A worktree whose .git is a file is its own target.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        },
+        {
+          "path": "wt/.git",
+          "type": "file",
+          "text": "gitdir: ../repo/.git/worktrees/wt\n"
+        }
+      ],
+      "folders": [
+        "wt/src"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "wt",
+            "inGit": true
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "SKILL.md",
+          "manifest.json",
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "bundle",
+          "manifest.json": "bundle",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    },
+    {
+      "name": "nested-folder",
+      "description": "A subfolder of a repository installs at the repository root.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        }
+      ],
+      "folders": [
+        "repo/src/app"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "SKILL.md",
+          "manifest.json",
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "bundle",
+          "manifest.json": "bundle",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    },
+    {
+      "name": "no-git",
+      "description": "Outside Git, the folder itself is the target (not offered, but the command installs).",
+      "setup": [],
+      "folders": [
+        "plain"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "plain",
+            "inGit": false
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "SKILL.md",
+          "manifest.json",
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "bundle",
+          "manifest.json": "bundle",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    },
+    {
+      "name": "same-repository-folders",
+      "description": "Several folders of one repository resolve to one target.",
+      "setup": [
+        {
+          "path": "repo/.git",
+          "type": "directory"
+        }
+      ],
+      "folders": [
+        "repo/src",
+        "repo/docs",
+        "repo"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "repo",
+            "inGit": true
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "SKILL.md",
+          "manifest.json",
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "bundle",
+          "manifest.json": "bundle",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    },
+    {
+      "name": "two-repositories",
+      "description": "Folders in different repositories give one target each; the first is installed here.",
+      "setup": [
+        {
+          "path": "a/.git",
+          "type": "directory"
+        },
+        {
+          "path": "b/.git",
+          "type": "directory"
+        }
+      ],
+      "folders": [
+        "b",
+        "a/src"
+      ],
+      "expected": {
+        "targets": [
+          {
+            "root": "b",
+            "inGit": true
+          },
+          {
+            "root": "a",
+            "inGit": true
+          }
+        ],
+        "outcome": "installed",
+        "created": [
+          "SKILL.md",
+          "manifest.json",
+          "references/walkthrough-format.md",
+          "scripts/publish-walkthrough.mjs"
+        ],
+        "differing": [],
+        "message": "Installed the Walk Me Through skill in {skillDir}. Commit .agents/skills/walk-me-through/ and restart your agent so it discovers the skill.",
+        "after": {
+          "SKILL.md": "bundle",
+          "manifest.json": "bundle",
+          "references/walkthrough-format.md": "bundle",
+          "scripts/publish-walkthrough.mjs": "bundle"
+        }
+      }
+    }
+  ]
+}

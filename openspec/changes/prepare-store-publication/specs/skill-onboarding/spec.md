@@ -68,3 +68,25 @@ When a project opens whose install target is inside a Git repository and lacks `
 #### Scenario: Ignoring the notification
 - **WHEN** the user closes the notification without choosing
 - **THEN** the offer may return in a later session
+
+### Requirement: Missing-skill banner in the Walk Me Through view
+Whenever the Walk Me Through sidebar (VS Code) or tool window (Rider) is shown, and the project's install target is inside a Git repository and lacks `.agents/skills/walk-me-through/SKILL.md`, the view SHALL show a banner at its top. The banner SHALL say that the project skill is not installed, so the user's AI agent cannot create walkthroughs for this project, and SHALL offer an Install action that runs **Install Skill into Project**.
+
+#### Scenario: Banner shown
+- **WHEN** the user opens the Walk Me Through view in a Git project without the skill
+- **THEN** the banner and its Install action appear at the top of the view, and no file is written until the user clicks Install
+
+#### Scenario: Banner disappears after installing
+- **WHEN** the user installs the skill from the banner or the command, or `SKILL.md` already exists (including a customized one)
+- **THEN** the banner is not shown for that project
+
+### Requirement: Banner independent of dismissals
+The banner SHALL ignore offer dismissals, so it remains the way back after **Not for This Project** or **Don't Ask Again**; no separate reset is provided. It SHALL NOT appear where the install command is refused (remote, SSH, WSL, container or headless hosts).
+
+#### Scenario: Banner after dismissals
+- **WHEN** the user chose Don't Ask Again or Not for This Project and later opens the Walk Me Through view in a Git project without the skill
+- **THEN** the banner is shown with an Install action
+
+#### Scenario: Refused environment
+- **WHEN** the Walk Me Through view is shown in a remote, SSH, WSL, container or headless IDE
+- **THEN** no banner is shown

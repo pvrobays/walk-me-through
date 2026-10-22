@@ -112,24 +112,29 @@ describe('render', () => {
 });
 
 describe('static assets', () => {
-  it('points every help target at an existing README heading', () => {
+  it('points install help at the two store pages and keeps README links resolvable', () => {
     // GitHub heading anchors: lowercase, drop punctuation except hyphens/underscores, spaces become hyphens.
     const slugs = (file: string) => new Set([...readFileSync(file, 'utf8').matchAll(/^#{1,6} (.+)$/gm)]
       .map(match => match[1].trim().toLowerCase().replace(/[^\p{L}\p{N} _-]/gu, '').replace(/ /g, '-')));
+    expect(IDE_CONFIG.vscode.install).toBe('https://marketplace.visualstudio.com/items?itemName=pvrobays.walk-me-through');
+    expect(IDE_CONFIG.rider.install).toBe('https://plugins.jetbrains.com/plugin/35375-walk-me-through');
+    // The README keeps its install headings, which lead with the same store links.
     const readme = slugs('README.md');
-    for (const ide of ['vscode', 'rider'] as const) {
-      const target = new URL(IDE_CONFIG[ide].install);
-      expect(`${target.origin}${target.pathname}`).toBe(REPOSITORY_URL);
-      expect(readme.has(target.hash.slice(1)), target.hash).toBe(true);
-    }
-    expect(IDE_CONFIG.vscode.install.endsWith('#install-the-vs-code-extension')).toBe(true);
-    expect(IDE_CONFIG.rider.install.endsWith('#install-the-rider-plugin')).toBe(true);
+    for (const heading of ['install-the-vs-code-extension', 'install-the-rider-plugin', 'development-builds']) expect(readme.has(heading), heading).toBe(true);
     const text = readFileSync('README.md', 'utf8');
+    for (const ide of ['vscode', 'rider'] as const) expect(text).toContain(`(${IDE_CONFIG[ide].install})`);
     for (const [, file, anchor] of text.matchAll(/\]\((packages\/rider\/README\.md|)#([a-z0-9-]+)\)/g)) {
       expect(slugs(file || 'README.md').has(anchor), `${file}#${anchor}`).toBe(true);
     }
+    expect(REPOSITORY_URL).toBe('https://github.com/pvrobays/walk-me-through');
   });
   const html = readFileSync('launcher/index.html', 'utf8');
+  it('states the platform status instead of a Windows-only Rider line', () => {
+    expect(html).not.toMatch(/Windows only/i);
+    expect(html.match(/native Windows, Linux or macOS \(Linux and macOS are not verified by the maintainers\)/g)).toHaveLength(2);
+    expect(html).toContain('Install Walk Me Through from the VS Code Marketplace');
+    expect(html).toContain('Install Walk Me Through from JetBrains Marketplace');
+  });
   it('declares the restrictive CSP and no-referrer policy', () => {
     expect(html).toContain(`<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">`);
     expect(html).toContain('<meta name="referrer" content="no-referrer">');
@@ -146,6 +151,8 @@ describe('static assets', () => {
   it('ships a bundle without markup sinks, timers, script navigation or network APIs', () => {
     const js = readFileSync('launcher/launcher.js', 'utf8');
     expect(js).not.toMatch(/innerHTML|outerHTML|insertAdjacentHTML|document\.write|\beval\(|new Function|fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|location\.(assign|replace)|location\.href\s*=|window\.open|setTimeout|setInterval|import\(/);
-    expect(js).not.toMatch(/https?:\/\/(?!github\.com\/pvrobays\/walk-me-through)/);
+    // The only URLs in the bundle: the repository (About) and the two store pages (install help).
+    const urls = [...js.matchAll(/https?:\/\/[^\s"'`]+/g)].map(match => match[0]).sort();
+    expect(urls).toEqual(['https://github.com/pvrobays/walk-me-through', 'https://marketplace.visualstudio.com/items?itemName=pvrobays.walk-me-through', 'https://plugins.jetbrains.com/plugin/35375-walk-me-through']);
   });
 });

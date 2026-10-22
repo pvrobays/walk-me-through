@@ -8,6 +8,7 @@ import {
   encodeEnvelope, launcherUrl, riderUri, utf8Encode, vscodeUri,
 } from '../packages/core/src/launch';
 import { Session } from '../packages/vscode/src/session';
+export { generateSkillInstallConformance } from './conformance-skill';
 
 export function artifact(): Artifact {
   return {

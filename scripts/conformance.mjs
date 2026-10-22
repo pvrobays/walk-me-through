@@ -6,11 +6,12 @@ import path from 'node:path';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const result = await build({ absWorkingDir: root, entryPoints: ['scripts/conformance.ts'], bundle: true, write: false,
   platform: 'node', format: 'esm', alias: { vscode: path.join(root, 'scripts/conformance-vscode.ts') } });
-const { generateConformance, generateLaunchConformance } = await import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
+const { generateConformance, generateLaunchConformance, generateSkillInstallConformance } = await import(`data:text/javascript;base64,${Buffer.from(result.outputFiles[0].text).toString('base64')}`);
 const fixtures = [];
 try {
   fixtures.push(['tests/conformance/v1.json', await generateConformance(), 'TypeScript core and real Session']);
   fixtures.push(['tests/conformance/launch-v1.json', generateLaunchConformance(), 'TypeScript launch envelope']);
+  fixtures.push(['tests/conformance/skill-install.json', generateSkillInstallConformance(), 'the VS Code skill installer']);
 } catch (error) {
   // Report only the message: the bundled module's stack contains a very long data: URL.
   console.error(`Fixture generation failed: ${error.message}`);

@@ -1,8 +1,6 @@
 <idea-plugin>
     <id>io.github.pvrobays.walkmethrough</id>
     <name>Walk Me Through</name>
-    <vendor>Walk Me Through contributors</vendor>
-    <description>Project-local walkthrough playback. Development prototype.</description>
     <depends>com.intellij.modules.rider</depends>
     <depends>com.intellij.modules.jcef</depends>
     <extensions defaultExtensionNs="com.intellij">
@@ -10,6 +8,7 @@
                     factoryClass="io.github.pvrobays.walkmethrough.WalkthroughToolWindowFactory"/>
         <jbProtocolCommand implementation="io.github.pvrobays.walkmethrough.LaunchProtocolCommand"/>
         <notificationGroup id="Walk Me Through" displayType="BALLOON"/>
+        <postStartupActivity implementation="io.github.pvrobays.walkmethrough.SkillOfferActivity"/>
     </extensions>
     <actions>
         <action id="WalkMeThrough.Next" class="io.github.pvrobays.walkmethrough.NextWalkthroughAction" text="Walk Me Through: Next Step"/>
@@ -19,5 +18,7 @@
         <action id="WalkMeThrough.Close" class="io.github.pvrobays.walkmethrough.CloseWalkthroughAction" text="Walk Me Through: Close Walkthrough"/>
         <action id="WalkMeThrough.Open" class="io.github.pvrobays.walkmethrough.OpenWalkthroughAction"
                 text="Walk Me Through: Open Walkthrough" description="Choose a saved project walkthrough by title or ID"/>
+        <action id="WalkMeThrough.InstallSkill" class="io.github.pvrobays.walkmethrough.InstallSkillAction"
+                text="Walk Me Through: Install Skill into Project" description="Copy the bundled project skill into .agents/skills/walk-me-through/ at the Git root"/>
     </actions>
 </idea-plugin>

@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +22,8 @@ jobs:
       - run: npm run build
       - run: npm run typecheck
       - run: npm test
-      - name: Extension host (Windows)
-        if: runner.os == 'Windows'
+      - name: Extension host (Windows and macOS)
+        if: runner.os == 'Windows' || runner.os == 'macOS'
         run: npm run test:extension
       - name: Extension host (Linux desktop under Xvfb)
         if: runner.os == 'Linux'

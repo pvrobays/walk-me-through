@@ -9,7 +9,7 @@ Inspected on native Windows on 2026-10-21:
 - Rider **2026.2.3.1**, product code **RD**, build **262.10968.170** (`product-info.json`).
 - Minimum Java **25** in product metadata; bundled **JBR 25.0.4+1-b508.27**, x86_64 Windows (`jbr/release` and `java -version`).
 - Gradle **9.1.0**, IntelliJ Platform Gradle plugin **2.19.0**, Kotlin **2.3.21** are pinned. The wrapper checks the distribution SHA-256. Wrapper JAR SHA-256: `76805e32c009c0cf0dd5d206bddc9fb22ea42e84db904b764f3047de095493f3` (Gradle's published checksum).
-- Descriptor compatibility is restricted to the inspected build. Other builds/platforms are not verified.
+- The descriptor declares compatibility from build **262** with no upper bound. Compilation and tests use the installed Rider; Plugin Verifier also checks the latest released Rider (see Packaging). Native Linux and macOS are accepted but not verified by the maintainers, and have no Rider CI.
 
 ## Windows build, sandbox, and install
 
@@ -36,9 +36,9 @@ For a normal-profile manual installation, build the ZIP under `build/distributio
 
 On 2026-10-21, `gradlew.bat buildPlugin --console=plain` passed (11 executed tasks). The first dependency-populating invocation exceeded the terminal timeout; the follow-up completed successfully. `gradlew.bat runIde --console=plain` launched the exact target in the isolated sandbox and exited successfully after Rider closed. Its `idea.log` records build RD-262.10968.170, JRE 25.0.4+1-b508.27, and **Loaded custom plugins: Walk Me Through (0.1.0-prototype)**. Platform startup warnings occurred (module/service overrides and missing optional crossgen cache); no ERROR entries were found in that run's log. This verifies bootstrap/launch, not visual prototype acceptance.
 
-Owner prototype acceptance is required before full-player integration.
+Owner acceptance of the early docked prototype was required before full-player integration; it was given on 2026-10-21 (below).
 
-## Prototype check (owner checkpoint)
+## Early prototype check (historical owner checkpoint, 2026-10-21)
 
 `gradlew.bat test buildPlugin --console=plain` passes with 6 tests (0 failures/errors): four renderer/policy tests and two registered-handler tests using mocked CEF objects (Mockito 5.20.0, test-only). These check escaped HTML, unsafe URL/image filtering, user-gesture HTTP(S) dispatch, resource/popup cancellation, and packaged highlighting/CSP. Actual rendered appearance and browser interaction require the sandbox check below.
 
@@ -73,6 +73,39 @@ Use **Skip Details** for the concise complete top-level account; use **Next** fo
 
 Matching refreshes on step entry and Return, using current unsaved documents without saving. It strips only a leading BOM and normalizes line endings. Identical original context is exact; unique identical context elsewhere is relocated. Lost/ambiguous context uses closest identical code with a visible warning and dotted highlight, with explicit earlier-candidate wording on ties. Distance compares lines, then UTF-16 columns, then earlier offset. There is no fuzzy, semantic or old-line fallback. Missing/changed/unreadable code retains its explanation and original path/line in red stale context, without navigating. Close clears session/highlight and disposes the explanation browser; project disposal also removes listeners/jobs.
 
+## Project skill
+
+The plugin jar ships the four skill files under `skill/` (copied from `../skill` by `processResources`, so build the skill with `npm run build` first).
+
+- **Walk Me Through: Install Skill into Project** (Find Action, action `WalkMeThrough.InstallSkill`) copies them into `.agents/skills/walk-me-through/` under the nearest ancestor of the project's base path or content root that has a `.git` directory or file (or under that folder when there is none). With several targets you choose one. It creates only missing files; if any existing file differs after BOM and line-ending normalization, it writes nothing and names the differing files. Remote and headless IDEs are refused with the local-desktop message.
+- **Offer:** after a Git project without `SKILL.md` opens, a `Walk Me Through` notification offers **Install**, **Not for This Project** and **Don't Ask Again**, once per project per session. Choices are stored at application level in `PropertiesComponent` (`walkMeThrough.skillOffer.dismissedRoots`, `walkMeThrough.skillOffer.never`, in the IDE's `options/other.xml`), never in the project.
+- **Banner:** whenever the Walk Me Through tool window is shown and the skill is missing, a warning banner at its top says the AI agent can't create walkthroughs there and offers **Install Skill**. It ignores both dismissals, which is how users get back after dismissing the offer; there is no reset action.
+- The shared cases in `../../tests/conformance/skill-install.json` keep this installer aligned with VS Code (`SkillInstallerTest`).
+
+## Optional author signing
+
+`buildPlugin` always produces the unsigned ZIP. `signPlugin` (and `verifyPluginSignature`, which checks its output) run only when all three of `CERTIFICATE_CHAIN`, `PRIVATE_KEY` and `PRIVATE_KEY_PASSWORD` are set, or the Gradle properties `certificateChain`, `privateKey` and `privateKeyPassword`. Otherwise they are skipped.
+
+Create the key and a self-signed certificate **outside this repository**, for example in a folder under your user profile (`*.pem`, `*.crt` and `*.key` under `packages/rider/` are gitignored only as a safety net):
+
+```powershell
+openssl genpkey -aes-256-cbc -algorithm RSA -out private_encrypted.pem -pkeyopt rsa_keygen_bits:4096
+openssl rsa -in private_encrypted.pem -out private.pem
+openssl req -key private.pem -new -x509 -days 365 -out chain.crt
+```
+
+Then, in the PowerShell session that builds the plugin (from `packages/rider`, with `RIDER_HOME` and `JAVA_HOME` set as above):
+
+```powershell
+$env:CERTIFICATE_CHAIN = Get-Content -Raw '<folder>\chain.crt'
+$env:PRIVATE_KEY = Get-Content -Raw '<folder>\private.pem'
+$env:PRIVATE_KEY_PASSWORD = '<the password you chose for private_encrypted.pem>'
+.\gradlew.bat signPlugin verifyPluginSignature
+Remove-Item Env:CERTIFICATE_CHAIN, Env:PRIVATE_KEY, Env:PRIVATE_KEY_PASSWORD
+```
+
+The signed ZIP is `build/distributions/walk-me-through-rider-<version>-signed.zip`. Keep the key and password private; JetBrains Marketplace also signs uploaded plugins itself.
+
 ## Launch links
 
 The plugin handles the launcher page's **Open in Rider** choice through the platform's `com.intellij.jbProtocolCommand` extension point (`LaunchProtocolCommand`, command `walkmethrough`):
@@ -85,13 +118,13 @@ jetbrains://rider/walkmethrough/open?e=<envelope>
 
 - **Prerequisite:** `jetbrains://` URLs are delivered by **JetBrains Toolbox** through its `jetbrainsd` handler (registered on Windows as `%LOCALAPPDATA%\JetBrains\Daemon\…\jetbrainsd.exe handleUri "%1"`). The plugin registers no OS URL scheme of its own. Without Toolbox, the browser has nothing to open.
 - **Matching:** the command plays the walkthrough only in an already-open project whose base path or content root equals or contains the envelope root. Paths are compared as canonical real paths, case-insensitively on Windows. If several projects match, it uses the last-focused one, or else the most recently opened one. Without a match, an application notification names the root and asks you to open that checkout and retry. The command never opens a project.
-- **Playback:** the plugin loads only `<root>/.walk-me-through/walkthroughs/<id>.json`, validates it with the normal artifact rules, and requires the IDs to match. It then replaces the active walkthrough exactly as **Open Walkthrough** would, reveals the tool window, and goes to the requested step (or shows the overview with a notice when the step is unknown). Invalid links, unsupported environments, and Linux/macOS hosts get notices and leave the session unchanged.
+- **Playback:** the plugin loads only `<root>/.walk-me-through/walkthroughs/<id>.json`, validates it with the normal artifact rules, and requires the IDs to match. It then replaces the active walkthrough exactly as **Open Walkthrough** would, reveals the tool window, and goes to the requested step (or shows the overview with a notice when the step is unknown). Invalid links, unsupported environments (remote, headless, SSH, WSL) and links published on another platform get notices and leave the session unchanged.
 - **Cold start (observed 2026-10-21 with Rider 2026.2.3.1 and Toolbox):** with Rider closed, the link starts Rider on the welcome/project-selection screen. The command runs about 0.6 s after startup, before any project is open, so it shows the open-and-retry notice there. jetbrainsd showed no prompt or IDE picker. With Rider running, the link reached the running instance unchanged, with one or two projects open.
 - **Log exposure:** the platform logs every external URI at INFO level, including the envelope and therefore the local project root. In `idea.log` it appears as `CommandLineProcessor - external URI request:`, and at cold start also as `AppStarter - args:`. The plugin does not log the envelope again.
 
 ## Packaging, prerequisites, and dependencies
 
-The local ZIP is `build/distributions/walk-me-through-rider-0.1.0-prototype.zip`. It is an owner-accepted integrated development build; explicit offline verification is pending. No Marketplace publication has occurred. Runtime acceptance targets native Windows/Rider 2026.2.3.1 only. Local desktop playback uses JVM code and bundled renderer assets, with no Node/model/companion or package download. Remote/headless hosts receive local-desktop setup guidance. Enable Rider's bundled **Web Browser (JCEF)** and run its bundled JBR; if the earlier unsupported-renderer test disabled `ide.browser.jcef.enabled`, restore it and relaunch.
+The ZIP is `build/distributions/walk-me-through-rider-<version>.zip` (0.2.0 now); it is the JetBrains Marketplace upload for plugin 35375 and contains `LICENSE`, `THIRD-PARTY-NOTICES.txt` and `lib/`. The vendor is `pvrobays`; the description and change notes come from `marketplace/description.html` and `marketplace/change-notes.html`. The integrated player is owner-accepted on native Windows Rider 2026.2.3.1; explicit offline verification is pending. Native Linux and macOS are accepted but not verified by the maintainers. Local desktop playback uses JVM code and bundled renderer assets, with no Node/model/companion or package download. Remote/headless hosts receive local-desktop setup guidance. Enable Rider's bundled **Web Browser (JCEF)** and run its bundled JBR; if the earlier unsupported-renderer test disabled `ide.browser.jcef.enabled`, restore it and relaunch.
 
 | Component | Pinned version | License / role |
 | --- | --- | --- |
@@ -107,7 +140,7 @@ The local ZIP is `build/distributions/walk-me-through-rider-0.1.0-prototype.zip`
 
 Rider/JBR/JCEF and their bundled dependencies retain JetBrains/upstream licenses in the installed distribution. The plugin uses those IDE APIs without redistributing Rider. Framework builds resolved for tests are recorded above. Maven dependencies include their upstream license metadata/notices.
 
-Observed Windows commands on 2026-10-21: `test buildPlugin verifyPlugin --console=plain` passed, 32 tests (23 unit/conformance/handler, 9 real solution-backed platform). Verifier 1.411 reports compatible against installed RD-262.10968.170 with no blocking problems; five deprecated and six experimental API usages remain advisory, including Kotlin-generated ToolWindowFactory interface bridges and ReadAction.compute. The exact-build descriptor restriction is intentional despite the tooling's forward-compatibility advisory. Reports: `build/reports/pluginVerifier/RD-262.10968.170/`.
+Observed Windows commands on 2026-10-21: `test buildPlugin verifyPlugin --console=plain` passed, 32 tests (23 unit/conformance/handler, 9 real solution-backed platform). Verifier 1.411 reports compatible against installed RD-262.10968.170 with no blocking problems; five deprecated and six experimental API usages remain advisory, including Kotlin-generated ToolWindowFactory interface bridges and ReadAction.compute. Since 0.2.0 the descriptor is open-ended from build 262, and `verifyPlugin` also checks the latest released Rider (`select`), downloaded into the Gradle cache on first use. Reports: `build/reports/pluginVerifier/RD-262.10968.170/`.
 
 ## Integrated owner acceptance
 

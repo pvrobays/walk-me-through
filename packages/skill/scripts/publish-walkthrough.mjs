@@ -1,4 +1,4 @@
-// GENERATED — Walk Me Through bundle 0.1.0. Source: packages/skill/src/cli.ts and packages/core/src/.
+// GENERATED — Walk Me Through bundle 0.2.0. Source: packages/skill/src/cli.ts and packages/core/src/.
 
 // packages/skill/src/cli.ts
 import { existsSync as existsSync2, readFileSync as readFileSync2, statSync as statSync2 } from "node:fs";
@@ -22,9 +22,9 @@ function checkEnvironment(host) {
   if (host.env.WSL_DISTRO_NAME || /microsoft/i.test(procVersion)) unsupported = "WSL";
   else if (host.env.container || host.exists("/.dockerenv") || host.exists("/run/.containerenv")) unsupported = "container";
   else if (host.env.SSH_CONNECTION || host.env.SSH_CLIENT || host.env.SSH_TTY) unsupported = "SSH";
-  else if (!["win32", "linux"].includes(host.platform)) unsupported = host.platform;
+  else if (!["win32", "linux", "darwin"].includes(host.platform)) unsupported = host.platform;
   const override = host.env.WALK_ME_THROUGH_ALLOW_UNSUPPORTED_ENVIRONMENT === "1";
-  if (unsupported && !override) return fail("ENVIRONMENT_UNSUPPORTED", `Unsupported execution environment: ${unsupported}. Native Windows and native Linux are supported, excluding WSL, SSH, and containers.`, "Run locally on native Windows or native Linux with Node 20+. Report this setup blocker instead of retrying unchanged input.");
+  if (unsupported && !override) return fail("ENVIRONMENT_UNSUPPORTED", `Unsupported execution environment: ${unsupported}. Walk Me Through needs a local desktop: native Windows, Linux or macOS, excluding WSL, SSH, and containers.`, "Run on a local desktop (native Windows, Linux or macOS) with Node 20+. Report this setup blocker instead of retrying unchanged input.");
   return { ok: true, value: { kind: unsupported ?? "local", platform: host.platform, unsupportedOverride: override }, errors: [] };
 }
 
@@ -658,7 +658,7 @@ function main() {
     cwd: process.cwd(),
     platform: process.platform,
     environment: environment.value,
-    bundleVersion: "0.1.0",
+    bundleVersion: "0.2.0",
     launcherBase
   });
   if (!result.ok) return { result: { ok: false, errors: result.errors }, exitCode: result.exitCode };

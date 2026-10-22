@@ -37,3 +37,15 @@ Contents:
 - `build`: artifact fields and an optional step, with the built envelope, its encoding, and the launcher, VS Code and Rider URLs. Builds cover title shortening (including surrogate pairs), title dropping, and `launch-link-too-long`.
 
 Each decode case declares its intended category in the generator, so a rule change that moves a case to a different category fails generation instead of silently rewriting the expectations. Decoders must match every result exactly, including problem order and messages. Duplicate JSON members resolve to the last value, as `JSON.parse` does. The Rider Kotlin decoder runs these cases without Node.
+
+## Skill install (`skill-install.json`)
+
+The same commands regenerate and check `skill-install.json`. The generator (`scripts/conformance-skill.ts`) builds each case in a temporary directory and runs the real VS Code installer (`packages/vscode/src/skill.ts`) with the canonical bundle from `packages/skill/`.
+
+Each case lists:
+
+- `setup`: directories, plain files, and bundle files copied `exact` or with a BOM and CRLF line endings (`bom-crlf`), relative to the case root;
+- `folders`: the open project folders;
+- `expected`: the resolved `targets` (root relative to the case root, and whether it holds `.git`), the `outcome` (`installed`, `already-installed` or `refused`), the `created` and `differing` files in bundle order, the user `message` with `{skillDir}` standing for the platform path, and the state of each skill file `after` the run (`bundle`, `setup` or `missing`).
+
+The cases cover a fresh install, a BOM and CRLF copy, customized and several differing files, a partial install, a worktree whose `.git` is a file, a nested folder, a folder outside Git, several folders in one repository, and two repositories. The installer is run on the first target. Rider's `SkillInstallerTest` replays the committed cases without Node.
