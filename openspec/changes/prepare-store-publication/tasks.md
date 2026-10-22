@@ -41,7 +41,7 @@
 
 ## 7. Integration and owner upload
 
-- [ ] 7.1 Run `npm run build`, `npm run typecheck`, `npm test`, `npm run test:extension`, `gradlew.bat test buildPlugin verifyPlugin` (and `signPlugin` if configured), `npm run package:vsix`, and `openspec validate prepare-store-publication --strict`. Push to `main`, and confirm that CI passes on Windows, Ubuntu and macOS and that the Pages redeploy serves the store links. Record versions, counts, package file lists and sizes in `verification.md`.
+- [x] 7.1 Run `npm run build`, `npm run typecheck`, `npm test`, `npm run test:extension`, `gradlew.bat test buildPlugin verifyPlugin` (and `signPlugin` if configured), `npm run package:vsix`, and `openspec validate prepare-store-publication --strict`. Push to `main`, and confirm that CI passes on Windows, Ubuntu and macOS and that the Pages redeploy serves the store links. Record versions, counts, package file lists and sizes in `verification.md`.
 - [ ] 7.2 Pause for the owner to upload `packages/vscode/walk-me-through-0.2.0.vsix` (Marketplace **Update**) and the 0.2.0 Rider ZIP (JetBrains **Upload Update** on plugin 35375). Verify with `vsce show pvrobays.walk-me-through` and the JetBrains plugin API that version 0.2.0 is listed (JetBrains may show it as pending review), and record the results.
 - [ ] 7.3 Owner acceptance from the stores on native Windows, with clean profiles or after uninstalling the local builds:
   - install both viewers from the Marketplaces;

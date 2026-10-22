@@ -115,3 +115,8 @@ The owner decided on 2026-10-22: **no author signing for 0.2.0**. The unsigned `
 - `npm run package:vsix`: `walk-me-through-0.2.0.vsix`, 14 files, 114,556 bytes (111.87 KB), no warnings; file list as in 5.1.
 - `gradlew.bat clean test buildPlugin verifyPlugin --console=plain`: BUILD SUCCESSFUL in 1m 44s; 47 tests, 0 failures; 2 of 2 verifications (installed RD-262.10968.170 and the latest released Rider, currently the same build) **Compatible**. `signPlugin` is not configured (5.5). ZIP `walk-me-through-rider-0.2.0.zip`, 726,589 bytes; contents as in 5.2.
 - `openspec validate prepare-store-publication --strict`: valid, after splitting the long banner requirement into "Missing-skill banner in the Walk Me Through view" and "Banner independent of dismissals".
+### 7.1 Push and hosted CI
+
+- Commit `e68e6cb` ("Prepare 0.2.0 store listings with in-IDE skill onboarding") pushed to `main`.
+- "Verify native platforms" run 39746344822: **success** on `ubuntu-latest`, `macos-latest` and `windows-latest` (Node 20). Each ran 96 Vitest tests, the bundle, icon, fixture and workflow checks, and 24 extension-host tests on VS Code 1.90.2 (macOS without Xvfb). This is the first recorded hosted macOS run; it is CI evidence only, not maintainer verification.
+- "Deploy launcher to Pages" run 39746344883: **success**. The live `https://pvrobays.github.io/walk-me-through/launcher.js` contains both store URLs, and the live page has the new platform wording and no "native Windows only" line. Both store pages answered HTTP 200 on 2026-10-22.
