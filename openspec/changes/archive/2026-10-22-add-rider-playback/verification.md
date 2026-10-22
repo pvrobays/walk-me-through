@@ -174,3 +174,7 @@ The response names successful Rider/VS Code playback but does not explicitly con
 ### Offline check deferred by owner
 
 The owner explicitly reports not performing the disconnected-network check and chooses not to run it now, considering it an edge case. Offline runtime verification is deferred; no offline pass is claimed and task 4.4 remains unchecked. The integrated player acceptance stands. Overall tracked progress remains 18/19; the owner asks to move the discussion to the agreed next work.
+
+## Archived with an open task (2026-10-22)
+
+On the owner's instruction this change was archived with its one open task unchecked. Later behavior and distribution are covered by `prepare-store-publication`.

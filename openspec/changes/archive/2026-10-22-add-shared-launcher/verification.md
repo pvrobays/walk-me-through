@@ -214,3 +214,7 @@ Owner report:
 - The link length was not reported.
 
 **Not tested** (owner: "did not test but I'm quite sure will work"): an older link after a newer publish, a wrong active VS Code window, Rider with no matching project, help and retry for an uninstalled viewer followed by re-clicking after install, and offline IDE playback. Automated tests cover the older-link, wrong-window, no-matching-project and step cases in both IDEs. The page cannot be tested against an uninstalled viewer or offline playback automatically. Task 7.3 therefore stays unchecked until the owner either runs these checks or explicitly accepts them as not verified.
+
+## Archived with an open task (2026-10-22)
+
+On the owner's instruction this change was archived with its one open task unchecked. Later behavior and distribution are covered by `prepare-store-publication`.

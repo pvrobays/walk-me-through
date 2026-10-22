@@ -120,3 +120,18 @@ The owner decided on 2026-10-22: **no author signing for 0.2.0**. The unsigned `
 - Commit `e68e6cb` ("Prepare 0.2.0 store listings with in-IDE skill onboarding") pushed to `main`.
 - "Verify native platforms" run 39746344822: **success** on `ubuntu-latest`, `macos-latest` and `windows-latest` (Node 20). Each ran 96 Vitest tests, the bundle, icon, fixture and workflow checks, and 24 extension-host tests on VS Code 1.90.2 (macOS without Xvfb). This is the first recorded hosted macOS run; it is CI evidence only, not maintainer verification.
 - "Deploy launcher to Pages" run 39746344883: **success**. The live `https://pvrobays.github.io/walk-me-through/launcher.js` contains both store URLs, and the live page has the new platform wording and no "native Windows only" line. Both store pages answered HTTP 200 on 2026-10-22.
+### 7.2 Owner uploads (2026-10-22)
+
+The owner reported uploading both packages.
+
+- **VS Code Marketplace:** `vsce show pvrobays.walk-me-through --json` listed only 0.1.0 for about six minutes while the Marketplace validated the upload. At 10:31 local time it listed **0.2.0** (last updated 2026-10-22 08:31:14 UTC) above 0.1.0. The listing shows categories **Education, AI** (the Marketplace did not show the declared `Other` alongside them) and all seven keywords as tags.
+- **JetBrains Marketplace:** `GET https://plugins.jetbrains.com/api/plugins/35375` returns the 0.2.0 description, vendor `pvrobays` with `https://github.com/pvrobays`, an icon, and `hasUnapprovedUpdate: true`; the plugin itself is still `approve: false`. `GET /api/updates/1200082` shows version **0.2.0**, file `walk-me-through-rider-0.2.0.zip`, the 0.2.0 change notes, `since: 262.0` with no `until` (`RIDER: 2026.2+`), `approve: false` (pending review). The stored size is 732,185 bytes, compared with 726,589 for the uploaded ZIP; the 5,596-byte difference is probably the signature JetBrains Marketplace adds.
+### 7.3 Owner acceptance from the stores (2026-10-22, partial)
+
+Owner report after installing from the stores:
+
+- In both VS Code and Rider the missing-skill offer appeared and installing the skill from it worked ("works great on both rider and vscode").
+- **Not for This Project** and **Don't Ask Again** worked ("the ignore button etc works").
+- The Walk Me Through side panel showed the missing-skill banner while the skill was not installed.
+
+These steps were not explicitly reported: restarting OpenCode and publishing from the store-installed skill, opening the link in both IDEs, and checking the listing pages for README/description, icon and change notes. The JetBrains update was still pending review on 2026-10-22. On the owner's instruction the change was archived with task 7.3 open. README and IMPLEMENTATION.md claim no Linux or macOS verification.

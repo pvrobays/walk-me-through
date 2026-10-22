@@ -38,6 +38,8 @@ None in `openspec/specs/`, which is still empty. Behavior this change supersedes
 
 The new capability specs state the replacement behavior explicitly. `add-shared-launcher` task 7.3 is still open; archive that change before this one so the archived specs apply in order.
 
+When the earlier changes are archived first, this change also carries MODIFIED deltas that update their main specs: `walkthrough-publishing` and `walkthrough-playback` (macOS accepted), `rider-playback` (Linux and macOS accepted), `ide-launch-handling` (no Rider Linux refusal) and `launcher-page` (store help targets).
+
 ## Impact
 
 - `packages/core/src/env.ts`, its tests and fixtures: `darwin` is accepted. The skill's `SKILL.md`, format reference, regenerated script and manifest change, and the bundle version moves to 0.2.0.
